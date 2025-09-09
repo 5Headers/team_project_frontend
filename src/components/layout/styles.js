@@ -1,5 +1,7 @@
 import { css } from "@emotion/react";
 
 export const container = css`
-    background-color: black;
+  width: 100vw;
+  height: 100vh;
+  background-color: #1F2B38;
 `;

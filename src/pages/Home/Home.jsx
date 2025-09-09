@@ -1,12 +1,9 @@
-import React from 'react'
+/** @jsxImportSource @emotion/react */
+import * as s from "./styles";
 
 function Home() {
   return (
-    <div>
-        <div>
-            
-        </div>
-    </div>
+   <></>
   )
 }
 
