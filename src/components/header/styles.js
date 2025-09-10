@@ -1,14 +1,15 @@
 import { css } from "@emotion/react";
 
 export const header = css`
-  height: 60px;
+  height: 70px;
   width: 100%;
   display: flex;
   box-sizing: border-box;
   justify-content: space-between;
   align-items: flex-start;
-  padding-left: 0px;
-  padding-right: 20px;
+  padding: 17px 15px;
+  padding-right: 30px;
+  border-bottom: 1px solid #5c5c5c;
 
   & > div {
     display: flex;
@@ -22,9 +23,9 @@ export const header = css`
       gap: 30px;
 
       & > li {
-        color: #bfd7ea;
-        cursor: pointer;
         list-style: none;
+        cursor: pointer;
+        z-index: 1;
 
         & > a {
           text-decoration: none;
@@ -36,19 +37,22 @@ export const header = css`
 `;
 
 export const login = css`
-  flex: content;
   background-color: white;
-  border-radius: 70%/50%;
-  //내일 할꺼 : 이거 width랑 height 조절해서 자연스럽게 직사각형 양쪽에 반원 그리기
+  color: black;
+  border-radius: 9999px;
+  padding: 10px 24px;
 `;
 
 export const signup = css`
   flex: content;
+  color: white;
   background-color: black;
-  border-radius: 70%/50%;
+  border-radius: 9999px;
+  padding: 10px 24px;
 `;
 
 export const headerIcon = css`
+  color: #bfd7ea;
   display: flex;
   background-color: #5c5c5c;
   justify-content: center;
