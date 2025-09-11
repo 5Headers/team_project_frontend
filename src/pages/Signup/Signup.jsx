@@ -1,6 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { useEffect, useState } from "react";
 import * as s from "./styles";
+import { useNavigate } from "react-router-dom";
 
 function Signup() {
   const [name, setName] = useState(""); // 이름 상태
@@ -9,6 +10,7 @@ function Signup() {
   const [confirmPassword, setConfirmPassword] = useState(""); // 비밀번호 확인
   const [email, setEmail] = useState(""); //이메일
   const [errorMessage, setErrorMessage] = useState({}); // 유효성 검사 에러 메시지 저장
+  const navigate = useNavigate(); // 페이지 이동 함수
 
   const signupOnClickHandler = () => {
     // 1. 모든 항목 입력 여부 확인
@@ -20,6 +22,11 @@ function Signup() {
       email.trim().length === 0
     ) {
       alert("모든 항목을 입력해 주세요.");
+      return;
+    }
+    // 비밀번호와 확인 비밀번호 일치 여부 확인
+    if (password !== confirmPassword) {
+      alert("비밀번호가 일치하지 않습니다.");
       return;
     }
 
@@ -46,13 +53,24 @@ function Signup() {
       return;
     }
 
-    // 여기서 회원가입 API 호출
     alert("가입이 완료되었습니다.");
+
+    navigate("/Signin");
   };
 
-  // 비밀번호 / 이메일 유효성 검사
+  //  아이디 / 비밀번호 / 이메일 유효성 검사
   useEffect(() => {
     const newErrorMessage = {};
+
+    // 아이디 정규식 (6자리 이상, 문자+숫자+특수문자 포함)
+    if (username.length > 0) {
+      const usernameRegex =
+        /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*?_]).{6,}$/;
+      if (!usernameRegex.test(username)) {
+        newErrorMessage.username =
+          "아이디는 최소 6자 이상이며, 영문자, 숫자, 특수문자를 포함해야 합니다.";
+      }
+    }
 
     // 비밀번호 정규식 검사 (8~16자, 영문자 + 숫자 + 특수문자 포함)
     if (password.length > 0) {
@@ -74,7 +92,7 @@ function Signup() {
 
     // 새로운 에러 메시지 상태 업데이트
     setErrorMessage(newErrorMessage);
-  }, [password, email]); // password 또는 email 값이 바뀔 때마다 실행됨
+  }, [username, password, email]);
 
   return (
     <div css={s.container}>
