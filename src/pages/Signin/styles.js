@@ -18,7 +18,7 @@ export const box = css`
 export const inputBox = css`
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 20px;
 
   input {
     width: 100%;
