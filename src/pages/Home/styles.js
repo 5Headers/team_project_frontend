@@ -1,16 +1,17 @@
 import { css } from "@emotion/react";
 
 export const container = css`
-  width: 100%; /* 100vw 대신 100% */
+  width: 100%;
   height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 10px; /* padding 포함해도 스크롤 없음 */
+  justify-content: center; /* 전체는 항상 가운데 */
+  padding: 20px;
   box-sizing: border-box;
-  gap: 30px;
-  overflow: hidden; /* 스크롤 완전히 제거 */
+  gap: 20px;
+  overflow: hidden;
+  position: relative;
 `;
 
 export const logo = css`
@@ -18,27 +19,21 @@ export const logo = css`
   user-select: none;
   color: white;
   font-size: 4vh;
-  margin: 0 0 20px 0; /* input과 약간 간격 */
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-`;
-
-export const chatBox = css`
-  width: 400px;
-  height: 300px;
-  margin-top: 20px; /* 화면 중앙보다 살짝 위쪽 */
-  border: 1px solid #1f2b38;
-  border-radius: 8px;
-  padding: 10px;
-  overflow-y: auto;
-  background-color: #1f2b38;
+  margin: 0 0 20px 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6), 0 0 6px white, 0 0 12px #1f5fbf;
+  font-style: oblique;
+  font-weight: 400;
 `;
 
 export const search = (inputMoved) => css`
   width: 100%;
   display: flex;
   justify-content: center;
-  margin-top: ${inputMoved ? "50px" : "0"}; /* 엔터 후 input 살짝 아래로 이동 */
-  transition: margin-top 0.5s ease;
+  transition: transform 0.5s ease;
+
+  transform: ${inputMoved
+    ? "translateY(-150px)"
+    : "translateY(0)"}; /* input만 위로 이동 */
 
   input {
     width: 80vh;
@@ -46,9 +41,9 @@ export const search = (inputMoved) => css`
     padding: 10px 50px;
     font-size: 18px;
     border: 1px solid #ccc;
-    box-sizing: border-box;
-    outline: none;
     border-radius: 9999px;
+    outline: none;
+    box-sizing: border-box;
     transition: border 0.5s ease, box-shadow 0.3s ease;
 
     &:focus {
@@ -60,7 +55,60 @@ export const search = (inputMoved) => css`
 
 export const chatBoxWrapper = css`
   width: 400px;
-  height: ${(props) => (props.showChatBox ? "300px" : "0")};
+  height: auto;
   transition: height 0.5s ease;
   overflow: hidden;
+`;
+
+export const chatBox = css`
+  width: 400px;
+  height: 300px;
+  border: 1px solid #1f2b38;
+  border-radius: 8px;
+  padding: 10px;
+  overflow-y: auto;
+  background-color: #1f2b38;
+`;
+
+export const overlay = (isSidebarOpen) => css`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1500;
+  pointer-events: ${isSidebarOpen ? "auto" : "none"};
+  transition: opacity 0.3s ease;
+  opacity: ${isSidebarOpen ? 1 : 0};
+`;
+
+export const sidebar = (isOpen) => css`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 100%;
+  background: #1f2b38;
+  color: white;
+  padding: 20px;
+  box-sizing: border-box;
+  transform: ${isOpen ? "translateX(0)" : "translateX(-100%)"};
+  transition: transform 0.3s ease;
+  z-index: 1000;
+`;
+
+export const closeIcon = css`
+  cursor: pointer;
+  font-size: 28px;
+  margin-bottom: 20px;
+`;
+
+export const menu = css`
+  list-style: none;
+  padding: 0;
+
+  li {
+    margin-bottom: 10px;
+  }
 `;

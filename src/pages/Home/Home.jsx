@@ -11,9 +11,9 @@ export default function Home() {
   const handleEnter = (e) => {
     if (e.key === "Enter") {
       e.currentTarget.value = "";
-      setShowLogo(false); // h2 사라짐
-      setShowChatBox(true); // chatBox 생성
-      setInputMoved(true); // input 살짝 아래로 이동
+      setShowLogo(false);
+      setShowChatBox(true);
+      setInputMoved(true);
 
       setTimeout(() => {
         chatBoxRef.current?.scrollTo({
@@ -28,16 +28,16 @@ export default function Home() {
     <div css={s.container}>
       {showLogo && <h2 css={s.logo}>컴퓨터 장비 추천</h2>}
 
-      <div css={s.chatBoxWrapper}>
-        {showChatBox && <div css={s.chatBox} ref={chatBoxRef}></div>}
-      </div>
-
       <div css={s.search(inputMoved)}>
         <input
           type="text"
           placeholder="원하시는 금액 및 사양을 적어주세요"
           onKeyDown={handleEnter}
         />
+      </div>
+
+      <div css={s.chatBoxWrapper}>
+        {showChatBox && <div css={s.chatBox} ref={chatBoxRef}></div>}
       </div>
     </div>
   );

@@ -6,8 +6,9 @@ function App() {
   return (
     <div>
       <Layout>
-       <Home/> 
-      </Layout> {/* 배경 레이아웃 */}
+        <Home />
+      </Layout>{" "}
+      {/* 배경 레이아웃 */}
     </div>
   );
 }
