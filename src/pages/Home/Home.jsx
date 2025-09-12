@@ -1,13 +1,44 @@
-import React from 'react'
+/** @jsxImportSource @emotion/react */
+import { useState, useRef } from "react";
+import * as s from "./styles";
 
-function Home() {
+export default function Home() {
+  const [showLogo, setShowLogo] = useState(true);
+  const [showChatBox, setShowChatBox] = useState(false);
+  const [inputMoved, setInputMoved] = useState(false);
+  const chatBoxRef = useRef(null);
+
+  const handleEnter = (e) => {
+    if (e.key === "Enter") {
+      e.currentTarget.value = "";
+      setShowLogo(false);
+      setShowChatBox(true);
+      setInputMoved(true);
+
+      setTimeout(() => {
+        chatBoxRef.current?.scrollTo({
+          top: chatBoxRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      }, 100);
+    }
+  };
+
   return (
-    <div>
-        <div>
-            
-        </div>
-    </div>
-  )
-}
+    <div css={s.container}>
+      {showLogo && <h2 css={s.logo}>컴퓨터 장비 추천</h2>}
 
-export default Home
+      <div css={s.search(inputMoved)}>
+        <input
+          type="text"
+          placeholder="원하시는 금액 및 사양을 적어주세요"
+          onKeyDown={handleEnter}
+        />
+      </div>
+
+      <div css={s.chatBoxWrapper}>
+        {showChatBox && <div css={s.chatBox} ref={chatBoxRef}></div>}
+      </div>
+    </div>
+  );
+}
