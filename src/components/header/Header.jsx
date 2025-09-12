@@ -6,6 +6,7 @@ import { DiAptana } from "react-icons/di";
 import * as s from "./styles";
 
 function Header() {
+  
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRotated, setIsRotated] = useState(false);

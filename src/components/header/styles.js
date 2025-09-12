@@ -52,7 +52,7 @@ export const header = css`
       align-items: center;
       gap: 30px;
 
-      & > li {
+      & > li,button {
         list-style: none;
         cursor: pointer;
         z-index: 1;
@@ -131,7 +131,7 @@ export const sidebar = (isOpen) => css`
         background-color: #121920ff;
         color: mintcream;
         text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6),
-          /* 글자 살짝 입체 */ 0 0 6px #3a8de6, 0 0 12px #1f5fbf;
+          0 0 6px #3a8de6, 0 0 12px #1f5fbf;
       }
     }
   }
@@ -199,8 +199,11 @@ export const headerSlidingMenu = (isOpen) => css`
       font-size: 14px;
       transition: background-color 0.2s ease; /* 여기 background → background-color */
 
-      &:hover {
-        background-color: #3a3a3a;
+      :hover {
+        background-color: #121920ff;
+        color: mintcream;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6),
+          0 0 6px #3a8de6, 0 0 12px #1f5fbf;
       }
     }
   }
