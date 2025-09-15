@@ -6,7 +6,7 @@ export const container = css`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* 전체는 항상 가운데 */
+  justify-content: center;
   padding: 20px;
   box-sizing: border-box;
   gap: 20px;
@@ -20,8 +20,7 @@ export const logo = css`
   color: white;
   font-size: 4vh;
   margin: 0 0 20px 0;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6), 0 0 6px white, 0 0 12px #1f5fbf;
-  font-style: oblique;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.6), 0 0 6px white, 0 0 12px #1f5fbf;
   font-weight: 400;
 `;
 
@@ -29,14 +28,14 @@ export const search = (inputMoved) => css`
   width: 100%;
   display: flex;
   justify-content: center;
-  transition: transform 0.5s ease;
-
-  transform: ${inputMoved
-    ? "translateY(-150px)"
-    : "translateY(0)"}; /* input만 위로 이동 */
+  transition: transform 0.5s ease, top 0.5s ease;
+  position: ${inputMoved ? "fixed" : "relative"};
+  top: ${inputMoved ? "120px" : "auto"};
+  z-index: 1000;
 
   input {
-    width: 80vh;
+    width: 90%;
+    max-width: 800px;
     height: 6vh;
     padding: 10px 50px;
     font-size: 18px;
@@ -54,61 +53,68 @@ export const search = (inputMoved) => css`
 `;
 
 export const chatBoxWrapper = css`
-  width: 400px;
-  height: auto;
-  transition: height 0.5s ease;
-  overflow: hidden;
+  width: 100%;
+  max-width: 900px;
+  margin-top: 60px;
+  display: flex;
+  justify-content: center;
+  position: relative; /* 하트 위치 기준 */
 `;
 
 export const chatBox = css`
-  width: 400px;
-  height: 300px;
+  width: 100%;
   border: 1px solid #1f2b38;
   border-radius: 8px;
   padding: 10px;
-  overflow-y: auto;
   background-color: #1f2b38;
-`;
-
-export const overlay = (isSidebarOpen) => css`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1500;
-  pointer-events: ${isSidebarOpen ? "auto" : "none"};
-  transition: opacity 0.3s ease;
-  opacity: ${isSidebarOpen ? 1 : 0};
-`;
-
-export const sidebar = (isOpen) => css`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 250px;
-  height: 100%;
-  background: #1f2b38;
-  color: white;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
   box-sizing: border-box;
-  transform: ${isOpen ? "translateX(0)" : "translateX(-100%)"};
-  transition: transform 0.3s ease;
-  z-index: 1000;
-`;
+  max-height: 60vh;
+  overflow-y: auto;
+  position: relative;
 
-export const closeIcon = css`
-  cursor: pointer;
-  font-size: 28px;
-  margin-bottom: 20px;
-`;
-
-export const menu = css`
-  list-style: none;
-  padding: 0;
-
-  li {
-    margin-bottom: 10px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 `;
+
+export const userMessage = css`
+  position: relative;
+  background-color: #3a8de6ff;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 16px;
+  margin: 6px 0;
+  max-width: 85%;
+  align-self: flex-end;
+  word-break: break-word;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+`;
+
+export const gptMessage = css`
+  background-color: #2b3a4d;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 16px;
+  margin: 6px 0;
+  max-width: 85%;
+  align-self: flex-start;
+  word-break: break-word;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+`;
+
+export const heartIconBottom = css`
+  position: absolute;
+  right: 0;          /* chatBox 오른쪽 끝 */
+  bottom: -20px;     /* chatBox 아래에서 20px 아래 */
+  font-size: 24px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+`;
+
+//내일 오면 input overlay 설정
