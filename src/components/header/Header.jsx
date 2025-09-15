@@ -6,10 +6,10 @@ import { DiAptana } from "react-icons/di";
 import * as s from "./styles";
 
 function Header() {
-  
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRotated, setIsRotated] = useState(false);
+  const [activeSidebarItem, setActiveSidebarItem] = useState(null);
 
   // 사이드바 토글
   const toggleSidebar = () => {
@@ -36,6 +36,11 @@ function Header() {
     }
   };
 
+  const handleSidebarItemClick = (index) => {
+    setActiveSidebarItem(index); // 선택된 항목 고정
+    setIsSidebarOpen(false); // 사이드바 자동 닫기
+  };
+
   return (
     <div css={s.container} onClick={closeMenu}>
       {/* 좌측 상단 FiMenu */}
@@ -52,10 +57,7 @@ function Header() {
             <li css={s.login}>로그인</li>
             <li css={s.signup}>회원가입</li>
             <li>
-              <DiAptana
-                css={s.headerIcon(isRotated)}
-                onClick={toggleMenu}
-              />
+              <DiAptana css={s.headerIcon(isRotated)} onClick={toggleMenu} />
             </li>
           </ul>
         </div>
@@ -81,9 +83,18 @@ function Header() {
           <GoTriangleLeft />
         </div>
         <ul css={s.Menusidebar}>
-          <li>내 장비 목록</li>
-          <li>커뮤니티</li>
-          <li>프로필 설정</li>
+          <li
+            onClick={() => handleSidebarItemClick(0)}
+            css={s.sidebarItem(0 === activeSidebarItem)}
+          >
+            장비 추천
+          </li>
+          <li
+            onClick={() => handleSidebarItemClick(2)}
+            css={s.sidebarItem(2 === activeSidebarItem)}
+          >
+            찜 목록
+          </li>
         </ul>
       </div>
     </div>
