@@ -1,4 +1,3 @@
-
 import { css } from "styled-components";
 
 export const container = css`
@@ -15,6 +14,7 @@ export const container = css`
 /* 탭 박스 - 컨텐트 박스와 폭 동일하게 중앙 정렬 */
 export const tabBox = css`
   width: 100%;
+  max-width: 550px;
   display: flex;
   justify-content: space-between;
   margin: 0; /* 위쪽 마진 없고 아래쪽 조금 */
@@ -53,8 +53,8 @@ export const activeTab = css`
 /* 컨텐츠 박스 */
 export const contentBox = css`
   width: 100%;
-  max-width: 450px;
-  min-height: 300px;
+  max-width: 550px;
+  min-height: 500px;
   margin: 0 auto;
   padding: 30px 20px;
   border: 1px solid #ccc;
@@ -62,7 +62,6 @@ export const contentBox = css`
   background: #fff;
   box-sizing: border-box;
   text-align: left;
-
   display: flex;
   flex-direction: column;
   gap: 20px; /* 요소 간 간격 */
@@ -99,7 +98,7 @@ export const submitButton = css`
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  
+  margin-bottom: 100px;
 
   &:hover {
     background: black;

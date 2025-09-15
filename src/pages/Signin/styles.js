@@ -92,40 +92,46 @@ export const LinkBox = css`
 export const oauthBtnBox = css`
   display: flex;
   flex-direction: column;
+  align-items: center; /* p랑 아이콘들 모두 가운데 정렬 */
   gap: 10px;
 
-  & > a {
+  .title {
+    font-size: 12px;
+    text-align: center;
+    color: #666;
+  }
+  .icons {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 45px;
+  }
+
+  & > .icons > a {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%; /* 원형 */
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    width: 100%;
-    padding: 12px;
-    box-sizing: border-box;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
     background-color: #fff;
-    font-size: 14px;
-    font-weight: 500;
-    color: #333;
+    border: 1px solid #e0e0e0;
     cursor: pointer;
-    transition: border-color 0.2s ease, background-color 0.2s ease,
-      color 0.2s ease;
+    transition: all 0.2s ease;
 
     &:hover {
       background-color: #f8f9fa;
-      color: #000;
     }
   }
 
   /* 소셜별 hover */
-  & > a.google:hover {
-    border-color: #4285f4; /* 구글 블루 */
+  & > .icons > a.google:hover {
+    border-color: #4285f4;
   }
-  & > a.naver:hover {
-    border-color: #03c75a; /* 네이버 그린 */
+  & > .icons > a.naver:hover {
+    border-color: #03c75a;
   }
-  & > a.kakao:hover {
-    border-color: #fee500; /* 카카오 옐로우 */
+  & > .icons > a.kakao:hover {
+    border-color: #fee500;
   }
 `;
