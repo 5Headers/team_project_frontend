@@ -66,3 +66,5 @@ export const oauth2MergeRequest = async (data) => {
     return error.response;
   }
 };
+
+//아이디(username)중복 확인

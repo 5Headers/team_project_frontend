@@ -58,7 +58,7 @@ function Signup() {
       .then((response) => {
         if (response.data.status === "success") {
           alert(response.data.message);
-          navigate("/Signin"); // 로그인 페이지 이동
+          navigate("/signin"); // 로그인 페이지 이동
         } else if (response.data.status === "failed") {
           alert(response.data.message);
         }

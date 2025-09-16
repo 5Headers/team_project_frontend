@@ -46,7 +46,7 @@ function Signin() {
         if (response.data.status === "success") {
           alert(response.data.message); // 성공 메시지 출력
           localStorage.setItem("accessToken", response.data.data); // 토큰 저장
-          window.location.href = "/"; // 메인 페이지로 이동 (새로고침)
+          navigate("/");
         }
         // 로그인 실패
         else if (response.data.status === "failed") {

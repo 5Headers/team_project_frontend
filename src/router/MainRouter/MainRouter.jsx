@@ -1,5 +1,6 @@
-import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import Home from "../../pages/Home/Home";
+import AuthRouter from "../AuthRouter/AuthRouter"; // 기존 AuthRouter 포함
 
 function MainRouter() {
   return (
@@ -11,3 +12,4 @@ function MainRouter() {
 }
 
 export default MainRouter;
+

@@ -6,6 +6,9 @@ export const container = css`
   align-items: center;
   justify-content: center;
   padding: 20px;
+  background-color: white;
+  width: 100%;
+  height: 100%;
 `;
 
 export const box = css`
@@ -13,6 +16,7 @@ export const box = css`
   display: flex;
   flex-direction: column;
   gap: 20px;
+  background-color: white;
 `;
 
 export const inputBox = css`

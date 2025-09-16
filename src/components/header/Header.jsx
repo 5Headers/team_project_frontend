@@ -4,12 +4,13 @@ import { FiMenu } from "react-icons/fi";
 import { GoTriangleLeft } from "react-icons/go";
 import { DiAptana } from "react-icons/di";
 import * as s from "./styles";
+import { useNavigate } from "react-router-dom";
 
 function Header() {
-  
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRotated, setIsRotated] = useState(false);
+  const navigate = useNavigate();
 
   // 사이드바 토글
   const toggleSidebar = () => {
@@ -36,6 +37,17 @@ function Header() {
     }
   };
 
+  // 페이지 이동 함수
+  const goLogin = (e) => {
+    e.stopPropagation();
+    navigate("/signin"); // 로그인 페이지 이동
+  };
+
+  const goSignup = (e) => {
+    e.stopPropagation();
+    navigate("/signup"); // 회원가입 페이지 이동
+  };
+
   return (
     <div css={s.container} onClick={closeMenu}>
       {/* 좌측 상단 FiMenu */}
@@ -49,13 +61,14 @@ function Header() {
         </div>
         <div>
           <ul>
-            <li css={s.login}>로그인</li>
-            <li css={s.signup}>회원가입</li>
+            <li css={s.login} onClick={goLogin}>
+              로그인
+            </li>
+            <li css={s.signup} onClick={goSignup}>
+              회원가입
+            </li>
             <li>
-              <DiAptana
-                css={s.headerIcon(isRotated)}
-                onClick={toggleMenu}
-              />
+              <DiAptana css={s.headerIcon(isRotated)} onClick={toggleMenu} />
             </li>
           </ul>
         </div>
