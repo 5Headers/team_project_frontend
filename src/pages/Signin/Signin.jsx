@@ -5,6 +5,8 @@ import { SiNaver } from "react-icons/si"; // 네이버
 import { RiKakaoTalkFill } from "react-icons/ri"; // 카카오
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import AuthInput from "../../components/AuthInput/AuthInput";
+import { signinRequest } from "../../apis/auth/authApi";
 
 function Signin() {
   const [username, setUsername] = useState(
@@ -34,9 +36,30 @@ function Signin() {
       return;
     }
 
-    // 3. 로그인 성공 시 이동
-    alert("로그인 성공!");
-    navigate("/"); // 홈 화면 이동
+    // 3. 로그인 API 요청 보내기
+    signinRequest({
+      username: username,
+      password: password,
+    })
+      .then((response) => {
+        // 로그인 성공
+        if (response.data.status === "success") {
+          alert(response.data.message); // 성공 메시지 출력
+          localStorage.setItem("accessToken", response.data.data); // 토큰 저장
+          window.location.href = "/"; // 메인 페이지로 이동 (새로고침)
+        }
+        // 로그인 실패
+        else if (response.data.status === "failed") {
+          alert(response.data.message); // 실패 메시지 출력
+        }
+      })
+      .catch((error) => {
+        console.error("로그인 요청 중 오류 발생:", error);
+        alert("로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      });
+
+    console.log("아이디:", username);
+    console.log("비밀번호:", password);
   };
 
   // 아이디 / 비밀번호 유효성 검사
@@ -45,8 +68,7 @@ function Signin() {
 
     // 아이디 정규식 (6자리 이상, 문자+숫자+특수문자 포함)
     if (username.length > 0) {
-      const usernameRegex =
-        /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*?_]).{6,}$/;
+      const usernameRegex = /^(?=.*[a-zA-Z])(?=.*[0-9]).{6,}$/;
       if (!usernameRegex.test(username)) {
         newErrorMessage.username = "아이디 형식에 맞지 않습니다.";
       }
@@ -69,23 +91,17 @@ function Signin() {
       <h2>로그인</h2>
       <div css={s.box}>
         <div css={s.inputBox}>
-          <input
-            type="text"
-            placeholder="아이디"
-            value={username}
-            onChange={(e) => {
-              setUsername(e.target.value);
-              localStorage.setItem("username", e.target.value);
-            }}
+          <AuthInput
+            type={"text"}
+            placeholder={"아이디"}
+            state={username}
+            setState={setUsername}
           />
-          <input
-            type="password"
-            placeholder="비밀번호"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              localStorage.setItem("password", e.target.value);
-            }}
+          <AuthInput
+            type={"password"}
+            placeholder={"비밀번호"}
+            state={password}
+            setState={setPassword}
           />
         </div>
         <div css={s.keepLoginBox}>
@@ -103,18 +119,18 @@ function Signin() {
           <a href="/signup">회원가입</a>
         </div>
         <div css={s.oauthBtnBox}>
-          <a className="google">
-            <FcGoogle size={23} />
-            <span>구글 로그인</span>
-          </a>
-          <a className="naver">
-            <SiNaver size={18} color="#03C75A" />
-            <span>네이버 로그인</span>
-          </a>
-          <a className="kakao">
-            <RiKakaoTalkFill size={20} color="#FEE500" />
-            <span>카카오 로그인</span>
-          </a>
+          <p className="title">소셜 로그인</p>
+          <div className="icons">
+            <a className="google">
+              <FcGoogle size={28} />
+            </a>
+            <a className="naver">
+              <SiNaver size={28} color="#03C75A" />
+            </a>
+            <a className="kakao">
+              <RiKakaoTalkFill size={28} color="#Fee500" />
+            </a>
+          </div>
         </div>
       </div>
     </div>

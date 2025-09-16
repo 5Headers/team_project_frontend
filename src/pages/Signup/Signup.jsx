@@ -2,20 +2,21 @@
 import { useEffect, useState } from "react";
 import * as s from "./styles";
 import { useNavigate } from "react-router-dom";
+import AuthInput from "../../components/AuthInput/AuthInput";
+import { signupRequest } from "../../apis/auth/authApi"; // ✅ signupRequest import
 
 function Signup() {
-  const [name, setName] = useState(""); // 이름 상태
-  const [username, setUsername] = useState(""); //아이디
-  const [password, setPassword] = useState(""); //비밀번호
-  const [confirmPassword, setConfirmPassword] = useState(""); // 비밀번호 확인
-  const [email, setEmail] = useState(""); //이메일
-  const [errorMessage, setErrorMessage] = useState({}); // 유효성 검사 에러 메시지 저장
-  const navigate = useNavigate(); // 페이지 이동 함수
+  // const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [errorMessage, setErrorMessage] = useState({});
+  const navigate = useNavigate();
 
   const signupOnClickHandler = () => {
     // 1. 모든 항목 입력 여부 확인
     if (
-      name.trim().length === 0 ||
       username.trim().length === 0 ||
       password.trim().length === 0 ||
       confirmPassword.trim().length === 0 ||
@@ -24,6 +25,7 @@ function Signup() {
       alert("모든 항목을 입력해 주세요.");
       return;
     }
+
     // 비밀번호와 확인 비밀번호 일치 여부 확인
     if (password !== confirmPassword) {
       alert("비밀번호가 일치하지 않습니다.");
@@ -40,49 +42,59 @@ function Signup() {
       return;
     }
 
-    // 3. 비밀번호 확인
-    if (password !== confirmPassword) {
-      alert("비밀번호가 일치하지 않습니다.");
-      return;
-    }
-
-    // 4. 약관 동의 확인 (체크박스)
+    // 3. 약관 동의 확인
     const agree = document.querySelector('input[type="checkbox"]').checked;
     if (!agree) {
       alert("약관에 동의해야 합니다.");
       return;
     }
 
-    alert("가입이 완료되었습니다.");
+    // 4. 회원가입 API 요청
+    signupRequest({
+      username,
+      password,
+      email,
+    })
+      .then((response) => {
+        if (response.data.status === "success") {
+          alert(response.data.message);
+          navigate("/Signin"); // 로그인 페이지 이동
+        } else if (response.data.status === "failed") {
+          alert(response.data.message);
+        }
+      })
+      .catch((error) => {
+        console.error("회원가입 요청 중 오류:", error);
+        alert("문제가 발생했습니다. 다시 시도해주세요.");
+      });
 
-    navigate("/Signin");
+    console.log("아이디:", username);
+    console.log("비밀번호:", password);
+    console.log("비밀번호 확인:", confirmPassword);
+    console.log("이메일:", email);
   };
 
   //  아이디 / 비밀번호 / 이메일 유효성 검사
   useEffect(() => {
     const newErrorMessage = {};
 
-    // 아이디 정규식 (6자리 이상, 문자+숫자+특수문자 포함)
     if (username.length > 0) {
-      const usernameRegex =
-        /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*?_]).{6,}$/;
+      const usernameRegex = /^(?=.*[a-zA-Z])(?=.*[0-9]).{6,}$/;
       if (!usernameRegex.test(username)) {
         newErrorMessage.username =
-          "아이디는 최소 6자 이상이며, 영문자, 숫자, 특수문자를 포함해야 합니다.";
+          "아이디는 최소 6자 이상이며, 영문자와 숫자를 포함해야 합니다.";
       }
     }
 
-    // 비밀번호 정규식 검사 (8~16자, 영문자 + 숫자 + 특수문자 포함)
     if (password.length > 0) {
       const passwordRegex =
         /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*?_]).{8,16}$/;
       if (!passwordRegex.test(password)) {
         newErrorMessage.password =
-          "비밀번호는 최소 8자에서 16자까지, 영문자, 숫자 및 특수 문자를 포함해야 합니다.";
+          "비밀번호는 8~16자, 영문자, 숫자, 특수문자를 포함해야 합니다.";
       }
     }
 
-    // 이메일 정규식 검사 (올바른 이메일 형식인지 확인)
     if (email.length > 0) {
       const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i;
       if (!emailRegex.test(email)) {
@@ -90,7 +102,6 @@ function Signup() {
       }
     }
 
-    // 새로운 에러 메시지 상태 업데이트
     setErrorMessage(newErrorMessage);
   }, [username, password, email]);
 
@@ -99,38 +110,38 @@ function Signup() {
       <h2>회원가입</h2>
       <div css={s.box}>
         <div css={s.inputBox}>
-          <input
+          {/* <AuthInput
             type="text"
             placeholder="이름"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+            state={name}
+            setState={setName}
+          /> */}
           <div css={s.idWrapper}>
-            <input
+            <AuthInput
               type="text"
               placeholder="아이디(6자 이상)"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              state={username}
+              setState={setUsername}
             />
             <button>중복 확인</button>
           </div>
-          <input
+          <AuthInput
             type="password"
             placeholder="비밀번호(문자 숫자 특수문자 포함 8자이상)"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            state={password}
+            setState={setPassword}
           />
-          <input
+          <AuthInput
             type="password"
             placeholder="비밀번호 확인"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            state={confirmPassword}
+            setState={setConfirmPassword}
           />
-          <input
+          <AuthInput
             type="email"
             placeholder="이메일"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            state={email}
+            setState={setEmail}
           />
         </div>
 
