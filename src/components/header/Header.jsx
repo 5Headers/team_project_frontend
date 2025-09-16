@@ -4,12 +4,14 @@ import { FiMenu } from "react-icons/fi";
 import { GoTriangleLeft } from "react-icons/go";
 import { DiAptana } from "react-icons/di";
 import * as s from "./styles";
+import { Navigate } from "react-router-dom";
 
 function Header() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRotated, setIsRotated] = useState(false);
   const [activeSidebarItem, setActiveSidebarItem] = useState(null);
+  const navigator = Navigate();
 
   // 사이드바 토글
   const toggleSidebar = () => {

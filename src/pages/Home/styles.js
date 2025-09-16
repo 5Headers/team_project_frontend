@@ -31,7 +31,7 @@ export const search = (inputMoved) => css`
   transition: transform 0.5s ease, top 0.5s ease;
   position: ${inputMoved ? "fixed" : "relative"};
   top: ${inputMoved ? "120px" : "auto"};
-  z-index: 1000;
+  z-index: 900;
 
   input {
     width: 90%;
@@ -111,7 +111,7 @@ export const gptMessage = css`
 export const heartIconBottom = css`
   position: absolute;
   right: 0;          /* chatBox 오른쪽 끝 */
-  bottom: -20px;     /* chatBox 아래에서 20px 아래 */
+  bottom: -40px;     /* chatBox 아래에서 20px 아래 */
   font-size: 24px;
   cursor: pointer;
   transition: color 0.2s ease;

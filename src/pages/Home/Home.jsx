@@ -1,7 +1,8 @@
 /** @jsxImportSource @emotion/react */
 import { useState, useRef, useEffect } from "react";
-import { FiHeart } from "react-icons/fi";
 import * as s from "./styles";
+import { FaHeart } from "react-icons/fa";
+import { Navigate } from "react-router-dom";
 
 export default function Home() {
   const [showLogo, setShowLogo] = useState(true);
@@ -82,7 +83,7 @@ export default function Home() {
 
         {/* chatBox 오른쪽 아래 독립 하트 */}
         {inputMoved && (
-          <FiHeart
+          <FaHeart
             css={s.heartIconBottom}
             onClick={() => setLiked(!liked)}
             color={liked ? "red" : "lightgray"}
