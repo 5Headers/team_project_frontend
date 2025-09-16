@@ -4,12 +4,15 @@ import { FiMenu } from "react-icons/fi";
 import { GoTriangleLeft } from "react-icons/go";
 import { DiAptana } from "react-icons/di";
 import * as s from "./styles";
+import { useNavigate } from "react-router-dom";
 
 function Header() {
-  
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRotated, setIsRotated] = useState(false);
+  const [activeSidebarItem, setActiveSidebarItem] = useState(null);
+
+  const navigate = useNavigate();
 
   // 사이드바 토글
   const toggleSidebar = () => {
@@ -28,11 +31,24 @@ function Header() {
     setIsRotated(!isRotated);
   };
 
-  // Header의 다른 영역 클릭 시 슬라이드 메뉴 자동 닫힘
+  // Header 다른 영역 클릭 시 슬라이드 메뉴 자동 닫힘
   const closeMenu = () => {
     if (isMenuOpen) {
       setIsMenuOpen(false);
       setIsRotated(false);
+    }
+  };
+
+  // 사이드바 항목 클릭 → 페이지 이동
+  const handleSidebarItemClick = (index) => {
+    setActiveSidebarItem(index); // 선택된 항목 고정
+    setIsSidebarOpen(false); // 사이드바 자동 닫기
+
+    // index에 따라 라우팅
+    if (index === 0) {
+      navigate("/"); // Home
+    } else if (index === 2) {
+      navigate("/picklist"); // PickList
     }
   };
 
@@ -52,10 +68,7 @@ function Header() {
             <li css={s.login}>로그인</li>
             <li css={s.signup}>회원가입</li>
             <li>
-              <DiAptana
-                css={s.headerIcon(isRotated)}
-                onClick={toggleMenu}
-              />
+              <DiAptana css={s.headerIcon(isRotated)} onClick={toggleMenu} />
             </li>
           </ul>
         </div>
@@ -81,9 +94,29 @@ function Header() {
           <GoTriangleLeft />
         </div>
         <ul css={s.Menusidebar}>
-          <li>내 장비 목록</li>
-          <li>커뮤니티</li>
-          <li>프로필 설정</li>
+          <li
+            onClick={() => handleSidebarItemClick(0)}
+            css={s.sidebarItem(0 === activeSidebarItem)}
+          >
+            장비 추천
+          </li>
+          <li
+            onClick={() => handleSidebarItemClick(2)}
+            css={s.sidebarItem(2 === activeSidebarItem)}
+          >
+            찜 목록
+          </li>
+          {/* 새로운 대화 메뉴 추가 */}
+          <li
+            onClick={() => {
+              setActiveSidebarItem(3); // 선택 표시
+              setIsSidebarOpen(false); // 사이드바 닫기
+              window.location.reload(); // Home 새로고침
+            }}
+            css={s.sidebarItem(3 === activeSidebarItem)}
+          >
+            새로운 대화
+          </li>
         </ul>
       </div>
     </div>

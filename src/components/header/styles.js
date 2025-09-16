@@ -1,3 +1,4 @@
+
 import { css } from "@emotion/react";
 
 export const container = css`
@@ -110,7 +111,7 @@ export const sidebar = (isOpen) => css`
   transform: ${isOpen ? "translateX(0)" : "translateX(-100%)"};
   transition: transform 0.3s ease;
   z-index: 1000;
-  padding-top: 150px;
+  padding-top: 40px;
   text-align: center;
   align-items: center;
   line-height: 50px;
@@ -118,7 +119,6 @@ export const sidebar = (isOpen) => css`
   ul {
     list-style: none;
     padding: 0;
-    margin-top: 50%;
     font-size: larger;
     border-top: 1px solid #405d7cff;
     border-bottom: 1px solid #405d7cff;
@@ -136,6 +136,8 @@ export const sidebar = (isOpen) => css`
     }
   }
 `;
+
+
 
 // GoTriangleLeft 위치 유지 + 자연스럽게 나타나고 사라짐
 export const sidebarToggle = (isOpen) => css`
@@ -209,3 +211,24 @@ export const headerSlidingMenu = (isOpen) => css`
   }
 `;
 
+export const sidebarItem = (isActive) => css`
+  width: 250px;
+  height: 50px;
+  cursor: pointer;
+  background-color: ${isActive ? "#121920ff" : "transparent"};
+  color: ${isActive ? "mintcream" : "white"};
+  text-shadow: ${isActive
+    ? "1px 1px 2px rgba(0, 0, 0, 0.6), 0 0 6px #3a8de6, 0 0 12px #1f5fbf"
+    : "none"};
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  :hover {
+    background-color: #121920ff;
+    color: mintcream;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6),
+      0 0 6px #3a8de6, 0 0 12px #1f5fbf;
+  }
+`;
