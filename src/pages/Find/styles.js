@@ -14,7 +14,7 @@ export const container = css`
 /* 탭 박스 - 컨텐트 박스와 폭 동일하게 중앙 정렬 */
 export const tabBox = css`
   width: 100%;
-  max-width: 600px;
+  max-width: 550px;
   display: flex;
   justify-content: space-between;
   margin: 0; /* 위쪽 마진 없고 아래쪽 조금 */
@@ -23,6 +23,7 @@ export const tabBox = css`
 
 /* 탭 버튼 */
 export const tabButton = css`
+  width: 100%;
   flex: 1;
   padding: 12px 0;
   cursor: pointer;
@@ -52,7 +53,7 @@ export const activeTab = css`
 /* 컨텐츠 박스 */
 export const contentBox = css`
   width: 100%;
-  max-width: 600px;
+  max-width: 550px;
   min-height: 500px;
   margin: 0 auto;
   padding: 30px 20px;
@@ -61,7 +62,6 @@ export const contentBox = css`
   background: #fff;
   box-sizing: border-box;
   text-align: left;
-
   display: flex;
   flex-direction: column;
   gap: 20px; /* 요소 간 간격 */
@@ -72,7 +72,6 @@ export const inputBox = css`
   display: flex;
   flex-direction: column;
   gap: 20px; /* input 사이 간격 */
-  height: 400px;
 
   input {
     width: 100%;
@@ -92,7 +91,6 @@ export const inputBox = css`
 
 /* 제출 버튼 */
 export const submitButton = css`
-  margin-top: auto;
   padding: 14px 0;
   width: 100%;
   background: #333;
@@ -100,6 +98,7 @@ export const submitButton = css`
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  margin-bottom: 100px;
 
   &:hover {
     background: black;
