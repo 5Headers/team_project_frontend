@@ -11,7 +11,7 @@ function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRotated, setIsRotated] = useState(false);
   const [activeSidebarItem, setActiveSidebarItem] = useState(null);
-  const navigator = Navigate();
+
 
   // 사이드바 토글
   const toggleSidebar = () => {
