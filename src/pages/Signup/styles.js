@@ -5,7 +5,7 @@ export const container = css`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: 20px;
 `;
 
 export const box = css`
@@ -13,12 +13,13 @@ export const box = css`
   display: flex;
   flex-direction: column;
   gap: 20px;
+  margin-top: 120px;
 `;
 
 export const inputBox = css`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 35px;
 
   input {
     width: 100%;

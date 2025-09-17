@@ -17,7 +17,7 @@ export const tabBox = css`
   max-width: 550px;
   display: flex;
   justify-content: space-between;
-  margin: 0; /* 위쪽 마진 없고 아래쪽 조금 */
+  margin-top: 10px;
   border-bottom: 1px solid #ccc;
 `;
 
@@ -71,7 +71,8 @@ export const contentBox = css`
 export const inputBox = css`
   display: flex;
   flex-direction: column;
-  gap: 20px; /* input 사이 간격 */
+  gap: 35px; /* input 사이 간격 */
+  margin-top: 30px;
 
   input {
     width: 100%;
@@ -98,7 +99,7 @@ export const submitButton = css`
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  margin-bottom: 100px;
+  
 
   &:hover {
     background: black;

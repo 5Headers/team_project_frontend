@@ -6,6 +6,7 @@ export const container = css`
   align-items: center;
   justify-content: center;
   padding: 20px;
+  
 `;
 
 export const box = css`
@@ -13,12 +14,13 @@ export const box = css`
   display: flex;
   flex-direction: column;
   gap: 20px;
+  margin-top: 120px;
 `;
 
 export const inputBox = css`
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 35px;
 
   input {
     width: 100%;
@@ -68,6 +70,7 @@ export const signinBtnBox = css`
 
   & > button:hover {
     opacity: 0.9;
+    background-color: black;
   }
 `;
 
@@ -77,7 +80,7 @@ export const LinkBox = css`
 
   a {
     font-size: 14px;
-    color: #333;
+    color: black;
     text-decoration: none;
     transition: color 0.2s ease;
     padding: 10px;
@@ -104,12 +107,12 @@ export const oauthBtnBox = css`
     margin-top: 10px;
     display: flex;
     justify-content: center;
-    gap: 45px;
+    gap: 75px;
   }
 
   & > .icons > a {
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%; /* 원형 */
     display: flex;
     align-items: center;
@@ -121,17 +124,21 @@ export const oauthBtnBox = css`
 
     &:hover {
       background-color: #f8f9fa;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* 그림자 추가 */
     }
   }
 
   /* 소셜별 hover */
   & > .icons > a.google:hover {
     border-color: #4285f4;
+    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.8);
   }
   & > .icons > a.naver:hover {
     border-color: #03c75a;
+    box-shadow: 0 4px 12px rgba(3, 199, 90, 0.8);
   }
   & > .icons > a.kakao:hover {
     border-color: #fee500;
+    box-shadow: 0 4px 12px rgba(254, 229, 0, 0.8);
   }
 `;

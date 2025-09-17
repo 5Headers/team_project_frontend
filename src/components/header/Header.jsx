@@ -52,6 +52,20 @@ function Header() {
     }
   };
 
+  //로그인 항목 클릭 -> 페이지 이동
+  const SigninClick = () => {
+    navigate("/auth/signin");
+  };
+
+  // 회원가입 항목 클릭 -> 페이지 이동
+  const SignupClick = () => {
+    navigate("/auth/signup");
+  };
+  //프로필 항목 클릭 -> 페이지이동 
+  const ProfileClick = () => {
+    navigate("/auth/profile");
+  };
+
   return (
     <div css={s.container} onClick={closeMenu}>
       {/* 좌측 상단 FiMenu */}
@@ -65,8 +79,12 @@ function Header() {
         </div>
         <div>
           <ul>
-            <li css={s.login}>로그인</li>
-            <li css={s.signup}>회원가입</li>
+            <li css={s.login} onClick={SigninClick}>
+              로그인
+            </li>
+            <li css={s.signup} onClick={SignupClick}>
+              회원가입
+            </li>
             <li>
               <DiAptana css={s.headerIcon(isRotated)} onClick={toggleMenu} />
             </li>
@@ -77,7 +95,7 @@ function Header() {
       {/* Header 슬라이딩 메뉴 */}
       <div css={s.headerSlidingMenu(isMenuOpen)}>
         <ul>
-          <li>프로필</li>
+          <li onClick={ProfileClick}>프로필</li>
           <li>설정</li>
           <li>로그아웃</li>
         </ul>
