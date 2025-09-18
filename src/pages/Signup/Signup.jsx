@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import * as s from "./styles";
 import { useNavigate } from "react-router-dom";
 import AuthInput from "../../components/AuthInput/AuthInput";
-import { signupRequest } from "../../apis/auth/authApi"; // ✅ signupRequest import
+import { signupRequest } from "../../apis/auth/authApi"; // 회원가입 요청
 
 function Signup() {
   // const [name, setName] = useState("");
@@ -107,7 +107,7 @@ function Signup() {
 
   return (
     <div css={s.container}>
-      <h2>회원가입</h2>
+      
       <div css={s.box}>
         <div css={s.inputBox}>
           {/* <AuthInput

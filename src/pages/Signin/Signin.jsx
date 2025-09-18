@@ -46,7 +46,7 @@ function Signin() {
         if (response.data.status === "success") {
           alert(response.data.message); // 성공 메시지 출력
           localStorage.setItem("accessToken", response.data.data); // 토큰 저장
-          window.location.href = "/"; // 메인 페이지로 이동 (새로고침)
+          navigate("/");
         }
         // 로그인 실패
         else if (response.data.status === "failed") {
@@ -88,7 +88,7 @@ function Signin() {
 
   return (
     <div css={s.container}>
-      <h2>로그인</h2>
+      
       <div css={s.box}>
         <div css={s.inputBox}>
           <AuthInput
@@ -115,8 +115,8 @@ function Signin() {
           </button>
         </div>
         <div css={s.LinkBox}>
-          <a href="/find">ID/PW 찾기</a>
-          <a href="/signup">회원가입</a>
+          <a href="/auth/find">ID/PW 찾기</a>
+          <a href="/auth/signup">회원가입</a>
         </div>
         <div css={s.oauthBtnBox}>
           <p className="title">소셜 로그인</p>
