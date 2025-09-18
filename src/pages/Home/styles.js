@@ -1,4 +1,4 @@
-import { css } from "@emotion/react";
+import { css, keyframes } from "@emotion/react";
 
 export const container = css`
   width: 100%;
@@ -58,7 +58,7 @@ export const chatBoxWrapper = css`
   margin-top: 60px;
   display: flex;
   justify-content: center;
-  position: relative; /* 하트 위치 기준 */
+  position: relative; /* 하트 기준 */
 `;
 
 export const chatBox = css`
@@ -110,9 +110,82 @@ export const gptMessage = css`
 
 export const heartIconBottom = css`
   position: absolute;
-  right: 0;          /* chatBox 오른쪽 끝 */
-  bottom: -40px;     /* chatBox 아래에서 20px 아래 */
+  right: 0;
+  bottom: -40px;
   font-size: 24px;
   cursor: pointer;
   transition: color 0.2s ease;
+`;
+
+/* ---------------- 모달 관련 CSS ---------------- */
+
+export const modalBackdrop = css`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1500;
+`;
+
+export const modalContent = css`
+  width: 90%;
+  max-width: 400px;
+  background-color: #1f2b38;
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.8);
+  color: white;
+
+  h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #3a8de6ff;
+    outline: none;
+    box-sizing: border-box;
+
+    &:focus {
+      border: 2px solid #3a8de6ff;
+      box-shadow: 0 0 12px 2px #3a8de6ff;
+    }
+  }
+`;
+
+export const modalButtons = css`
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  button {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s ease;
+
+    &:first-of-type {
+      background-color: #3a8de6ff;
+      color: white;
+    }
+    &:last-of-type {
+      background-color: #ccc;
+      color: #333;
+    }
+  }
 `;

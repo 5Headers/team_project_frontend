@@ -1,9 +1,7 @@
-
 /** @jsxImportSource @emotion/react */
 import { useState, useRef, useEffect } from "react";
 import * as s from "./styles";
 import { FaHeart } from "react-icons/fa";
-import { Navigate } from "react-router-dom";
 
 export default function Home() {
   const [showLogo, setShowLogo] = useState(true);
@@ -11,9 +9,26 @@ export default function Home() {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const chatBoxRef = useRef(null);
-  const [liked, setLiked] = useState(false); // 찜 상태
+  const [liked, setLiked] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [title, setTitle] = useState("제목 없음");
+  const [hearts, setHearts] = useState([]); // 화면에 떠오르는 하트 리스트
+  const heartIdRef = useRef(0);
+  const [titleError, setTitleError] = useState(false);
 
-  // 메시지 추가 시 자동 스크롤
+  const handleModalConfirm = () => {
+    if (title.trim() === "") {
+      // 빈 문자열 체크
+      setTitleError(true);
+      return;
+    }
+    console.log("저장 제목:", title);
+    setShowModal(false);
+    setLiked(false); // 확인 후 하트 회색
+    setTitle("제목 없음");
+    setTitleError(false);
+  };
+
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTo({
@@ -28,10 +43,8 @@ export default function Home() {
       const userMessage = { sender: "user", text: inputValue };
       setMessages((prev) => [...prev, userMessage]);
       setInputValue("");
-      setShowLogo(false);   // 엔터 후 h2 제거
-      setInputMoved(true);  // input 상단으로 이동
-
-      // GPT 호출
+      setShowLogo(false);
+      setInputMoved(true);
       const gptResponse = await fetchGPTResponse(inputValue);
       const gptMessage = { sender: "gpt", text: gptResponse };
       setMessages((prev) => [...prev, gptMessage]);
@@ -53,12 +66,33 @@ export default function Home() {
     }
   };
 
+  const handleHeartClick = () => {
+    setLiked(true);
+    setShowModal(true);
+
+    // 하트 3개 애니메이션
+    for (let i = 0; i < 3; i++) {
+      const id = heartIdRef.current++;
+      setHearts((prev) => [...prev, { id, delay: i * 200 }]);
+      // 일정 시간 후 제거
+      setTimeout(() => {
+        setHearts((prev) => prev.filter((h) => h.id !== id));
+      }, 1200 + i * 200);
+    }
+  };
+
+
+
+  const handleModalCancel = () => {
+    setShowModal(false);
+    setLiked(false);
+    setTitle("제목 없음");
+  };
+
   return (
     <div css={s.container}>
-      {/* h2는 엔터 전만 표시 */}
       {showLogo && <h2 css={s.logo}>NuroPC</h2>}
 
-      {/* input */}
       <div css={s.search(inputMoved)}>
         <input
           type="text"
@@ -69,7 +103,6 @@ export default function Home() {
         />
       </div>
 
-      {/* chatBox */}
       <div css={s.chatBoxWrapper}>
         <div css={s.chatBox} ref={chatBoxRef}>
           {messages.map((msg, idx) => (
@@ -82,15 +115,65 @@ export default function Home() {
           ))}
         </div>
 
-        {/* chatBox 오른쪽 아래 독립 하트 */}
         {inputMoved && (
-          <FaHeart
-            css={s.heartIconBottom}
-            onClick={() => setLiked(!liked)}
-            color={liked ? "red" : "lightgray"}
-          />
+          <div style={{ position: "relative" }}>
+            <FaHeart
+              css={s.heartIconBottom}
+              onClick={handleHeartClick}
+              color={liked ? "red" : "lightgray"}
+            />
+            {hearts.map((h) => (
+              <FaHeart
+                key={h.id}
+                style={{
+                  position: "absolute",
+                  bottom: 30,
+                  right: 0,
+                  color: "red",
+                  fontSize: 20,
+                  animation: `heartMove 1s ease-out forwards`,
+                  animationDelay: `${h.delay}ms`,
+                }}
+              />
+            ))}
+          </div>
         )}
       </div>
+
+      {showModal && (
+        <div css={s.modalBackdrop}>
+          <div css={s.modalContent}>
+            <h3>추천을 찜 목록에 저장</h3>
+            <input
+              placeholder="제목 없음"
+              type="text"
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                if (titleError && e.target.value.trim() !== "") {
+                  setTitleError(false); // 입력하면 에러 해제
+                }
+              }}
+            />
+            {titleError && (
+              <p
+                style={{
+                  color: "red",
+                  fontSize: "0.9rem",
+                  margin: "4px 0 0 0",
+                }}
+              >
+                제목을 입력해주세요
+              </p>
+            )}
+            <div css={s.modalButtons}>
+              <button onClick={handleModalConfirm}>확인</button>
+              <button onClick={handleModalCancel}>취소</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+//하트 애니 수정
