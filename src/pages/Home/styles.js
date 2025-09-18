@@ -58,7 +58,7 @@ export const chatBoxWrapper = css`
   margin-top: 60px;
   display: flex;
   justify-content: center;
-  position: relative; /* 하트 위치 기준 */
+  position: relative;
 `;
 
 export const chatBox = css`
@@ -110,8 +110,8 @@ export const gptMessage = css`
 
 export const heartIconBottom = css`
   position: absolute;
-  right: 0;          /* chatBox 오른쪽 끝 */
-  bottom: -40px;     /* chatBox 아래에서 20px 아래 */
+  right: 0;
+  bottom: -40px;
   font-size: 24px;
   cursor: pointer;
   transition: color 0.2s ease;

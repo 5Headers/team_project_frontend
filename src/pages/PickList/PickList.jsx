@@ -1,23 +1,34 @@
 /** @jsxImportSource @emotion/react */
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import * as s from "./styles";
 
-// 임시 데이터 (나중에 DB 연동)
-const mockData = Array.from({ length: 15 }, (_, i) => ({
+const ITEMS_PER_PAGE = 5;
+
+// 초기 mock 데이터
+const initialData = Array.from({ length: 15 }, (_, i) => ({
   id: i + 1,
   title: `제목 ${i + 1}`,
   content: `내용 ${i + 1}`,
-  img: `이미지 ${i + 1}`,
+  img: "이미지",
 }));
 
-const ITEMS_PER_PAGE = 5; // 한 페이지당 표시 항목 수
-
 function PickList() {
+  const location = useLocation();
+  const [items, setItems] = useState(initialData);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const totalPages = Math.ceil(mockData.length / ITEMS_PER_PAGE);
+  // Home에서 전달된 newItem 추가
+  useEffect(() => {
+    if (location.state?.newItem) {
+      setItems((prev) => [location.state.newItem, ...prev]);
+      setCurrentPage(1);
+    }
+  }, [location.state]);
+
+  const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentItems = mockData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const currentItems = items.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const goToPage = (page) => {
     if (page < 1 || page > totalPages) return;
@@ -36,7 +47,6 @@ function PickList() {
         </ul>
       ))}
 
-      {/* 페이지네이션 */}
       <div css={s.pagination}>
         <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>
           이전

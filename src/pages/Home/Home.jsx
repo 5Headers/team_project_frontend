@@ -1,9 +1,8 @@
-
-/** @jsxImportSource @emotion/react */
+/** @jsxImportSource @emotion/react */ 
 import { useState, useRef, useEffect } from "react";
 import * as s from "./styles";
 import { FaHeart } from "react-icons/fa";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const [showLogo, setShowLogo] = useState(true);
@@ -12,6 +11,7 @@ export default function Home() {
   const [inputValue, setInputValue] = useState("");
   const chatBoxRef = useRef(null);
   const [liked, setLiked] = useState(false); // 찜 상태
+  const navigate = useNavigate();
 
   // 메시지 추가 시 자동 스크롤
   useEffect(() => {
@@ -53,12 +53,30 @@ export default function Home() {
     }
   };
 
+  // FaHeart 클릭 시 제목 입력 받고 PickList로 이동
+  const handleLike = () => {
+    setLiked(!liked);
+
+    if (!liked) {
+      // 제목 입력 창 (기본 "제목 없음")
+      const title = prompt("제목을 입력하세요.", "제목 없음") || "제목 없음";
+
+      const item = {
+        id: Date.now(),
+        title,
+        content: messages.map((m) => m.text).join("\n"),
+        img: "이미지", // 나중에 GPT 이미지 들어올 자리
+      };
+
+      // PickList로 이동 + state 전달
+      navigate("/picklist", { state: { newItem: item } });
+    }
+  };
+
   return (
     <div css={s.container}>
-      {/* h2는 엔터 전만 표시 */}
       {showLogo && <h2 css={s.logo}>NuroPC</h2>}
 
-      {/* input */}
       <div css={s.search(inputMoved)}>
         <input
           type="text"
@@ -69,7 +87,6 @@ export default function Home() {
         />
       </div>
 
-      {/* chatBox */}
       <div css={s.chatBoxWrapper}>
         <div css={s.chatBox} ref={chatBoxRef}>
           {messages.map((msg, idx) => (
@@ -82,11 +99,10 @@ export default function Home() {
           ))}
         </div>
 
-        {/* chatBox 오른쪽 아래 독립 하트 */}
         {inputMoved && (
           <FaHeart
             css={s.heartIconBottom}
-            onClick={() => setLiked(!liked)}
+            onClick={handleLike}
             color={liked ? "red" : "lightgray"}
           />
         )}

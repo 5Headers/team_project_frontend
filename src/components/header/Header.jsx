@@ -109,6 +109,7 @@ function Header() {
           {/* 새로운 대화 메뉴 추가 */}
           <li
             onClick={() => {
+              navigate("/");
               setActiveSidebarItem(3); // 선택 표시
               setIsSidebarOpen(false); // 사이드바 닫기
               window.location.reload(); // Home 새로고침
