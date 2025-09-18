@@ -3,7 +3,7 @@ import Home from "../../pages/Home/Home";
 import PickList from "../../pages/PickList/PickList";
 import { Route, Routes } from "react-router-dom";
 import AuthRouter from "../AuthRouter/AuthRouter";
-
+import Setting from "../../pages/Setting/Setting";
 
 function MainRouter() {
   return (
@@ -26,6 +26,14 @@ function MainRouter() {
         }
       />
       <Route
+        path="/setting" // 새 설정 페이지 라우트
+        element={
+          <Layout>
+            <Setting />
+          </Layout>
+        }
+      />
+      <Route
         path="/auth/*"
         element={
           <Layout>
@@ -35,7 +43,6 @@ function MainRouter() {
           </Layout>
         }
       />
-      
     </Routes>
   );
 }
