@@ -3,8 +3,7 @@ import Home from "../../pages/Home/Home";
 import PickList from "../../pages/PickList/PickList";
 import { Route, Routes } from "react-router-dom";
 import AuthRouter from "../AuthRouter/AuthRouter";
-
-
+import Maps from "../../pages/googlemap/Maps";
 function MainRouter() {
   return (
     <Routes>
@@ -25,6 +24,8 @@ function MainRouter() {
           </Layout>
         }
       />
+
+      <Route path="/maps" element={<Maps />} />
       <Route
         path="/auth/*"
         element={
@@ -35,7 +36,6 @@ function MainRouter() {
           </Layout>
         }
       />
-      
     </Routes>
   );
 }

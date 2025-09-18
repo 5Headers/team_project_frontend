@@ -12,7 +12,31 @@ function Signup() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [email, setEmail] = useState("");
   const [errorMessage, setErrorMessage] = useState({});
+  
+
   const navigate = useNavigate();
+
+  // 중복 확인 버튼
+  const checkUsernameHandler = async () => {
+    if (!username) {
+      alert("아이디를 입력해주세요.");
+      return;
+    }
+
+    try {
+      // password, email은 빈 문자열로 보내 실제 회원가입은 방지
+      const response = await signupRequest({ username, password: "", email: "" });
+
+      if (response.data.status === "failed") {
+        alert(response.data.message); // 이미 사용중
+      } else {
+        alert("사용 가능한 아이디입니다.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("중복 확인 중 오류가 발생했습니다.");
+    }
+  };
 
   const signupOnClickHandler = () => {
     // 1. 모든 항목 입력 여부 확인
@@ -58,7 +82,7 @@ function Signup() {
       .then((response) => {
         if (response.data.status === "success") {
           alert(response.data.message);
-          navigate("/Signin"); // 로그인 페이지 이동
+          navigate("/auth/signin"); // 로그인 페이지 이동
         } else if (response.data.status === "failed") {
           alert(response.data.message);
         }
@@ -107,7 +131,6 @@ function Signup() {
 
   return (
     <div css={s.container}>
-      
       <div css={s.box}>
         <div css={s.inputBox}>
           {/* <AuthInput
@@ -123,8 +146,11 @@ function Signup() {
               state={username}
               setState={setUsername}
             />
-            <button>중복 확인</button>
+            <button onClick={checkUsernameHandler}>중복 확인</button>
           </div>
+
+          
+
           <AuthInput
             type="password"
             placeholder="비밀번호(문자 숫자 특수문자 포함 8자이상)"
