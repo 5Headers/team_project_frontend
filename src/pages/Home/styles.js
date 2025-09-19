@@ -108,6 +108,7 @@ export const gptMessage = css`
   white-space: pre-wrap;
 `;
 
+/* 기존 하트 아이콘 스타일 (버튼 위치) */
 export const heartIconBottom = css`
   position: absolute;
   right: 0;
@@ -188,4 +189,39 @@ export const modalButtons = css`
       color: #333;
     }
   }
+`;
+
+/* ------------------ 작은 하트 flying 애니메이션 ------------------ */
+
+/*
+  --dx: 수평 이동(px), 음수는 왼쪽, 양수는 오른쪽
+  --size: 하트 폰트 크기
+*/
+const heartFloat = keyframes`
+  0% {
+    transform: translateY(0) scale(0.5) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    transform: translateY(-5px) scale(1.4) rotate(-15deg);
+    opacity: 1;
+  }
+  20% {
+    transform: translateY(-10px) scale(1) rotate(10deg);
+  }
+  100% {
+    transform: translateY(-120px) scale(1.2) rotate(0deg);
+    opacity: 0;
+  }
+`;
+
+export const flyingHeart = css`
+  position: absolute;
+  right: 0;
+  bottom: -40px; /* FaHeart 바로 위 */
+  font-size: var(--size, 16px);
+  color: #ff4d6d;
+  pointer-events: none;
+  animation: ${heartFloat} 1.6s ease-in-out forwards;
+  will-change: transform, opacity;
 `;

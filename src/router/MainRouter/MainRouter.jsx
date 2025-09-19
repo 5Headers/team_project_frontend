@@ -35,7 +35,6 @@ function MainRouter() {
           </Layout>
         }
       />
-      
     </Routes>
   );
 }
