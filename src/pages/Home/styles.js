@@ -58,7 +58,7 @@ export const chatBoxWrapper = css`
   margin-top: 60px;
   display: flex;
   justify-content: center;
-  position: relative; /* 하트 기준 */
+  position: relative;
 `;
 
 export const chatBox = css`
@@ -117,7 +117,7 @@ export const heartIconBottom = css`
   transition: color 0.2s ease;
 `;
 
-/* ---------------- 모달 관련 CSS ---------------- */
+/* ---------------- 모달 관련 ---------------- */
 
 export const modalBackdrop = css`
   position: fixed;
@@ -182,10 +182,43 @@ export const modalButtons = css`
     &:first-of-type {
       background-color: #3a8de6ff;
       color: white;
+      &:hover { background-color: #3574b0; }
     }
     &:last-of-type {
       background-color: #ccc;
       color: #333;
+      &:hover { background-color: #bbb; }
     }
   }
+`;
+
+/* ---------------- 작은 하트 flying 애니메이션 ---------------- */
+
+const heartFloat = keyframes`
+  0% {
+    transform: translateY(0) translateX(var(--dx, 0)) scale(0.5) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    transform: translateY(-5px) translateX(var(--dx, 0)) scale(1.4) rotate(-15deg);
+    opacity: 1;
+  }
+  20% {
+    transform: translateY(-10px) translateX(var(--dx, 0)) scale(1) rotate(10deg);
+  }
+  100% {
+    transform: translateY(-120px) translateX(var(--dx, 0)) scale(1.2) rotate(0deg);
+    opacity: 0;
+  }
+`;
+
+export const flyingHeart = css`
+  position: absolute;
+  bottom: -40px;
+  font-size: var(--size, 16px);
+  right: 0;
+  color: #ff4d6d;
+  pointer-events: none;
+  animation: ${heartFloat} 1.6s ease-in-out forwards;
+  will-change: transform, opacity;
 `;

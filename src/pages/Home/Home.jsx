@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import * as s from "./styles";
 import { FaHeart } from "react-icons/fa";
+import { instance } from "../../apis/utils/instance";
 
 export default function Home() {
   const [showLogo, setShowLogo] = useState(true);
@@ -10,27 +11,11 @@ export default function Home() {
   const [inputValue, setInputValue] = useState("");
   const chatBoxRef = useRef(null);
   const [liked, setLiked] = useState(false);
-
-
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("제목 없음");
-  const [hearts, setHearts] = useState([]); // 화면에 떠오르는 하트 리스트
+  const [hearts, setHearts] = useState([]);
   const heartIdRef = useRef(0);
   const [titleError, setTitleError] = useState(false);
-
-  const handleModalConfirm = () => {
-    if (title.trim() === "") {
-      // 빈 문자열 체크
-      setTitleError(true);
-      return;
-    }
-    console.log("저장 제목:", title);
-    setShowModal(false);
-    setLiked(false); // 확인 후 하트 회색
-    setTitle("제목 없음");
-    setTitleError(false);
-  };
-
 
   useEffect(() => {
     if (chatBoxRef.current) {
@@ -41,53 +26,21 @@ export default function Home() {
     }
   }, [messages]);
 
-
-  const parseMessage = (message) => {
-    const parts = message.trim().split(" ");
-    const purpose = parts[0] || "일반용";
-    const cost = parseInt(parts[1]) || 100000;
-    return { purpose, cost };
-
-  const handleEnter = async (e) => {
-    if (e.key === "Enter" && inputValue.trim() !== "") {
-      const userMessage = { sender: "user", text: inputValue };
-      setMessages((prev) => [...prev, userMessage]);
-      setInputValue("");
-      setShowLogo(false);
-      setInputMoved(true);
-      const gptResponse = await fetchGPTResponse(inputValue);
-      const gptMessage = { sender: "gpt", text: gptResponse };
-      setMessages((prev) => [...prev, gptMessage]);
-    }
-
-  };
-
   const fetchGPTResponse = async (message) => {
     try {
-      const { purpose, cost } = parseMessage(message);
-
-      const res = await fetch(`http://localhost:8080/chat/estimate`, {
+      const res = await fetch("/api/gpt", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ purpose, cost }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
       });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`서버 오류: ${text}`);
-      }
-
       const data = await res.json();
-      return data.data || "GPT 응답이 없습니다.";
+      return data.reply || "응답이 없습니다.";
     } catch (err) {
       console.error(err);
       return "서버 오류가 발생했습니다.";
     }
   };
 
-
   const handleEnter = async (e) => {
     if (e.key === "Enter" && inputValue.trim() !== "") {
       const userMessage = { sender: "user", text: inputValue };
@@ -102,30 +55,56 @@ export default function Home() {
     }
   };
 
-
   const handleHeartClick = () => {
     setLiked(true);
     setShowModal(true);
 
-    // 하트 3개 애니메이션
     for (let i = 0; i < 3; i++) {
       const id = heartIdRef.current++;
-      setHearts((prev) => [...prev, { id, delay: i * 200 }]);
-      // 일정 시간 후 제거
+      const randX = Math.round(Math.random() * 40 - 20);
+      const randSize = Math.round(10 + Math.random() * 8);
+      const delay = i * 120;
+
+      setHearts((prev) => [
+        ...prev,
+        { id, delay, dx: `${randX}px`, size: `${randSize}px` },
+      ]);
+
       setTimeout(() => {
         setHearts((prev) => prev.filter((h) => h.id !== id));
-      }, 1200 + i * 200);
+      }, 1400 + delay);
     }
   };
 
+  const handleModalConfirm = async () => {
+    if (title.trim() === "") {
+      setTitleError(true);
+      return;
+    }
 
+    try {
+      const bookmarkData = {
+        title,
+        content: messages.map((m) => `${m.sender}: ${m.text}`).join("\n"),
+      };
+      await instance.post("/bookmark/add", bookmarkData);
+      console.log("저장 성공");
+    } catch (err) {
+      console.error("저장 실패:", err);
+    }
+
+    setShowModal(false);
+    setLiked(false);
+    setTitle("제목 없음");
+    setTitleError(false);
+  };
 
   const handleModalCancel = () => {
     setShowModal(false);
     setLiked(false);
     setTitle("제목 없음");
+    setTitleError(false);
   };
-
 
   return (
     <div css={s.container}>
@@ -134,7 +113,7 @@ export default function Home() {
       <div css={s.search(inputMoved)}>
         <input
           type="text"
-          placeholder="예: 게임 1000000"
+          placeholder="원하시는 금액 및 사양을 적어주세요"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleEnter}
@@ -154,23 +133,20 @@ export default function Home() {
         </div>
 
         {inputMoved && (
-          <div style={{ position: "relative" }}>
+          <div style={{ position: "relative", display: "inline-block" }}>
             <FaHeart
               css={s.heartIconBottom}
               onClick={handleHeartClick}
               color={liked ? "red" : "lightgray"}
             />
+
             {hearts.map((h) => (
               <FaHeart
                 key={h.id}
+                css={s.flyingHeart}
                 style={{
-                  position: "absolute",
-                  bottom: 30,
-                  right: 0,
-                  color: "red",
-                  fontSize: 20,
-                  animation: `heartMove 1s ease-out forwards`,
                   animationDelay: `${h.delay}ms`,
+                  "--size": `${14 + (h.id % 3) * 2}px`,
                 }}
               />
             ))}
@@ -188,8 +164,12 @@ export default function Home() {
               value={title}
               onChange={(e) => {
                 setTitle(e.target.value);
-                if (titleError && e.target.value.trim() !== "") {
-                  setTitleError(false); // 입력하면 에러 해제
+                if (titleError && e.target.value.trim() !== "")
+                  setTitleError(false);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleModalConfirm();
                 }
               }}
             />
@@ -198,12 +178,26 @@ export default function Home() {
                 style={{
                   color: "red",
                   fontSize: "0.9rem",
-                  margin: "4px 0 0 0",
+                  marginTop: "4px",
+                  fontWeight: "bold",
+                  textShadow: "1px 1px 2px rgba(0,0,0,0.3)",
+                  animation: "shake 0.3s ease-in-out",
                 }}
               >
-                제목을 입력해주세요
+                ⚠️ 제목을 입력해주세요
               </p>
             )}
+            <style>
+              {`
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    50% { transform: translateX(2px); }
+    75% { transform: translateX(-2px); }
+    100% { transform: translateX(0); }
+  }
+`}
+            </style>
             <div css={s.modalButtons}>
               <button onClick={handleModalConfirm}>확인</button>
               <button onClick={handleModalCancel}>취소</button>
@@ -214,4 +208,3 @@ export default function Home() {
     </div>
   );
 }
-//하트 애니 수정

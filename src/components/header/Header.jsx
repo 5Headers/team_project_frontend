@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiMenu } from "react-icons/fi";
 import { GoTriangleLeft } from "react-icons/go";
 import { DiAptana } from "react-icons/di";
@@ -11,27 +11,31 @@ function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRotated, setIsRotated] = useState(false);
   const [activeSidebarItem, setActiveSidebarItem] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태
 
   const navigate = useNavigate();
 
-  // 사이드바 토글
+  // ------------------ 로그인 상태 체크 ------------------
+  useEffect(() => {
+    const token = localStorage.getItem("token"); // JWT 방식 예시
+    setIsLoggedIn(!!token);
+  }, []);
+
+  // ------------------ 사이드바 / 메뉴 토글 ------------------
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
-    // 사이드바 열릴 때 슬라이드 메뉴 닫기
     if (!isSidebarOpen) {
       setIsMenuOpen(false);
       setIsRotated(false);
     }
   };
 
-  // DiAptana 클릭 → 메뉴 토글
   const toggleMenu = (e) => {
-    e.stopPropagation(); // 이벤트 버블링 방지
+    e.stopPropagation();
     setIsMenuOpen(!isMenuOpen);
     setIsRotated(!isRotated);
   };
 
-  // Header 다른 영역 클릭 시 슬라이드 메뉴 자동 닫힘
   const closeMenu = () => {
     if (isMenuOpen) {
       setIsMenuOpen(false);
@@ -39,34 +43,33 @@ function Header() {
     }
   };
 
-  // 사이드바 항목 클릭 → 페이지 이동
+  // ------------------ 사이드바 항목 클릭 ------------------
   const handleSidebarItemClick = (index) => {
-    setActiveSidebarItem(index); // 선택된 항목 고정
-    setIsSidebarOpen(false); // 사이드바 자동 닫기
-
-    // index에 따라 라우팅
-    if (index === 0) {
-      navigate("/"); // Home
-    } else if (index === 2) {
-      navigate("/picklist"); // PickList
-    }
+    setActiveSidebarItem(index);
+    setIsSidebarOpen(false);
+    if (index === 0) navigate("/");
+    else if (index === 2) navigate("/picklist");
   };
 
-  //로그인 항목 클릭 -> 페이지 이동
-  const SigninClick = () => {
+  // ------------------ 페이지 이동 ------------------
+  const SigninClick = () => navigate("/auth/signin");
+  const SignupClick = () => navigate("/auth/signup");
+  const ProfileClick = () => navigate("/auth/profile");
+
+  // ------------------ 로그아웃 ------------------
+  const handleLogout = async () => {
+    try {
+      await fetch("/auth/signout", {
+        method: "POST",
+        credentials: "include", // 세션 기반
+      });
+    } catch (err) {
+      console.error("로그아웃 실패:", err);
+    }
+    localStorage.removeItem("token"); // JWT 기반일 경우
+    setIsLoggedIn(false);
     navigate("/auth/signin");
   };
-
-  // 회원가입 항목 클릭 -> 페이지 이동
-  const SignupClick = () => {
-    navigate("/auth/signup");
-  };
-  //프로필 항목 클릭 -> 페이지이동 
-  const ProfileClick = () => {
-    navigate("/auth/profile");
-  };
-
-  
 
   return (
     <div css={s.container} onClick={closeMenu}>
@@ -81,12 +84,16 @@ function Header() {
         </div>
         <div>
           <ul>
-            <li css={s.login} onClick={SigninClick}>
-              로그인
-            </li>
-            <li css={s.signup} onClick={SignupClick}>
-              회원가입
-            </li>
+            {!isLoggedIn && (
+              <>
+                <li css={s.login} onClick={SigninClick}>
+                  로그인
+                </li>
+                <li css={s.signup} onClick={SignupClick}>
+                  회원가입
+                </li>
+              </>
+            )}
             <li>
               <DiAptana css={s.headerIcon(isRotated)} onClick={toggleMenu} />
             </li>
@@ -97,9 +104,9 @@ function Header() {
       {/* Header 슬라이딩 메뉴 */}
       <div css={s.headerSlidingMenu(isMenuOpen)}>
         <ul>
-          <li onClick={ProfileClick}>프로필</li>
+          {isLoggedIn && <li onClick={ProfileClick}>프로필</li>}
           <li>설정</li>
-          <li>로그아웃</li>
+          {isLoggedIn && <li onClick={handleLogout}>로그아웃</li>}
         </ul>
       </div>
 
@@ -126,13 +133,12 @@ function Header() {
           >
             찜 목록
           </li>
-          {/* 새로운 대화 메뉴 추가 */}
           <li
             onClick={() => {
               navigate("/");
-              setActiveSidebarItem(3); // 선택 표시
-              setIsSidebarOpen(false); // 사이드바 닫기
-              window.location.reload(); // Home 새로고침
+              setActiveSidebarItem(3);
+              setIsSidebarOpen(false);
+              window.location.reload();
             }}
             css={s.sidebarItem(3 === activeSidebarItem)}
           >
