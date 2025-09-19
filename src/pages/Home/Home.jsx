@@ -11,82 +11,42 @@ export default function Home() {
   const chatBoxRef = useRef(null);
   const [liked, setLiked] = useState(false);
 
-
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("제목 없음");
   const [hearts, setHearts] = useState([]); // 화면에 떠오르는 하트 리스트
   const heartIdRef = useRef(0);
   const [titleError, setTitleError] = useState(false);
 
-  const handleModalConfirm = () => {
-    if (title.trim() === "") {
-      // 빈 문자열 체크
-      setTitleError(true);
-      return;
-    }
-    console.log("저장 제목:", title);
-    setShowModal(false);
-    setLiked(false); // 확인 후 하트 회색
-    setTitle("제목 없음");
-    setTitleError(false);
-  };
-
-
-  useEffect(() => {
-    if (chatBoxRef.current) {
-      chatBoxRef.current.scrollTo({
-        top: chatBoxRef.current.scrollHeight,
-        behavior: "smooth",
+  // -------------------------
+  // GPT 요청 함수
+  async function fetchGPT(purpose, cost) {
+    try {
+      const response = await fetch("http://localhost:8080/chat/estimate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ purpose, cost }),
       });
+
+      if (!response.ok) {
+        throw new Error("서버 오류: " + response.status);
+      }
+
+      const data = await response.json();
+      return data.data || "GPT 응답이 없습니다.";
+    } catch (error) {
+      console.error(error);
+      return "서버 오류가 발생했습니다.";
     }
-  }, [messages]);
+  }
+  // -------------------------
 
-
+  // 메시지 파싱 (예: "게임 1000000")
   const parseMessage = (message) => {
     const parts = message.trim().split(" ");
     const purpose = parts[0] || "일반용";
     const cost = parseInt(parts[1]) || 100000;
     return { purpose, cost };
-
-  const handleEnter = async (e) => {
-    if (e.key === "Enter" && inputValue.trim() !== "") {
-      const userMessage = { sender: "user", text: inputValue };
-      setMessages((prev) => [...prev, userMessage]);
-      setInputValue("");
-      setShowLogo(false);
-      setInputMoved(true);
-      const gptResponse = await fetchGPTResponse(inputValue);
-      const gptMessage = { sender: "gpt", text: gptResponse };
-      setMessages((prev) => [...prev, gptMessage]);
-    }
-
   };
-
-  const fetchGPTResponse = async (message) => {
-    try {
-      const { purpose, cost } = parseMessage(message);
-
-      const res = await fetch(`http://localhost:8080/chat/estimate`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ purpose, cost }),
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`서버 오류: ${text}`);
-      }
-
-      const data = await res.json();
-      return data.data || "GPT 응답이 없습니다.";
-    } catch (err) {
-      console.error(err);
-      return "서버 오류가 발생했습니다.";
-    }
-  };
-
 
   const handleEnter = async (e) => {
     if (e.key === "Enter" && inputValue.trim() !== "") {
@@ -96,12 +56,13 @@ export default function Home() {
       setShowLogo(false);
       setInputMoved(true);
 
-      const gptResponse = await fetchGPTResponse(inputValue);
+      const { purpose, cost } = parseMessage(inputValue);
+      const gptResponse = await fetchGPT(purpose, cost);
+
       const gptMessage = { sender: "gpt", text: gptResponse };
       setMessages((prev) => [...prev, gptMessage]);
     }
   };
-
 
   const handleHeartClick = () => {
     setLiked(true);
@@ -111,14 +72,23 @@ export default function Home() {
     for (let i = 0; i < 3; i++) {
       const id = heartIdRef.current++;
       setHearts((prev) => [...prev, { id, delay: i * 200 }]);
-      // 일정 시간 후 제거
       setTimeout(() => {
         setHearts((prev) => prev.filter((h) => h.id !== id));
       }, 1200 + i * 200);
     }
   };
 
-
+  const handleModalConfirm = () => {
+    if (title.trim() === "") {
+      setTitleError(true);
+      return;
+    }
+    console.log("저장 제목:", title);
+    setShowModal(false);
+    setLiked(false);
+    setTitle("제목 없음");
+    setTitleError(false);
+  };
 
   const handleModalCancel = () => {
     setShowModal(false);
@@ -126,6 +96,14 @@ export default function Home() {
     setTitle("제목 없음");
   };
 
+  useEffect(() => {
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTo({
+        top: chatBoxRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [messages]);
 
   return (
     <div css={s.container}>
@@ -189,7 +167,7 @@ export default function Home() {
               onChange={(e) => {
                 setTitle(e.target.value);
                 if (titleError && e.target.value.trim() !== "") {
-                  setTitleError(false); // 입력하면 에러 해제
+                  setTitleError(false);
                 }
               }}
             />
@@ -214,4 +192,3 @@ export default function Home() {
     </div>
   );
 }
-//하트 애니 수정
