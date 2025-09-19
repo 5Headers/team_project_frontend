@@ -1,4 +1,3 @@
-
 import { css } from "@emotion/react";
 
 export const container = css`
@@ -53,7 +52,8 @@ export const header = css`
       align-items: center;
       gap: 30px;
 
-      & > li,button {
+      & > li,
+      button {
         list-style: none;
         cursor: pointer;
         z-index: 1;
@@ -72,6 +72,12 @@ export const login = css`
   color: black;
   border-radius: 9999px;
   padding: 10px 24px;
+  :hover {
+    background-color: #dadadaff;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1), 0 0 6px #384e66ff,
+      0 0 12px #384e66ff;
+    transform: translateY(-1px);
+  }
 `;
 
 export const signup = css`
@@ -79,6 +85,13 @@ export const signup = css`
   background-color: black;
   border-radius: 9999px;
   padding: 10px 24px;
+    :hover {
+    background-color: #0e0e0eff;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1), 0 0 6px #161f29ff,
+      0 0 12px #161f29ff;
+    transform: translateY(-1px);
+  }
+  
 `;
 
 export const headerIcon = (isRotated) => css`
@@ -130,14 +143,12 @@ export const sidebar = (isOpen) => css`
       :hover {
         background-color: #121920ff;
         color: mintcream;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6),
-          0 0 6px #3a8de6, 0 0 12px #1f5fbf;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6), 0 0 6px #3a8de6,
+          0 0 12px #1f5fbf;
       }
     }
   }
 `;
-
-
 
 // GoTriangleLeft 위치 유지 + 자연스럽게 나타나고 사라짐
 export const sidebarToggle = (isOpen) => css`
@@ -204,8 +215,8 @@ export const headerSlidingMenu = (isOpen) => css`
       :hover {
         background-color: #121920ff;
         color: mintcream;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6),
-          0 0 6px #3a8de6, 0 0 12px #1f5fbf;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6), 0 0 6px #3a8de6,
+          0 0 12px #1f5fbf;
       }
     }
   }
@@ -228,7 +239,7 @@ export const sidebarItem = (isActive) => css`
   :hover {
     background-color: #121920ff;
     color: mintcream;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6),
-      0 0 6px #3a8de6, 0 0 12px #1f5fbf;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6), 0 0 6px #3a8de6,
+      0 0 12px #1f5fbf;
   }
 `;

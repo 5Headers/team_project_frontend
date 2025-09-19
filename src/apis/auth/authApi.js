@@ -25,7 +25,7 @@ export const getPrincipalRequest = async () => {
   }
 };
 
-// 회원가입 요청 함수
+// 회원가입 요청 함수 & 회원가입 시 아이디 중복확인
 export const signupRequest = async (data) => {
   try {
     // "/auth/signup" 엔드포인트로 POST 요청 (data: 회원가입 정보)
@@ -66,3 +66,8 @@ export const oauth2MergeRequest = async (data) => {
     return error.response;
   }
 };
+
+//회원가입 시 아이디 중복확인
+// export const checkUsernameRequest = (username) => {
+//   return axios.get(`/api/auth/check-username?username=${username}`);
+// };

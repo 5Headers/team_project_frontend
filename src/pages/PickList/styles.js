@@ -10,8 +10,8 @@ export const container = css`
 
 export const ListBox = css`
   display: flex;
-  width: 500px; /* 필요에 따라 조정 */
-  gap: 10px; /* ImgBox와 TitleBox 사이 간격 */
+  width: 500px;
+  gap: 10px;
   cursor: pointer;
   border: 2px solid #1f2b38;
   margin-bottom: 10px;
@@ -30,22 +30,22 @@ export const ImgBox = css`
   justify-content: center;
   align-items: center;
   padding: 10px;
-  margin: 10px; /* ul과의 간격 */
+  margin: 10px;
   box-sizing: border-box;
 `;
 
 export const TitleBox = css`
-  flex: 1; /* 남은 공간 차지 */
+  flex: 1;
   display: flex;
-  flex-direction: column; /* 세로 정렬 */
-  justify-content: flex-start; /* 위에서 아래로 배치 */
+  flex-direction: column;
+  justify-content: flex-start;
   padding: 10px;
 `;
 
 export const TitleText = css`
   font-size: 18px;
   font-weight: bold;
-  margin-bottom: 5px; /* 제목과 내용 사이 간격 */
+  margin-bottom: 5px;
 `;
 
 export const ExportText = css`
@@ -53,7 +53,6 @@ export const ExportText = css`
   color: #ccc;
 `;
 
-/* 페이지네이션 스타일 */
 export const pagination = css`
   display: flex;
   gap: 5px;
