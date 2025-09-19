@@ -10,6 +10,8 @@ export default function Home() {
   const [inputValue, setInputValue] = useState("");
   const chatBoxRef = useRef(null);
   const [liked, setLiked] = useState(false);
+
+
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("제목 없음");
   const [hearts, setHearts] = useState([]); // 화면에 떠오르는 하트 리스트
@@ -29,6 +31,7 @@ export default function Home() {
     setTitleError(false);
   };
 
+
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTo({
@@ -37,6 +40,13 @@ export default function Home() {
       });
     }
   }, [messages]);
+
+
+  const parseMessage = (message) => {
+    const parts = message.trim().split(" ");
+    const purpose = parts[0] || "일반용";
+    const cost = parseInt(parts[1]) || 100000;
+    return { purpose, cost };
 
   const handleEnter = async (e) => {
     if (e.key === "Enter" && inputValue.trim() !== "") {
@@ -49,22 +59,49 @@ export default function Home() {
       const gptMessage = { sender: "gpt", text: gptResponse };
       setMessages((prev) => [...prev, gptMessage]);
     }
+
   };
 
   const fetchGPTResponse = async (message) => {
     try {
-      const res = await fetch("/api/gpt", {
+      const { purpose, cost } = parseMessage(message);
+
+      const res = await fetch(`http://localhost:8080/chat/estimate`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ purpose, cost }),
       });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`서버 오류: ${text}`);
+      }
+
       const data = await res.json();
-      return data.reply || "응답이 없습니다.";
+      return data.data || "GPT 응답이 없습니다.";
     } catch (err) {
       console.error(err);
       return "서버 오류가 발생했습니다.";
     }
   };
+
+
+  const handleEnter = async (e) => {
+    if (e.key === "Enter" && inputValue.trim() !== "") {
+      const userMessage = { sender: "user", text: inputValue };
+      setMessages((prev) => [...prev, userMessage]);
+      setInputValue("");
+      setShowLogo(false);
+      setInputMoved(true);
+
+      const gptResponse = await fetchGPTResponse(inputValue);
+      const gptMessage = { sender: "gpt", text: gptResponse };
+      setMessages((prev) => [...prev, gptMessage]);
+    }
+  };
+
 
   const handleHeartClick = () => {
     setLiked(true);
@@ -89,6 +126,7 @@ export default function Home() {
     setTitle("제목 없음");
   };
 
+
   return (
     <div css={s.container}>
       {showLogo && <h2 css={s.logo}>NuroPC</h2>}
@@ -96,7 +134,7 @@ export default function Home() {
       <div css={s.search(inputMoved)}>
         <input
           type="text"
-          placeholder="원하시는 금액 및 사양을 적어주세요"
+          placeholder="예: 게임 1000000"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleEnter}
