@@ -13,27 +13,69 @@ export default function Home() {
   const [liked, setLiked] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("제목 없음");
-  const [hearts, setHearts] = useState([]); // 화면에 떠오르는 하트 리스트
+  const [hearts, setHearts] = useState([]);
   const heartIdRef = useRef(0);
   const [titleError, setTitleError] = useState(false);
 
-  // -------------------------
   // GPT 요청 함수
   const fetchGPT = async (message) => {
     try {
-      const response = await fetch("/api/gpt", {
+      const response = await fetch("http://localhost:8080/chat/estimate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({
+          purpose: message,
+          cost: 0,
+        }),
       });
 
       if (!response.ok) throw new Error("서버 오류: " + response.status);
 
       const data = await response.json();
-      return data.reply || "응답이 없습니다.";
+      return data.data || "응답이 없습니다.";
     } catch (error) {
       console.error(error);
       return "서버 오류가 발생했습니다.";
+    }
+  };
+
+  // GPT 메시지 + DB 저장
+  const handleSaveToDB = async (gptMessage) => {
+    try {
+      // 1. 부품 데이터 예시 (실제 구현 시 GPT 응답 parsing 필요)
+      const parts = [
+        {
+          category: "CPU",
+          name: "Intel i9",
+          price: 600000,
+          link: "",
+          storeType: "online",
+        },
+        {
+          category: "RAM",
+          name: "16GB DDR4",
+          price: 100000,
+          link: "",
+          storeType: "online",
+        },
+      ];
+
+      // 2. DB에 저장 요청
+      const resp = await fetch("http://localhost:8080/estimate/save-gpt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          response: gptMessage,
+          title: title,
+          budget: 0,
+          parts: parts,
+        }),
+      });
+
+      const data = await resp.json();
+      console.log("DB 저장 결과:", data);
+    } catch (err) {
+      console.error("DB 저장 실패", err);
     }
   };
 
@@ -63,7 +105,7 @@ export default function Home() {
   };
 
   // 하트 클릭
-  const handleHeartClick = () => {
+  const handleHeartClick = async () => {
     setLiked(true);
     setShowModal(true);
 
@@ -77,12 +119,21 @@ export default function Home() {
   };
 
   // 찜 모달 확인
-  const handleModalConfirm = () => {
+  const handleModalConfirm = async () => {
     if (title.trim() === "") {
       setTitleError(true);
       return;
     }
-    console.log("저장 제목:", title);
+
+    // 마지막 GPT 메시지 가져오기
+    const lastGPTMessage = messages
+      .slice()
+      .reverse()
+      .find((msg) => msg.sender === "gpt");
+    if (lastGPTMessage) {
+      await handleSaveToDB(lastGPTMessage.text);
+    }
+
     setShowModal(false);
     setLiked(false);
     setTitle("제목 없음");
@@ -150,7 +201,8 @@ export default function Home() {
               value={title}
               onChange={(e) => {
                 setTitle(e.target.value);
-                if (titleError && e.target.value.trim() !== "") setTitleError(false);
+                if (titleError && e.target.value.trim() !== "")
+                  setTitleError(false);
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleModalConfirm();
