@@ -10,6 +10,7 @@ import {
 } from "../../apis/auth/authApi"; // 회원가입 + 중복확인 요청
 
 function Signup() {
+  const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -57,7 +58,7 @@ function Signup() {
         alert("사용 가능한 이메일입니다.");
         setEmailChecked(true);
       } else {
-        alert(response.data.message); 
+        alert(response.data.message);
         setEmailChecked(false);
       }
     } catch (error) {
@@ -69,7 +70,7 @@ function Signup() {
   // 회원가입
   const signupOnClickHandler = async () => {
     // 1. 모든 항목 입력 여부 확인
-    if (!username || !password || !confirmPassword || !email) {
+    if (!name || username || !password || !confirmPassword || !email) {
       alert("모든 항목을 입력해 주세요.");
       return;
     }
@@ -81,7 +82,7 @@ function Signup() {
     }
 
     // 유효성 검사
-    if (errorMessage.username || errorMessage.password || errorMessage.email) {
+    if (errorMessage.name ||  errorMessage.username || errorMessage.password || errorMessage.email) {
       alert("입력값을 다시 확인해주세요.");
       return;
     }
@@ -105,7 +106,7 @@ function Signup() {
 
     // 2. 회원가입 API 요청
     try {
-      const response = await signupRequest({ username, password, email });
+      const response = await signupRequest({ name, username, password, email });
       if (response.data.status === "success") {
         alert(response.data.message);
         navigate("/auth/signin"); // 로그인 페이지 이동
@@ -121,6 +122,8 @@ function Signup() {
   // 유효성 검사
   useEffect(() => {
     const newErrorMessage = {};
+
+    
 
     if (username.length > 0) {
       const usernameRegex = /^(?=.*[a-zA-Z])(?=.*[0-9]).{6,}$/;
@@ -153,6 +156,12 @@ function Signup() {
     <div css={s.container}>
       <div css={s.box}>
         <div css={s.inputBox}>
+          <AuthInput
+            type="name"
+            placeholder="이름"
+            state={name}
+            setState={setName}
+          />
           <div css={s.idWrapper}>
             <AuthInput
               type="text"

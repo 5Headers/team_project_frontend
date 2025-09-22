@@ -243,3 +243,18 @@ export const sidebarItem = (isActive) => css`
       0 0 12px #1f5fbf;
   }
 `;
+
+
+export const profileIcon = css`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;   /* 동그란 공 */
+  overflow: hidden;     /* 이미지 잘림 방지 */
+  cursor: pointer;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;  /* 이미지 비율 유지, 영역 꽉 채움 */
+  }
+`;
