@@ -31,44 +31,46 @@ function Setting() {
 
   return (
     <div css={s.container}>
-      <h1 css={s.title}>설정 페이지</h1>
-      <div css={s.main}>
-        {/* 메뉴 */}
-        <div css={s.menu}>
-          <button
-            className={activeTab === "ChangePassword" ? "active" : ""}
-            onClick={() => setActiveTab("ChangePassword")}
-          >
-            비밀번호 변경
-          </button>
-          <button
-            className={activeTab === "ChangeProfileImage" ? "active" : ""}
-            onClick={() => setActiveTab("ChangeProfileImage")}
-          >
-            프로필 이미지 변경
-          </button>
-          <button
-            className={activeTab === "DeleteAccount" ? "active" : ""}
-            onClick={() => setActiveTab("DeleteAccount")}
-          >
-            회원 탈퇴
-          </button>
-          <button
-            className={activeTab === "DeletePickList" ? "active" : ""}
-            onClick={() => setActiveTab("DeletePickList")}
-          >
-            찜 전체 삭제
-          </button>
-          <button
-            className={activeTab === "Logout" ? "active" : ""}
-            onClick={() => setActiveTab("Logout")}
-          >
-            로그아웃
-          </button>
-        </div>
+      <div css={s.inner}>
+        <h1 css={s.title}>설정 페이지</h1>
+        <div css={s.main}>
+          {/* 메뉴 */}
+          <div css={s.menu}>
+            <button
+              className={activeTab === "ChangePassword" ? "active" : ""}
+              onClick={() => setActiveTab("ChangePassword")}
+            >
+              비밀번호 변경
+            </button>
+            <button
+              className={activeTab === "ChangeProfileImage" ? "active" : ""}
+              onClick={() => setActiveTab("ChangeProfileImage")}
+            >
+              프로필 이미지 변경
+            </button>
+            <button
+              className={activeTab === "DeleteAccount" ? "active" : ""}
+              onClick={() => setActiveTab("DeleteAccount")}
+            >
+              회원 탈퇴
+            </button>
+            <button
+              className={activeTab === "DeletePickList" ? "active" : ""}
+              onClick={() => setActiveTab("DeletePickList")}
+            >
+              찜 전체 삭제
+            </button>
+            <button
+              className={activeTab === "Logout" ? "active" : ""}
+              onClick={() => setActiveTab("Logout")}
+            >
+              로그아웃
+            </button>
+          </div>
 
-        {/* 콘텐츠 */}
-        <div css={s.content}>{renderContent()}</div>
+          {/* 콘텐츠 */}
+          <div css={s.content}>{renderContent()}</div>
+        </div>
       </div>
     </div>
   );
