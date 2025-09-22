@@ -46,6 +46,8 @@ function Signin() {
         if (response.data.status === "success") {
           alert(response.data.message); // 성공 메시지 출력
           localStorage.setItem("accessToken", response.data.data); // 토큰 저장
+          localStorage.setItem("accessToken", response.data.data.accessToken);
+          localStorage.setItem("userId", response.data.data.userId);
           navigate("/");
         }
         // 로그인 실패
@@ -88,7 +90,6 @@ function Signin() {
 
   return (
     <div css={s.container}>
-      
       <div css={s.box}>
         <div css={s.inputBox}>
           <AuthInput

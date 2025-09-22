@@ -85,13 +85,12 @@ export const signup = css`
   background-color: black;
   border-radius: 9999px;
   padding: 10px 24px;
-    :hover {
+  :hover {
     background-color: #0e0e0eff;
     box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1), 0 0 6px #161f29ff,
       0 0 12px #161f29ff;
     transform: translateY(-1px);
   }
-  
 `;
 
 export const headerIcon = (isRotated) => css`
@@ -194,10 +193,12 @@ export const headerSlidingMenu = (isOpen) => css`
   border: 1px solid #5c5c5c;
   border-radius: 8px;
   overflow: hidden;
-  transition: max-height 0.3s ease, opacity 0.3s ease;
-  max-height: ${isOpen ? "200px" : "0"};
-  opacity: ${isOpen ? 1 : 0};
   z-index: 2001;
+
+  /* 부드러운 슬라이드 + 페이드 */
+  transform: ${isOpen ? "translateY(0)" : "translateY(-10px)"};
+  opacity: ${isOpen ? 1 : 0};
+  transition: transform 0.3s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.3s ease;
 
   ul {
     list-style: none;
@@ -210,7 +211,7 @@ export const headerSlidingMenu = (isOpen) => css`
       color: #bfd7ea;
       text-align: left;
       font-size: 14px;
-      transition: background-color 0.2s ease; /* 여기 background → background-color */
+      transition: background-color 0.2s ease;
 
       :hover {
         background-color: #121920ff;

@@ -2,6 +2,8 @@
 import { useState, useRef, useEffect } from "react";
 import * as s from "./styles";
 import { FaHeart } from "react-icons/fa";
+import { instance } from "../../apis/utils/instance"; // axios 인스턴스
+
 
 export default function Home() {
   const [showLogo, setShowLogo] = useState(true);
@@ -13,7 +15,7 @@ export default function Home() {
   const [liked, setLiked] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("제목 없음");
-  const [hearts, setHearts] = useState([]); // 화면에 떠오르는 하트 리스트
+  const [hearts, setHearts] = useState([]); 
   const heartIdRef = useRef(0);
   const [titleError, setTitleError] = useState(false);
 
@@ -76,13 +78,27 @@ export default function Home() {
     }
   };
 
-  // 찜 모달 확인
-  const handleModalConfirm = () => {
+  // 찜 모달 확인 → DB 저장
+  const handleModalConfirm = async () => {
     if (title.trim() === "") {
+      await instance.post("/bookmark/add", bookmarkData);
       setTitleError(true);
       return;
     }
-    console.log("저장 제목:", title);
+
+    const bookmarkData = {
+      title,
+      content: messages.map((m) => `${m.sender}: ${m.text}`).join("\n"),
+      userId: Number(localStorage.getItem("userId")),
+    };
+
+    try {
+      const res = await instance.post("/bookmark/add", bookmarkData);
+      console.log("북마크 저장 성공:", res.data);
+    } catch (err) {
+      console.error("북마크 저장 실패:", err.response ? err.response.data : err);
+    }
+
     setShowModal(false);
     setLiked(false);
     setTitle("제목 없음");
@@ -150,7 +166,8 @@ export default function Home() {
               value={title}
               onChange={(e) => {
                 setTitle(e.target.value);
-                if (titleError && e.target.value.trim() !== "") setTitleError(false);
+                if (titleError && e.target.value.trim() !== "")
+                  setTitleError(false);
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleModalConfirm();
