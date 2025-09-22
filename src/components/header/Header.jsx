@@ -33,6 +33,13 @@ function Header() {
     };
   }, []);
 
+
+  const handleGoSetting = () => {
+    navigate("/setting");
+  };
+
+  // 사이드바 토글
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
     if (!isSidebarOpen) {
@@ -63,6 +70,7 @@ function Header() {
     else if (index === 3) navigate("/");
   };
 
+
   const SigninClick = () => navigate("/auth/signin");
   const SignupClick = () => navigate("/auth/signup");
   const ProfileClick = () => navigate("/auth/profile");
@@ -74,6 +82,17 @@ function Header() {
     setIsRotated(false);
     navigate("/");
   };
+
+
+  // 회원가입 항목 클릭 -> 페이지 이동
+  const SignupClick = () => {
+    navigate("/auth/signup");
+  };
+  //프로필 항목 클릭 -> 페이지이동
+  const ProfileClick = () => {
+    navigate("/auth/profile");
+  };
+
 
   return (
     <div css={s.container} onClick={closeMenu}>
@@ -111,8 +130,13 @@ function Header() {
       <div css={s.headerSlidingMenu(isMenuOpen)}>
         <ul>
           <li onClick={ProfileClick}>프로필</li>
+
           <li>설정</li>
           {isLoggedIn && <li onClick={handleLogout}>로그아웃</li>}
+
+          <li onClick={handleGoSetting}>설정</li>
+          <li>로그아웃</li>
+ 
         </ul>
       </div>
 
