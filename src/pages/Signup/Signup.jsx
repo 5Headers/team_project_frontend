@@ -3,78 +3,122 @@ import { useEffect, useState } from "react";
 import * as s from "./styles";
 import { useNavigate } from "react-router-dom";
 import AuthInput from "../../components/AuthInput/AuthInput";
-import { signupRequest } from "../../apis/auth/authApi"; // 회원가입 요청
+import {
+  signupRequest,
+  checkUsernameRequest,
+  checkEmailRequest,
+} from "../../apis/auth/authApi"; // 회원가입 + 중복확인 요청
 
 function Signup() {
-  // const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [email, setEmail] = useState("");
   const [errorMessage, setErrorMessage] = useState({});
+
+  // 중복 확인 여부 체크
+  const [usernameChecked, setUsernameChecked] = useState(false);
+  const [emailChecked, setEmailChecked] = useState(false);
+
   const navigate = useNavigate();
 
-  const signupOnClickHandler = () => {
+  // 아이디 중복 확인
+  const checkUsernameHandler = async () => {
+    if (!username) {
+      alert("아이디를 입력해주세요.");
+      return;
+    }
+
+    try {
+      const response = await checkUsernameRequest(username);
+      if (response.data.status === "success") {
+        alert("사용 가능한 아이디입니다.");
+        setUsernameChecked(true);
+      } else {
+        alert(response.data.message); // 이미 사용중
+        setUsernameChecked(false);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("아이디 중복 확인 중 오류가 발생했습니다.");
+    }
+  };
+
+  // 이메일 중복 확인
+  const checkEmailHandler = async () => {
+    if (!email) {
+      alert("이메일을 입력해주세요.");
+      return;
+    }
+
+    try {
+      const response = await checkEmailRequest(email);
+      if (response.data.status === "success") {
+        alert("사용 가능한 이메일입니다.");
+        setEmailChecked(true);
+      } else {
+        alert(response.data.message); 
+        setEmailChecked(false);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("이메일 중복 확인 중 오류가 발생했습니다.");
+    }
+  };
+
+  // 회원가입
+  const signupOnClickHandler = async () => {
     // 1. 모든 항목 입력 여부 확인
-    if (
-      username.trim().length === 0 ||
-      password.trim().length === 0 ||
-      confirmPassword.trim().length === 0 ||
-      email.trim().length === 0
-    ) {
+    if (!username || !password || !confirmPassword || !email) {
       alert("모든 항목을 입력해 주세요.");
       return;
     }
 
-    // 비밀번호와 확인 비밀번호 일치 여부 확인
+    // 비밀번호 확인
     if (password !== confirmPassword) {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
 
-    // 2. 비밀번호, 이메일 유효성 검사 결과 확인
-    if (errorMessage.password) {
-      alert(errorMessage.password);
-      return;
-    }
-    if (errorMessage.email) {
-      alert(errorMessage.email);
+    // 유효성 검사
+    if (errorMessage.username || errorMessage.password || errorMessage.email) {
+      alert("입력값을 다시 확인해주세요.");
       return;
     }
 
-    // 3. 약관 동의 확인
+    // 중복 확인 여부
+    if (!usernameChecked) {
+      alert("아이디 중복 확인을 해주세요.");
+      return;
+    }
+    if (!emailChecked) {
+      alert("이메일 중복 확인을 해주세요.");
+      return;
+    }
+
+    // 약관 동의 확인
     const agree = document.querySelector('input[type="checkbox"]').checked;
     if (!agree) {
       alert("약관에 동의해야 합니다.");
       return;
     }
 
-    // 4. 회원가입 API 요청
-    signupRequest({
-      username,
-      password,
-      email,
-    })
-      .then((response) => {
-        if (response.data.status === "success") {
-          alert(response.data.message);
-          navigate("/Signin"); // 로그인 페이지 이동
-        } else if (response.data.status === "failed") {
-          alert(response.data.message);
-        }
-      })
-      .catch((error) => {
-        console.error("회원가입 요청 중 오류:", error);
-        alert("문제가 발생했습니다. 다시 시도해주세요.");
-      });
-
-    console.log("아이디:", username);
-    console.log("비밀번호:", password);
-    console.log("비밀번호 확인:", confirmPassword);
-    console.log("이메일:", email);
+    // 2. 회원가입 API 요청
+    try {
+      const response = await signupRequest({ username, password, email });
+      if (response.data.status === "success") {
+        alert(response.data.message);
+        navigate("/auth/signin"); // 로그인 페이지 이동
+      } else {
+        alert(response.data.message);
+      }
+    } catch (error) {
+      console.error("회원가입 요청 중 오류:", error);
+      alert("회원가입 중 문제가 발생했습니다.");
+    }
   };
 
-  //  아이디 / 비밀번호 / 이메일 유효성 검사
+  // 유효성 검사
   useEffect(() => {
     const newErrorMessage = {};
 
@@ -107,15 +151,8 @@ function Signup() {
 
   return (
     <div css={s.container}>
-      
       <div css={s.box}>
         <div css={s.inputBox}>
-          {/* <AuthInput
-            type="text"
-            placeholder="이름"
-            state={name}
-            setState={setName}
-          /> */}
           <div css={s.idWrapper}>
             <AuthInput
               type="text"
@@ -123,11 +160,12 @@ function Signup() {
               state={username}
               setState={setUsername}
             />
-            <button>중복 확인</button>
+            <button onClick={checkUsernameHandler}>중복 확인</button>
           </div>
+
           <AuthInput
             type="password"
-            placeholder="비밀번호(문자 숫자 특수문자 포함 8자이상)"
+            placeholder="비밀번호(문자, 숫자, 특수문자 포함 8~16자)"
             state={password}
             setState={setPassword}
           />
@@ -137,12 +175,16 @@ function Signup() {
             state={confirmPassword}
             setState={setConfirmPassword}
           />
-          <AuthInput
-            type="email"
-            placeholder="이메일"
-            state={email}
-            setState={setEmail}
-          />
+
+          <div css={s.idWrapper}>
+            <AuthInput
+              type="email"
+              placeholder="이메일"
+              state={email}
+              setState={setEmail}
+            />
+            <button onClick={checkEmailHandler}>중복 확인</button>
+          </div>
         </div>
 
         <div css={s.agreeBox}>

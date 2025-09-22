@@ -2,8 +2,7 @@ import { instance } from "../utils/instance";
 
 // 현재 로그인한 사용자의 정보를 요청하는 함수
 export const getPrincipalRequest = async () => {
-  
-    // 요청을 보낼 때마다 실행되는 인터셉터 설정
+  // 요청을 보낼 때마다 실행되는 인터셉터 설정
   instance.interceptors.request.use((config) => {
     // localStorage에 저장된 accessToken을 가져옴
     const accessToken = localStorage.getItem("accessToken");
@@ -25,7 +24,7 @@ export const getPrincipalRequest = async () => {
   }
 };
 
-// 회원가입 요청 함수
+// 회원가입 요청 함수 & 회원가입 시 아이디 중복확인
 export const signupRequest = async (data) => {
   try {
     // "/auth/signup" 엔드포인트로 POST 요청 (data: 회원가입 정보)
@@ -61,6 +60,28 @@ export const oauth2SignupRequest = async (data) => {
 export const oauth2MergeRequest = async (data) => {
   try {
     const response = await instance.post("/oauth2/merge", data);
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
+
+// 아이디 중복 확인
+export const checkUsernameRequest = async (username) => {
+  try {
+    const response = await instance.get(
+      `/auth/check-username?username=${username}`
+    );
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
+
+// 이메일 중복 확인
+export const checkEmailRequest = async (email) => {
+  try {
+    const response = await instance.get(`/auth/check-email?email=${email}`);
     return response;
   } catch (error) {
     return error.response;

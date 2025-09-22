@@ -4,6 +4,7 @@ import PickList from "../../pages/PickList/PickList";
 import Setting from "../../pages/Setting/Setting";
 import { Route, Routes } from "react-router-dom";
 import AuthRouter from "../AuthRouter/AuthRouter";
+import Maps from "../../pages/googlemap/Maps";
 
 function MainRouter() {
   return (
@@ -36,6 +37,8 @@ function MainRouter() {
           </Layout>
         }
       />
+
+      <Route path="/maps" element={<Maps />} />
       <Route
         path="/auth/*"
         element={

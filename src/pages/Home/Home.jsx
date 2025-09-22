@@ -9,6 +9,7 @@ export default function Home() {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const chatBoxRef = useRef(null);
+
   const [liked, setLiked] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("제목 없음");
@@ -16,19 +17,27 @@ export default function Home() {
   const heartIdRef = useRef(0);
   const [titleError, setTitleError] = useState(false);
 
-  const handleModalConfirm = () => {
-    if (title.trim() === "") {
-      // 빈 문자열 체크
-      setTitleError(true);
-      return;
+  // -------------------------
+  // GPT 요청 함수
+  const fetchGPT = async (message) => {
+    try {
+      const response = await fetch("/api/gpt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+      });
+
+      if (!response.ok) throw new Error("서버 오류: " + response.status);
+
+      const data = await response.json();
+      return data.reply || "응답이 없습니다.";
+    } catch (error) {
+      console.error(error);
+      return "서버 오류가 발생했습니다.";
     }
-    console.log("저장 제목:", title);
-    setShowModal(false);
-    setLiked(false); // 확인 후 하트 회색
-    setTitle("제목 없음");
-    setTitleError(false);
   };
 
+  // 메시지 추가 시 자동 스크롤
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTo({
@@ -38,55 +47,53 @@ export default function Home() {
     }
   }, [messages]);
 
+  // 엔터 입력
   const handleEnter = async (e) => {
-    if (e.key === "Enter" && inputValue.trim() !== "") {
-      const userMessage = { sender: "user", text: inputValue };
-      setMessages((prev) => [...prev, userMessage]);
-      setInputValue("");
-      setShowLogo(false);
-      setInputMoved(true);
-      const gptResponse = await fetchGPTResponse(inputValue);
-      const gptMessage = { sender: "gpt", text: gptResponse };
-      setMessages((prev) => [...prev, gptMessage]);
-    }
+    if (e.key !== "Enter" || inputValue.trim() === "") return;
+
+    const userMessage = { sender: "user", text: inputValue };
+    setMessages((prev) => [...prev, userMessage]);
+    setInputValue("");
+    setShowLogo(false);
+    setInputMoved(true);
+
+    const gptResponse = await fetchGPT(inputValue);
+    const gptMessage = { sender: "gpt", text: gptResponse };
+    setMessages((prev) => [...prev, gptMessage]);
   };
 
-  const fetchGPTResponse = async (message) => {
-    try {
-      const res = await fetch("/api/gpt", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
-      });
-      const data = await res.json();
-      return data.reply || "응답이 없습니다.";
-    } catch (err) {
-      console.error(err);
-      return "서버 오류가 발생했습니다.";
-    }
-  };
-
+  // 하트 클릭
   const handleHeartClick = () => {
     setLiked(true);
     setShowModal(true);
 
-    // 하트 3개 애니메이션
     for (let i = 0; i < 3; i++) {
       const id = heartIdRef.current++;
       setHearts((prev) => [...prev, { id, delay: i * 200 }]);
-      // 일정 시간 후 제거
       setTimeout(() => {
         setHearts((prev) => prev.filter((h) => h.id !== id));
       }, 1200 + i * 200);
     }
   };
 
-
+  // 찜 모달 확인
+  const handleModalConfirm = () => {
+    if (title.trim() === "") {
+      setTitleError(true);
+      return;
+    }
+    console.log("저장 제목:", title);
+    setShowModal(false);
+    setLiked(false);
+    setTitle("제목 없음");
+    setTitleError(false);
+  };
 
   const handleModalCancel = () => {
     setShowModal(false);
     setLiked(false);
     setTitle("제목 없음");
+    setTitleError(false);
   };
 
   return (
@@ -116,7 +123,7 @@ export default function Home() {
         </div>
 
         {inputMoved && (
-          <div style={{ position: "relative" }}>
+          <div style={{ position: "relative", display: "inline-block" }}>
             <FaHeart
               css={s.heartIconBottom}
               onClick={handleHeartClick}
@@ -125,15 +132,8 @@ export default function Home() {
             {hearts.map((h) => (
               <FaHeart
                 key={h.id}
-                style={{
-                  position: "absolute",
-                  bottom: 30,
-                  right: 0,
-                  color: "red",
-                  fontSize: 20,
-                  animation: `heartMove 1s ease-out forwards`,
-                  animationDelay: `${h.delay}ms`,
-                }}
+                css={s.flyingHeart}
+                style={{ animationDelay: `${h.delay}ms` }}
               />
             ))}
           </div>
@@ -150,9 +150,10 @@ export default function Home() {
               value={title}
               onChange={(e) => {
                 setTitle(e.target.value);
-                if (titleError && e.target.value.trim() !== "") {
-                  setTitleError(false); // 입력하면 에러 해제
-                }
+                if (titleError && e.target.value.trim() !== "") setTitleError(false);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleModalConfirm();
               }}
             />
             {titleError && (
@@ -161,9 +162,11 @@ export default function Home() {
                   color: "red",
                   fontSize: "0.9rem",
                   margin: "4px 0 0 0",
+                  fontWeight: "bold",
+                  textShadow: "1px 1px 2px rgba(0,0,0,0.3)",
                 }}
               >
-                제목을 입력해주세요
+                ⚠️ 제목을 입력해주세요
               </p>
             )}
             <div css={s.modalButtons}>
@@ -176,4 +179,3 @@ export default function Home() {
     </div>
   );
 }
-//하트 애니 수정
