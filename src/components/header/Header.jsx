@@ -72,8 +72,8 @@ function Header() {
 
 
   const SigninClick = () => navigate("/auth/signin");
-  const SignupClick = () => navigate("/auth/signup");
-  const ProfileClick = () => navigate("/auth/profile");
+  // const SignupClick = () => navigate("/auth/signup");
+  // const ProfileClick = () => navigate("/auth/profile");
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
