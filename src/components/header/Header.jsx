@@ -72,8 +72,8 @@ function Header() {
 
 
   const SigninClick = () => navigate("/auth/signin");
-  const SignupClick = () => navigate("/auth/signup");
-  const ProfileClick = () => navigate("/auth/profile");
+  // const SignupClick = () => navigate("/auth/signup");
+  // const ProfileClick = () => navigate("/auth/profile");
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
@@ -131,11 +131,10 @@ function Header() {
         <ul>
           <li onClick={ProfileClick}>프로필</li>
 
-          <li>설정</li>
           {isLoggedIn && <li onClick={handleLogout}>로그아웃</li>}
 
           <li onClick={handleGoSetting}>설정</li>
-          <li>로그아웃</li>
+          {/* <li>로그아웃</li> */}
  
         </ul>
       </div>

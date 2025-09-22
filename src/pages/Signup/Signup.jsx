@@ -70,7 +70,7 @@ function Signup() {
   // 회원가입
   const signupOnClickHandler = async () => {
     // 1. 모든 항목 입력 여부 확인
-    if (!name || username || !password || !confirmPassword || !email) {
+    if (!name || !username || !password || !confirmPassword || !email) {
       alert("모든 항목을 입력해 주세요.");
       return;
     }
