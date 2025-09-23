@@ -7,37 +7,63 @@ export default function Home() {
   const [showLogo, setShowLogo] = useState(true);
   const [inputMoved, setInputMoved] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [inputValue, setInputValue] = useState("");
+  const [purpose, setPurpose] = useState(""); // 목적
+  const [budget, setBudget] = useState("");   // 예산
   const chatBoxRef = useRef(null);
 
   const [liked, setLiked] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("제목 없음");
-  const [hearts, setHearts] = useState([]); // 화면에 떠오르는 하트 리스트
+  const [hearts, setHearts] = useState([]);
   const heartIdRef = useRef(0);
   const [titleError, setTitleError] = useState(false);
 
-  // -------------------------
-  // GPT 요청 함수
-  const fetchGPT = async (message) => {
+  // GPT 요청 함수 (JSON 반환 요청)
+  const fetchGPT = async (purposeMessage, budgetValue) => {
     try {
-      const response = await fetch("/api/gpt", {
+      const response = await fetch("http://localhost:8080/chat/estimate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({
+          purpose: purposeMessage,
+          cost: Number(budgetValue) || 0,
+          instruction:
+            "추천 부품과 가격을 JSON 배열로 반환하세요. 예: { parts: [{name:'CPU', price:250000}, ...] }"
+        }),
       });
 
       if (!response.ok) throw new Error("서버 오류: " + response.status);
 
       const data = await response.json();
-      return data.reply || "응답이 없습니다.";
+      return data.data || "응답이 없습니다.";
     } catch (error) {
       console.error(error);
       return "서버 오류가 발생했습니다.";
     }
   };
 
-  // 메시지 추가 시 자동 스크롤
+  // DB 저장
+const handleSaveToDB = async (gptText) => {
+  try {
+    const resp = await fetch("http://localhost:8080/estimate/save-gpt", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        gptResponse: gptText,
+        title: title,
+        purpose: purpose,
+        budget: Number(budget) || 0,
+      }),
+    });
+
+    const data = await resp.json();
+    console.log("DB 저장 결과:", data);
+  } catch (err) {
+    console.error("DB 저장 실패", err);
+  }
+};
+
+  // 자동 스크롤
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTo({
@@ -49,17 +75,23 @@ export default function Home() {
 
   // 엔터 입력
   const handleEnter = async (e) => {
-    if (e.key !== "Enter" || inputValue.trim() === "") return;
+    if (e.key !== "Enter" || !purpose.trim()) return;
 
-    const userMessage = { sender: "user", text: inputValue };
+    const userMessage = { sender: "user", text: `목적: ${purpose}, 예산: ${budget}` };
     setMessages((prev) => [...prev, userMessage]);
-    setInputValue("");
+    setPurpose("");
+    setBudget("");
     setShowLogo(false);
     setInputMoved(true);
 
-    const gptResponse = await fetchGPT(inputValue);
+    // GPT 호출
+    const gptResponse = await fetchGPT(userMessage.text, budget);
+
     const gptMessage = { sender: "gpt", text: gptResponse };
     setMessages((prev) => [...prev, gptMessage]);
+
+    // DB 저장
+    await handleSaveToDB(gptResponse);
   };
 
   // 하트 클릭
@@ -77,12 +109,17 @@ export default function Home() {
   };
 
   // 찜 모달 확인
-  const handleModalConfirm = () => {
+  const handleModalConfirm = async () => {
     if (title.trim() === "") {
       setTitleError(true);
       return;
     }
-    console.log("저장 제목:", title);
+
+    const lastGPTMessage = messages.slice().reverse().find((msg) => msg.sender === "gpt");
+    if (lastGPTMessage) {
+      await handleSaveToDB(lastGPTMessage.text);
+    }
+
     setShowModal(false);
     setLiked(false);
     setTitle("제목 없음");
@@ -103,9 +140,15 @@ export default function Home() {
       <div css={s.search(inputMoved)}>
         <input
           type="text"
-          placeholder="원하시는 금액 및 사양을 적어주세요"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="원하시는 목적을 입력하세요"
+          value={purpose}
+          onChange={(e) => setPurpose(e.target.value)}
+        />
+        <input
+          type="number"
+          placeholder="예산을 입력하세요"
+          value={budget}
+          onChange={(e) => setBudget(e.target.value)}
           onKeyDown={handleEnter}
         />
       </div>
@@ -113,10 +156,7 @@ export default function Home() {
       <div css={s.chatBoxWrapper}>
         <div css={s.chatBox} ref={chatBoxRef}>
           {messages.map((msg, idx) => (
-            <div
-              key={idx}
-              css={msg.sender === "user" ? s.userMessage : s.gptMessage}
-            >
+            <div key={idx} css={msg.sender === "user" ? s.userMessage : s.gptMessage}>
               {msg.text}
             </div>
           ))}
@@ -130,11 +170,7 @@ export default function Home() {
               color={liked ? "red" : "lightgray"}
             />
             {hearts.map((h) => (
-              <FaHeart
-                key={h.id}
-                css={s.flyingHeart}
-                style={{ animationDelay: `${h.delay}ms` }}
-              />
+              <FaHeart key={h.id} css={s.flyingHeart} style={{ animationDelay: `${h.delay}ms` }} />
             ))}
           </div>
         )}
