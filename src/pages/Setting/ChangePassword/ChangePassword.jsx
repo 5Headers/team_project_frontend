@@ -17,24 +17,26 @@ function ChangePassword() {
 
   return (
     <div css={s.container}>
-      <h2>비밀번호 변경</h2>
-      <input
-        css={s.input}
-        type="password"
-        placeholder="현재 비밀번호"
-        value={currentPwd}
-        onChange={(e) => setCurrentPwd(e.target.value)}
-      />
-      <input
-        css={s.input}
-        type="password"
-        placeholder="새로운 비밀번호"
-        value={newPwd}
-        onChange={(e) => setNewPwd(e.target.value)}
-      />
-      <button css={s.button} onClick={handleChange}>
-        비밀번호 변경
-      </button>
+      <div css={s.inner}>
+        <h2>비밀번호 변경</h2>
+        <input
+          css={s.input}
+          type="password"
+          placeholder="현재 비밀번호"
+          value={currentPwd}
+          onChange={(e) => setCurrentPwd(e.target.value)}
+        />
+        <input
+          css={s.input}
+          type="password"
+          placeholder="새로운 비밀번호"
+          value={newPwd}
+          onChange={(e) => setNewPwd(e.target.value)}
+        />
+        <button css={s.button} onClick={handleChange}>
+          비밀번호 변경
+        </button>
+      </div>
     </div>
   );
 }
