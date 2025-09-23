@@ -21,11 +21,9 @@ export const inner = css`
 `;
 
 export const title = css`
-  align-self: flex-start;
   font-size: 80px;
   font-weight: bold;
   margin-bottom: 50px;
-  margin-left: 10px;
   text-align: center;
 `;
 
@@ -70,8 +68,8 @@ export const menu = css`
 `;
 
 export const content = css`
-  flex: 1; /* 남는 공간 전부 사용 */
-  width: 100%; /* flex와 함께 사용하면 폭 자동 */
+  flex: 1;
+  width: 100%;
   min-height: 0;
   max-height: 450px;
   background-color: #222;

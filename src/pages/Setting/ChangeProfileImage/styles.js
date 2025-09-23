@@ -1,3 +1,4 @@
+// styles.js
 import { css } from "@emotion/react";
 
 export const container = css`
@@ -7,7 +8,8 @@ export const container = css`
   height: 100%;
   box-sizing: border-box;
   padding: 0;
-  font-size: 40px;
+  font-size: 36px;
+  text-align: center;
 `;
 
 export const inner = css`
@@ -15,29 +17,38 @@ export const inner = css`
   padding-left: 40px;
   padding-right: 40px;
   text-align: center;
+  gap: 50px;
 `;
 
 export const title = css`
-  align-self: flex-start;
-  font-size: 80px;
+  width: 100%;
+  font-size: 60px;
   font-weight: bold;
   margin-bottom: 50px;
-  margin-left: 10px;
   text-align: center;
+  align-items: center;
+`;
+
+export const preview = css`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
 `;
 
 export const input = css`
   width: 100%;
   height: 150px;
-  padding: 0px 20px;
+  padding: 0 20px;
   border-radius: 8px;
   border: 1px solid #ccc;
   box-sizing: border-box;
-  font-size: 36px;
+  font-size: 32px;
+  text-align: center;
 `;
 
 export const button = css`
-  width: 100%; /* 부모 폭 전체 사용 */
+  width: 100%;
   padding: 15px;
   border-radius: 5px;
   border: none;
@@ -46,7 +57,9 @@ export const button = css`
   font-size: 22px;
   font-weight: bold;
   cursor: pointer;
-  display: block; /* 블록으로 가로 전체 사용 */
+  display: block;
+  text-align: center;
+  align-items: center;
   margin-top: 10px;
   transition: all 0.3s ease;
 

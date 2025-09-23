@@ -18,7 +18,6 @@ function Header() {
 
   const navigate = useNavigate();
 
-  // 로그인 이벤트 감지 + 다른 탭 storage 이벤트
   useEffect(() => {
     const handleLogin = () => setIsLoggedIn(true);
     const handleStorage = () =>
@@ -33,12 +32,7 @@ function Header() {
     };
   }, []);
 
-
-  const handleGoSetting = () => {
-    navigate("/setting");
-  };
-
-  // 사이드바 토글
+  const handleGoSetting = () => navigate("/setting");
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -70,29 +64,17 @@ function Header() {
     else if (index === 3) navigate("/");
   };
 
-
   const SigninClick = () => navigate("/auth/signin");
-  // const SignupClick = () => navigate("/auth/signup");
-  // const ProfileClick = () => navigate("/auth/profile");
+  const SignupClick = () => navigate("/auth/signup");
+  const ProfileClick = () => navigate("/auth/profile");
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
-    setIsLoggedIn(false); // 상태 즉시 업데이트
+    setIsLoggedIn(false);
     setIsMenuOpen(false);
     setIsRotated(false);
     navigate("/");
   };
-
-
-  // 회원가입 항목 클릭 -> 페이지 이동
-  const SignupClick = () => {
-    navigate("/auth/signup");
-  };
-  //프로필 항목 클릭 -> 페이지이동
-  const ProfileClick = () => {
-    navigate("/auth/profile");
-  };
-
 
   return (
     <div css={s.container} onClick={closeMenu}>
@@ -107,19 +89,19 @@ function Header() {
         <div>
           <ul>
             {!isLoggedIn ? (
-      <>
-        <li css={s.login} onClick={SigninClick}>
-          로그인
-        </li>
-        <li css={s.signup} onClick={SignupClick}>
-          회원가입
-        </li>
-      </>
-    ) : (
-      <li css={s.profileIcon} onClick={ProfileClick}>
-        <img src={profileImage} alt="프로필" />
-      </li>
-    )}
+              <>
+                <li css={s.login} onClick={SigninClick}>
+                  로그인
+                </li>
+                <li css={s.signup} onClick={SignupClick}>
+                  회원가입
+                </li>
+              </>
+            ) : (
+              <li css={s.profileIcon} onClick={ProfileClick}>
+                <img src={profileImage} alt="프로필" />
+              </li>
+            )}
             <li>
               <DiAptana css={s.headerIcon(isRotated)} onClick={toggleMenu} />
             </li>

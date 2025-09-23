@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { useState } from "react";
-import * as s from "../styles";
+import * as s from "./styles";
 
 function ChangeProfileImage() {
   const [image, setImage] = useState(null);
