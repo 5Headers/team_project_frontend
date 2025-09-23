@@ -18,8 +18,10 @@ export default function Home() {
   const heartIdRef = useRef(0);
   const [titleError, setTitleError] = useState(false);
 
+
   // JWT 토큰 가져오기
   const token = localStorage.getItem("accessToken");
+
 
   // GPT 요청 함수 (JSON 반환 요청)
   const fetchGPT = async (purposeMessage, budgetValue) => {
