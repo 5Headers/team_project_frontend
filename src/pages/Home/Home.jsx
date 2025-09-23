@@ -8,7 +8,7 @@ export default function Home() {
   const [inputMoved, setInputMoved] = useState(false);
   const [messages, setMessages] = useState([]);
   const [purpose, setPurpose] = useState(""); // 목적
-  const [budget, setBudget] = useState("");   // 예산
+  const [budget, setBudget] = useState(""); // 예산
   const chatBoxRef = useRef(null);
 
   const [liked, setLiked] = useState(false);
@@ -18,27 +18,17 @@ export default function Home() {
   const heartIdRef = useRef(0);
   const [titleError, setTitleError] = useState(false);
 
-
   // GPT 요청 함수 (JSON 반환 요청)
   const fetchGPT = async (purposeMessage, budgetValue) => {
-
-  // GPT 요청 함수
-  const fetchGPT = async (message) => {
-
     try {
       const response = await fetch("http://localhost:8080/chat/estimate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-
           purpose: purposeMessage,
           cost: Number(budgetValue) || 0,
           instruction:
-            "추천 부품과 가격을 JSON 배열로 반환하세요. 예: { parts: [{name:'CPU', price:250000}, ...] }"
-
-          purpose: message,
-          cost: 0,
-
+            "추천 부품과 가격을 JSON 배열로 반환하세요. 예: { parts: [{name:'CPU', price:250000}, ...] }",
         }),
       });
 
@@ -52,60 +42,17 @@ export default function Home() {
     }
   };
 
-
   // DB 저장
-const handleSaveToDB = async (gptText) => {
-  try {
-    const resp = await fetch("http://localhost:8080/estimate/save-gpt", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        gptResponse: gptText,
-        title: title,
-        purpose: purpose,
-        budget: Number(budget) || 0,
-      }),
-    });
-
-    const data = await resp.json();
-    console.log("DB 저장 결과:", data);
-  } catch (err) {
-    console.error("DB 저장 실패", err);
-  }
-};
-
-  // 자동 스크롤
-
-  // GPT 메시지 + DB 저장
-  const handleSaveToDB = async (gptMessage) => {
+  const handleSaveToDB = async (gptText) => {
     try {
-      // 1. 부품 데이터 예시 (실제 구현 시 GPT 응답 parsing 필요)
-      const parts = [
-        {
-          category: "CPU",
-          name: "Intel i9",
-          price: 600000,
-          link: "",
-          storeType: "online",
-        },
-        {
-          category: "RAM",
-          name: "16GB DDR4",
-          price: 100000,
-          link: "",
-          storeType: "online",
-        },
-      ];
-
-      // 2. DB에 저장 요청
       const resp = await fetch("http://localhost:8080/estimate/save-gpt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          response: gptMessage,
+          gptResponse: gptText,
           title: title,
-          budget: 0,
-          parts: parts,
+          purpose: purpose,
+          budget: Number(budget) || 0,
         }),
       });
 
@@ -116,8 +63,7 @@ const handleSaveToDB = async (gptText) => {
     }
   };
 
-  // 메시지 추가 시 자동 스크롤
-
+  // 자동 스크롤
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTo({
@@ -131,7 +77,10 @@ const handleSaveToDB = async (gptText) => {
   const handleEnter = async (e) => {
     if (e.key !== "Enter" || !purpose.trim()) return;
 
-    const userMessage = { sender: "user", text: `목적: ${purpose}, 예산: ${budget}` };
+    const userMessage = {
+      sender: "user",
+      text: `목적: ${purpose}, 예산: ${budget}`,
+    };
     setMessages((prev) => [...prev, userMessage]);
     setPurpose("");
     setBudget("");
@@ -149,7 +98,7 @@ const handleSaveToDB = async (gptText) => {
   };
 
   // 하트 클릭
-  const handleHeartClick = async () => {
+  const handleHeartClick = () => {
     setLiked(true);
     setShowModal(true);
 
@@ -169,15 +118,10 @@ const handleSaveToDB = async (gptText) => {
       return;
     }
 
-
-    const lastGPTMessage = messages.slice().reverse().find((msg) => msg.sender === "gpt");
-
-    // 마지막 GPT 메시지 가져오기
     const lastGPTMessage = messages
       .slice()
       .reverse()
       .find((msg) => msg.sender === "gpt");
-
     if (lastGPTMessage) {
       await handleSaveToDB(lastGPTMessage.text);
     }
@@ -218,7 +162,10 @@ const handleSaveToDB = async (gptText) => {
       <div css={s.chatBoxWrapper}>
         <div css={s.chatBox} ref={chatBoxRef}>
           {messages.map((msg, idx) => (
-            <div key={idx} css={msg.sender === "user" ? s.userMessage : s.gptMessage}>
+            <div
+              key={idx}
+              css={msg.sender === "user" ? s.userMessage : s.gptMessage}
+            >
               {msg.text}
             </div>
           ))}
@@ -232,7 +179,11 @@ const handleSaveToDB = async (gptText) => {
               color={liked ? "red" : "lightgray"}
             />
             {hearts.map((h) => (
-              <FaHeart key={h.id} css={s.flyingHeart} style={{ animationDelay: `${h.delay}ms` }} />
+              <FaHeart
+                key={h.id}
+                css={s.flyingHeart}
+                style={{ animationDelay: `${h.delay}ms` }}
+              />
             ))}
           </div>
         )}
