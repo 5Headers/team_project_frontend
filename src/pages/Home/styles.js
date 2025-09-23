@@ -189,3 +189,88 @@ export const modalButtons = css`
     }
   }
 `;
+
+export const splitInputWrapper = css`
+  display: flex;
+  align-items: center;
+  width: 90%;
+  max-width: 800px;
+  height: 50px;
+  padding: 0 15px;
+  border-radius: 9999px;
+  background-color: #1f2b38;
+  border: 1px solid #3a8de6ff;
+  box-sizing: border-box;
+  gap: 8px; /* input과 아이콘 사이 간격 */
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+
+  &:focus-within {
+    box-shadow: 0 0 12px 2px #3a8de6ff;
+    transform: scale(1.02);
+  }
+
+  svg {
+    font-size: 24px;
+    color: #3a8de6ff;
+    cursor: pointer;
+  }
+`;
+
+export const splitDivider = css`
+  margin: 0 10px;
+  color: rgba(255,255,255,0.5);
+  user-select: none;
+`;
+
+export const splitInput = css`
+  flex: 1;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: white;
+  font-size: 16px;
+
+  /* 숫자 input 스피너 제거 */
+  -moz-appearance: textfield; /* Firefox */
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none; /* Chrome, Safari, Edge */
+    margin: 0;
+  }
+`;
+
+const heartFloatNatural = keyframes`
+  0% {
+    transform: translateY(0) translateX(var(--dx,0)) scale(0.5) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    transform: translateY(-5px) translateX(calc(var(--dx,0) + 5px)) scale(1.3) rotate(-15deg);
+    opacity: 1;
+  }
+  25% {
+    transform: translateY(-30px) translateX(calc(var(--dx,0) - 5px)) scale(1.1) rotate(10deg);
+  }
+  50% {
+    transform: translateY(-60px) translateX(calc(var(--dx,0) + 8px)) scale(1.2) rotate(-10deg);
+  }
+  75% {
+    transform: translateY(-90px) translateX(calc(var(--dx,0) - 6px)) scale(1) rotate(5deg);
+  }
+  100% {
+    transform: translateY(-130px) translateX(var(--dx,0)) scale(0.8) rotate(0deg);
+    opacity: 0;
+  }
+`;
+
+export const flyingHeart = css`
+  position: absolute;
+  bottom: -40px;
+  font-size: var(--size, 16px);
+  right: 0;
+  color: #ff4d6d;
+  pointer-events: none;
+  animation: ${heartFloatNatural} 1.6s ease-in-out forwards;
+  will-change: transform, opacity;
+`;
