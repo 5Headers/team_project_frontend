@@ -82,7 +82,12 @@ function Signup() {
     }
 
     // 유효성 검사
-    if (errorMessage.name ||  errorMessage.username || errorMessage.password || errorMessage.email) {
+    if (
+      errorMessage.name ||
+      errorMessage.username ||
+      errorMessage.password ||
+      errorMessage.email
+    ) {
       alert("입력값을 다시 확인해주세요.");
       return;
     }
@@ -122,8 +127,6 @@ function Signup() {
   // 유효성 검사
   useEffect(() => {
     const newErrorMessage = {};
-
-    
 
     if (username.length > 0) {
       const usernameRegex = /^(?=.*[a-zA-Z])(?=.*[0-9]).{6,}$/;
