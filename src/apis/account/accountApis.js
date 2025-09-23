@@ -29,3 +29,28 @@ export const changeProfileImg = async (data) => {
     return error.response;
   }
 };
+
+// 아이디 찾기 API (이름 + 이메일)
+export const findIdRequest = async (name, email) => {
+  try {
+    const response = await instance.post(
+      `/account/find-id?name=${encodeURIComponent(
+        name
+      )}&email=${encodeURIComponent(email)}`
+    );
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
+
+// 비밀번호 찾기 API (username + 이메일)
+export const resetPasswordRequest = async (data) => {
+  try {
+    // data = { username: "아이디", email: "이메일" }
+    const response = await instance.post("/account/reset-password", data);
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
