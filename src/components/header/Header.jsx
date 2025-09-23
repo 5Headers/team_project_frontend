@@ -130,13 +130,8 @@ function Header() {
       <div css={s.headerSlidingMenu(isMenuOpen)}>
         <ul>
           <li onClick={ProfileClick}>프로필</li>
-
-          <li>설정</li>
-          {isLoggedIn && <li onClick={handleLogout}>로그아웃</li>}
-
           <li onClick={handleGoSetting}>설정</li>
-          <li>로그아웃</li>
- 
+          {isLoggedIn && <li onClick={handleLogout}>로그아웃</li>}
         </ul>
       </div>
 
