@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import * as s from "../styles";
+import * as s from "./styles";
 
 function DeleteAccount() {
   const handleDeleteAccount = () => {
@@ -16,10 +16,10 @@ function DeleteAccount() {
 
   return (
     <div css={s.container}>
-      <h2 css={s.title}>회원탈퇴</h2>
+      <h2 css={s.title}>회원 탈퇴</h2>
       <p css={s.warning}>계정 삭제 시, 모든 정보가 영구적으로 삭제됩니다.</p>
       <button css={s.button} onClick={handleDeleteAccount}>
-        회원탈퇴
+        회원 탈퇴
       </button>
     </div>
   );

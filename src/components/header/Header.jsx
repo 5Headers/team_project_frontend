@@ -33,7 +33,6 @@ function Header() {
     };
   }, []);
 
-
   const handleGoSetting = () => {
     navigate("/setting");
   };
@@ -70,7 +69,6 @@ function Header() {
     else if (index === 3) navigate("/");
   };
 
-
   const SigninClick = () => navigate("/auth/signin");
   // const SignupClick = () => navigate("/auth/signup");
   // const ProfileClick = () => navigate("/auth/profile");
@@ -83,7 +81,6 @@ function Header() {
     navigate("/");
   };
 
-
   // 회원가입 항목 클릭 -> 페이지 이동
   const SignupClick = () => {
     navigate("/auth/signup");
@@ -92,7 +89,6 @@ function Header() {
   const ProfileClick = () => {
     navigate("/auth/profile");
   };
-
 
   return (
     <div css={s.container} onClick={closeMenu}>
@@ -107,19 +103,19 @@ function Header() {
         <div>
           <ul>
             {!isLoggedIn ? (
-      <>
-        <li css={s.login} onClick={SigninClick}>
-          로그인
-        </li>
-        <li css={s.signup} onClick={SignupClick}>
-          회원가입
-        </li>
-      </>
-    ) : (
-      <li css={s.profileIcon} onClick={ProfileClick}>
-        <img src={profileImage} alt="프로필" />
-      </li>
-    )}
+              <>
+                <li css={s.login} onClick={SigninClick}>
+                  로그인
+                </li>
+                <li css={s.signup} onClick={SignupClick}>
+                  회원가입
+                </li>
+              </>
+            ) : (
+              <li css={s.profileIcon} onClick={ProfileClick}>
+                <img src={profileImage} alt="프로필" />
+              </li>
+            )}
             <li>
               <DiAptana css={s.headerIcon(isRotated)} onClick={toggleMenu} />
             </li>
@@ -131,12 +127,10 @@ function Header() {
         <ul>
           <li onClick={ProfileClick}>프로필</li>
 
-          <li>설정</li>
           {isLoggedIn && <li onClick={handleLogout}>로그아웃</li>}
 
           <li onClick={handleGoSetting}>설정</li>
           <li>로그아웃</li>
- 
         </ul>
       </div>
 
