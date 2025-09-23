@@ -7,7 +7,8 @@ export default function Home() {
   const [showLogo, setShowLogo] = useState(true);
   const [inputMoved, setInputMoved] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [inputValue, setInputValue] = useState("");
+  const [purpose, setPurpose] = useState(""); // 목적
+  const [budget, setBudget] = useState(""); // 예산
   const chatBoxRef = useRef(null);
 
   const [liked, setLiked] = useState(false);
@@ -17,15 +18,25 @@ export default function Home() {
   const heartIdRef = useRef(0);
   const [titleError, setTitleError] = useState(false);
 
-  // GPT 요청 함수
-  const fetchGPT = async (message) => {
+
+  // JWT 토큰 가져오기
+  const token = localStorage.getItem("accessToken");
+
+
+  // GPT 요청 함수 (JSON 반환 요청)
+  const fetchGPT = async (purposeMessage, budgetValue) => {
     try {
       const response = await fetch("http://localhost:8080/chat/estimate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // JWT 헤더 추가
+        },
         body: JSON.stringify({
-          purpose: message,
-          cost: 0,
+          purpose: purposeMessage,
+          cost: Number(budgetValue) || 0,
+          instruction:
+            "추천 부품과 가격을 JSON 배열로 반환하세요. 예: { parts: [{name:'CPU', price:250000}, ...] }",
         }),
       });
 
@@ -39,36 +50,20 @@ export default function Home() {
     }
   };
 
-  // GPT 메시지 + DB 저장
-  const handleSaveToDB = async (gptMessage) => {
+  // DB 저장
+  const handleSaveToDB = async (gptText) => {
     try {
-      // 1. 부품 데이터 예시 (실제 구현 시 GPT 응답 parsing 필요)
-      const parts = [
-        {
-          category: "CPU",
-          name: "Intel i9",
-          price: 600000,
-          link: "",
-          storeType: "online",
-        },
-        {
-          category: "RAM",
-          name: "16GB DDR4",
-          price: 100000,
-          link: "",
-          storeType: "online",
-        },
-      ];
-
-      // 2. DB에 저장 요청
       const resp = await fetch("http://localhost:8080/estimate/save-gpt", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // JWT 헤더 추가
+        },
         body: JSON.stringify({
-          response: gptMessage,
+          gptResponse: gptText,
           title: title,
-          budget: 0,
-          parts: parts,
+          purpose: purpose,
+          budget: Number(budget) || 0,
         }),
       });
 
@@ -79,7 +74,7 @@ export default function Home() {
     }
   };
 
-  // 메시지 추가 시 자동 스크롤
+  // 자동 스크롤
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTo({
@@ -91,21 +86,30 @@ export default function Home() {
 
   // 엔터 입력
   const handleEnter = async (e) => {
-    if (e.key !== "Enter" || inputValue.trim() === "") return;
+    if (e.key !== "Enter" || !purpose.trim()) return;
 
-    const userMessage = { sender: "user", text: inputValue };
+    const userMessage = {
+      sender: "user",
+      text: `목적: ${purpose}, 예산: ${budget}`,
+    };
     setMessages((prev) => [...prev, userMessage]);
-    setInputValue("");
+    setPurpose("");
+    setBudget("");
     setShowLogo(false);
     setInputMoved(true);
 
-    const gptResponse = await fetchGPT(inputValue);
+    // GPT 호출
+    const gptResponse = await fetchGPT(userMessage.text, budget);
+
     const gptMessage = { sender: "gpt", text: gptResponse };
     setMessages((prev) => [...prev, gptMessage]);
+
+    // DB 저장
+    await handleSaveToDB(gptResponse);
   };
 
   // 하트 클릭
-  const handleHeartClick = async () => {
+  const handleHeartClick = () => {
     setLiked(true);
     setShowModal(true);
 
@@ -125,7 +129,6 @@ export default function Home() {
       return;
     }
 
-    // 마지막 GPT 메시지 가져오기
     const lastGPTMessage = messages
       .slice()
       .reverse()
@@ -154,9 +157,15 @@ export default function Home() {
       <div css={s.search(inputMoved)}>
         <input
           type="text"
-          placeholder="원하시는 금액 및 사양을 적어주세요"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="원하시는 목적을 입력하세요"
+          value={purpose}
+          onChange={(e) => setPurpose(e.target.value)}
+        />
+        <input
+          type="number"
+          placeholder="예산을 입력하세요"
+          value={budget}
+          onChange={(e) => setBudget(e.target.value)}
           onKeyDown={handleEnter}
         />
       </div>

@@ -1,4 +1,3 @@
-// styles.js (ChangePassword 전용 또는 content 안에서 쓰이는 스타일)
 import { css } from "@emotion/react";
 
 export const container = css`
@@ -7,9 +6,8 @@ export const container = css`
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-  font-size: 30px;
-  padding-right: 30px;
-  /* padding-down: 20px; */
+  font-size: 36px;
+  padding: 0 30px;
   align-items: center;
   gap: 5px;
 `;
@@ -24,7 +22,7 @@ export const inner = css`
 export const input = css`
   width: 100%;
   height: 150px;
-  padding: 20px 100px;
+  padding: 10px 20px;
   border-radius: 8px;
   border: 1px solid #ccc;
   box-sizing: border-box;
@@ -32,7 +30,7 @@ export const input = css`
 `;
 
 export const button = css`
-  width: 100%; /* 부모 폭 전체 사용 */
+  width: 100%;
   padding: 15px;
   border-radius: 5px;
   border: none;
@@ -41,7 +39,7 @@ export const button = css`
   font-size: 30px;
   font-weight: bold;
   cursor: pointer;
-  display: block; /* 블록으로 가로 전체 사용 */
+  display: block;
   margin-top: 10px;
   transition: all 0.3s ease;
 

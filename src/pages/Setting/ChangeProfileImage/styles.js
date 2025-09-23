@@ -1,3 +1,4 @@
+// styles.js
 import { css } from "@emotion/react";
 
 export const container = css`
@@ -7,7 +8,7 @@ export const container = css`
   height: 100%;
   box-sizing: border-box;
   padding: 0;
-  font-size: 3px;
+  font-size: 36px;
   text-align: center;
 `;
 
@@ -21,36 +22,33 @@ export const inner = css`
 
 export const title = css`
   width: 100%;
-  /* align-self: flex-start; */
-  height: 150px;
-  font-size: 50px;
+  font-size: 60px;
   font-weight: bold;
-  margin-bottom: 60px;
-  /* margin-left: 10px; */
+  margin-bottom: 50px;
   text-align: center;
   align-items: center;
 `;
 
 export const preview = css`
-  text-align: center;
-  align-items: center;
+  display: flex;
   justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
 `;
 
 export const input = css`
   width: 100%;
   height: 150px;
-  padding: 0px 20px;
+  padding: 0 20px;
   border-radius: 8px;
   border: 1px solid #ccc;
   box-sizing: border-box;
-  font-size: 28px;
+  font-size: 32px;
   text-align: center;
-  align-items: center;
 `;
 
 export const button = css`
-  width: 100%; /* 부모 폭 전체 사용 */
+  width: 100%;
   padding: 15px;
   border-radius: 5px;
   border: none;
@@ -59,11 +57,11 @@ export const button = css`
   font-size: 22px;
   font-weight: bold;
   cursor: pointer;
-  display: block; /* 블록으로 가로 전체 사용 */
+  display: block;
+  text-align: center;
+  align-items: center;
   margin-top: 10px;
   transition: all 0.3s ease;
-  align-items: center;
-  text-align: center;
 
   &:hover {
     background-color: #ff4500;
