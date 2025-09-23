@@ -18,6 +18,8 @@ export default function Home() {
   const heartIdRef = useRef(0);
   const [titleError, setTitleError] = useState(false);
 
+  // JWT 토큰 가져오기
+  const token = localStorage.getItem("accessToken");
 
   // JWT 토큰 가져오기
   const token = localStorage.getItem("accessToken");
