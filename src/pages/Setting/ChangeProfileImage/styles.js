@@ -7,37 +7,52 @@ export const container = css`
   height: 100%;
   box-sizing: border-box;
   padding: 0;
-  font-size: 40px;
-`;
-
-export const inner = css`
-  width: 100%;
-  padding-left: 40px;
-  padding-right: 40px;
-  text-align: center;
+  font-size: 20px;
+  align-items: center;
 `;
 
 export const title = css`
-  align-self: flex-start;
-  font-size: 80px;
+  font-size: 40px;
   font-weight: bold;
   margin-bottom: 50px;
-  margin-left: 10px;
   text-align: center;
 `;
 
-export const input = css`
-  width: 100%;
-  height: 150px;
-  padding: 0px 20px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-  font-size: 36px;
+export const hiddenInput = css`
+  display: none; /* 실제 input 숨김 */
+`;
+
+export const uploadButton = css`
+  padding: 15px 30px;
+  border-radius: 10px;
+  background-color: #145fafff;
+  color: white;
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+
+  &:hover {
+    background-color: #1e79daff;
+    box-shadow: 0 0 10px #4e9df1ff, 0 0 20px #4e9df1ff;
+    transform: translateY(-2px);
+  }
+`;
+
+export const preview = css`
+  width: 200px; /* 원하는 크기 */
+  height: 200px; /* 정사각형 */
+  object-fit: cover; /* 비율 유지하며 자르기 */
+  border-radius: 20px;
+  margin-bottom: 20px;
+  border: 2px solid #145fafff;
+  box-shadow: 0 4px 12px rgba(20, 95, 255, 0.5);
 `;
 
 export const button = css`
-  width: 100%; /* 부모 폭 전체 사용 */
+  width: 100%;
+  max-width: 300px;
   padding: 15px;
   border-radius: 5px;
   border: none;
@@ -46,7 +61,7 @@ export const button = css`
   font-size: 22px;
   font-weight: bold;
   cursor: pointer;
-  display: block; /* 블록으로 가로 전체 사용 */
+  display: block;
   margin-top: 10px;
   transition: all 0.3s ease;
 

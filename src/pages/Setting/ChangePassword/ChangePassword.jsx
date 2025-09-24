@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 
 import { useState } from "react";
-import * as s from "../styles";
+import * as s from "./styles";
 
 function ChangePassword() {
   const [currentPwd, setCurrentPwd] = useState("");
