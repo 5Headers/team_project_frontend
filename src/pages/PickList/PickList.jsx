@@ -1,23 +1,55 @@
 /** @jsxImportSource @emotion/react */
-import { useState } from "react";
+import  React, { useState, useEffect } from "react";
 import * as s from "./styles";
 
-// 임시 데이터 (나중에 DB 연동)
-const mockData = Array.from({ length: 15 }, (_, i) => ({
-  id: i + 1,
-  title: `제목 ${i + 1}`,
-  content: `내용 ${i + 1}`,
-  img: `이미지 ${i + 1}`,
-}));
+// JWT 토큰에서 payload 추출 함수
+function parseJwt(token) {
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(atob(base64));
+  } catch (e) {
+    return null;
+  }
+}
 
-const ITEMS_PER_PAGE = 5; // 한 페이지당 표시 항목 수
+const ITEMS_PER_PAGE = 5;
 
 function PickList() {
+  const [bookmarks, setBookmarks] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const totalPages = Math.ceil(mockData.length / ITEMS_PER_PAGE);
+  useEffect(() => {
+    const fetchBookmarks = async () => {
+      try {
+        // localStorage에서 JWT 가져오기
+        const token = localStorage.getItem("accessToken");
+        if (!token) throw new Error("로그인 필요");
+
+        const payload = parseJwt(token);
+        const userId = payload?.userId;
+        if (!userId) throw new Error("유효하지 않은 토큰");
+
+        const resp = await fetch(`http://localhost:8080/bookmark/user/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!resp.ok) throw new Error("북마크 불러오기 실패");
+        const data = await resp.json();
+        setBookmarks(data);
+      } catch (err) {
+        console.error("북마크 불러오기 실패:", err);
+      }
+    };
+
+    fetchBookmarks();
+  }, []);
+
+  const totalPages = Math.ceil(bookmarks.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentItems = mockData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const currentItems = bookmarks.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const goToPage = (page) => {
     if (page < 1 || page > totalPages) return;
@@ -27,16 +59,15 @@ function PickList() {
   return (
     <div css={s.container}>
       {currentItems.map((item) => (
-        <ul key={item.id} css={s.ListBox}>
-          <li css={s.ImgBox}>{item.img}</li>
+        <ul key={item.bookmarkId} css={s.ListBox}>
+          <li css={s.ImgBox}>🖥</li>
           <li css={s.TitleBox}>
-            <div css={s.TitleText}>{item.title}</div>
-            <div css={s.ExportText}>{item.content}</div>
+            <div css={s.TitleText}>{item.title || "제목 없음"}</div>
+            <div css={s.ExportText}>{item.content || "내용 없음"}</div>
           </li>
         </ul>
       ))}
 
-      {/* 페이지네이션 */}
       <div css={s.pagination}>
         <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>
           이전
