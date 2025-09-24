@@ -5,13 +5,22 @@ import Setting from "../../pages/Setting/Setting";
 import { Route, Routes } from "react-router-dom";
 import AuthRouter from "../AuthRouter/AuthRouter";
 import Maps from "../../pages/googlemap/Maps";
+import Main from "../../pages/Main/Main";
 
 function MainRouter() {
   return (
     <Routes>
-      {/* Routes: 여러 개의 Route를 감싸주는 컨테이너 역할 */}
       <Route
         path="*"
+        element={
+          <Layout>
+            <Main/>
+          </Layout>
+        }
+      />
+      {/* Routes: 여러 개의 Route를 감싸주는 컨테이너 역할 */}
+      <Route
+        path="/search"
         element={
           <Layout>
             <Home />
