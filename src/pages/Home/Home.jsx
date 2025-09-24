@@ -26,11 +26,6 @@ export default function Home() {
   const token = localStorage.getItem("accessToken");
 
 
-
-
- 
-
-
   // GPT 요청 함수 (JSON 반환 요청)
   const fetchGPT = async (purposeMessage, budgetValue) => {
     try {

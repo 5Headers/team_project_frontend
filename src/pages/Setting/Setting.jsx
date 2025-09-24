@@ -68,6 +68,9 @@ function Setting() {
             </button>
           </div>
 
+          {/* 🔹 세로 네온 구분선 */}
+          <div css={s.verticalDivider} />
+
           {/* 콘텐츠 */}
           <div css={s.content}>{renderContent()}</div>
         </div>
