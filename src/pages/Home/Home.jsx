@@ -2,13 +2,16 @@
 import { useState, useRef, useEffect } from "react";
 import * as s from "./styles";
 import { FaHeart } from "react-icons/fa";
+import { IoSearchCircleSharp } from "react-icons/io5";
 
 export default function Home() {
   const [showLogo, setShowLogo] = useState(true);
   const [inputMoved, setInputMoved] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [purpose, setPurpose] = useState(""); // 목적
-  const [budget, setBudget] = useState(""); // 예산
+  const [purpose, setPurpose] = useState(""); // 드롭다운 목적
+  const [customPurpose, setCustomPurpose] = useState(""); // 직접 입력용
+  const [isCustom, setIsCustom] = useState(false); // 직접 입력 모드
+  const [budget, setBudget] = useState("");
   const chatBoxRef = useRef(null);
 
   const [liked, setLiked] = useState(false);
@@ -17,12 +20,15 @@ export default function Home() {
   const [hearts, setHearts] = useState([]);
   const heartIdRef = useRef(0);
   const [titleError, setTitleError] = useState(false);
-
+  
+  
   // JWT 토큰 가져오기
   const token = localStorage.getItem("accessToken");
 
-  // JWT 토큰 가져오기
-  // const token = localStorage.getItem("accessToken");
+
+
+
+ 
 
 
   // GPT 요청 함수 (JSON 반환 요청)
@@ -32,7 +38,7 @@ export default function Home() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // JWT 헤더 추가
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           purpose: purposeMessage,
@@ -41,9 +47,7 @@ export default function Home() {
             "추천 부품과 가격을 JSON 배열로 반환하세요. 예: { parts: [{name:'CPU', price:250000}, ...] }",
         }),
       });
-
       if (!response.ok) throw new Error("서버 오류: " + response.status);
-
       const data = await response.json();
       return data.data || "응답이 없습니다.";
     } catch (error) {
@@ -52,23 +56,21 @@ export default function Home() {
     }
   };
 
-  // DB 저장
   const handleSaveToDB = async (gptText) => {
     try {
       const resp = await fetch("http://localhost:8080/estimate/save-gpt", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // JWT 헤더 추가
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           gptResponse: gptText,
           title: title,
-          purpose: purpose,
+          purpose: isCustom ? customPurpose : purpose,
           budget: Number(budget) || 0,
         }),
       });
-
       const data = await resp.json();
       console.log("DB 저장 결과:", data);
     } catch (err) {
@@ -76,7 +78,6 @@ export default function Home() {
     }
   };
 
-  // 자동 스크롤
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTo({
@@ -86,51 +87,55 @@ export default function Home() {
     }
   }, [messages]);
 
-  // 엔터 입력
-  const handleEnter = async (e) => {
-    if (e.key !== "Enter" || !purpose.trim()) return;
+  const sendMessage = async () => {
+    const finalPurpose = isCustom ? customPurpose : purpose;
+    if (!finalPurpose.trim()) return;
 
     const userMessage = {
       sender: "user",
-      text: `목적: ${purpose}, 예산: ${budget}`,
+      text: `목적: ${finalPurpose}, 예산: ${budget}`,
     };
     setMessages((prev) => [...prev, userMessage]);
     setPurpose("");
+    setCustomPurpose("");
+    setIsCustom(false);
     setBudget("");
     setShowLogo(false);
     setInputMoved(true);
 
-    // GPT 호출
     const gptResponse = await fetchGPT(userMessage.text, budget);
-
     const gptMessage = { sender: "gpt", text: gptResponse };
     setMessages((prev) => [...prev, gptMessage]);
 
-    // DB 저장
     await handleSaveToDB(gptResponse);
   };
 
-  // 하트 클릭
+  const handleEnter = (e) => {
+    if (e.key === "Enter") sendMessage();
+  };
+
   const handleHeartClick = () => {
     setLiked(true);
     setShowModal(true);
 
     for (let i = 0; i < 3; i++) {
       const id = heartIdRef.current++;
-      setHearts((prev) => [...prev, { id, delay: i * 200 }]);
+      const size = 14 + Math.round(Math.random() * 6);
+      const dx = Math.round(Math.random() * 40 - 20);
+      setHearts((prev) => [...prev, { id, delay: i * 200, size, dx }]);
       setTimeout(() => {
         setHearts((prev) => prev.filter((h) => h.id !== id));
-      }, 1200 + i * 200);
+      }, 1600 + i * 200);
     }
   };
 
-  // 찜 모달 확인
+  const handleIconClick = sendMessage;
+
   const handleModalConfirm = async () => {
     if (title.trim() === "") {
       setTitleError(true);
       return;
     }
-
     const lastGPTMessage = messages
       .slice()
       .reverse()
@@ -138,7 +143,6 @@ export default function Home() {
     if (lastGPTMessage) {
       await handleSaveToDB(lastGPTMessage.text);
     }
-
     setShowModal(false);
     setLiked(false);
     setTitle("제목 없음");
@@ -156,19 +160,49 @@ export default function Home() {
     <div css={s.container}>
       {showLogo && <h2 css={s.logo}>NuroPC</h2>}
 
-      <div css={s.search(inputMoved)}>
-        <input
-          type="text"
-          placeholder="원하시는 목적을 입력하세요"
-          value={purpose}
-          onChange={(e) => setPurpose(e.target.value)}
-        />
+      <div css={s.splitInputWrapper}>
+        <IoSearchCircleSharp onClick={handleIconClick} />
+
+        {!isCustom ? (
+          <select
+            css={s.splitInput}
+            value={purpose}
+            onChange={(e) => {
+              if (e.target.value === "직접 입력") {
+                setIsCustom(true);
+                setPurpose("");
+              } else {
+                setPurpose(e.target.value);
+              }
+            }}
+          >
+            <option value="">목적 선택</option>
+            <option value="사무용">사무용</option>
+            <option value="게임용">게임용</option>
+            <option value="프로그래밍용">프로그래밍용</option>
+            <option value="영상편집용">영상편집용</option>
+            <option value="직접 입력">직접 입력</option>
+          </select>
+        ) : (
+          <input
+            type="text"
+            css={s.splitInput}
+            placeholder="목적 입력"
+            value={customPurpose}
+            onChange={(e) => setCustomPurpose(e.target.value)}
+            onKeyDown={handleEnter}
+          />
+        )}
+
+        <div css={s.splitDivider}></div>
+
         <input
           type="number"
-          placeholder="예산을 입력하세요"
+          placeholder="예산 입력"
           value={budget}
           onChange={(e) => setBudget(e.target.value)}
           onKeyDown={handleEnter}
+          css={s.splitInput}
         />
       </div>
 
@@ -195,7 +229,11 @@ export default function Home() {
               <FaHeart
                 key={h.id}
                 css={s.flyingHeart}
-                style={{ animationDelay: `${h.delay}ms` }}
+                style={{
+                  animationDelay: `${h.delay}ms`,
+                  "--size": `${h.size}px`,
+                  "--dx": `${h.dx}px`,
+                }}
               />
             ))}
           </div>
@@ -224,9 +262,10 @@ export default function Home() {
                 style={{
                   color: "red",
                   fontSize: "0.9rem",
-                  margin: "4px 0 0 0",
+                  marginTop: "4px",
                   fontWeight: "bold",
                   textShadow: "1px 1px 2px rgba(0,0,0,0.3)",
+                  animation: "shake 0.3s ease-in-out",
                 }}
               >
                 ⚠️ 제목을 입력해주세요

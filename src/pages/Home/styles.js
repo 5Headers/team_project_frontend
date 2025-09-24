@@ -1,4 +1,4 @@
-import { css, keyframes  } from "@emotion/react";
+import { css, keyframes } from "@emotion/react";
 
 export const container = css`
   width: 100%;
@@ -20,36 +20,8 @@ export const logo = css`
   color: white;
   font-size: 4vh;
   margin: 0 0 20px 0;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.6), 0 0 6px white, 0 0 12px #1f5fbf;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6), 0 0 6px white, 0 0 12px #1f5fbf;
   font-weight: 400;
-`;
-
-export const search = (inputMoved) => css`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  transition: transform 0.5s ease, top 0.5s ease;
-  position: ${inputMoved ? "fixed" : "relative"};
-  top: ${inputMoved ? "120px" : "auto"};
-  z-index: 900;
-
-  input {
-    width: 90%;
-    max-width: 800px;
-    height: 6vh;
-    padding: 10px 50px;
-    font-size: 18px;
-    border: 1px solid #ccc;
-    border-radius: 9999px;
-    outline: none;
-    box-sizing: border-box;
-    transition: border 0.5s ease, box-shadow 0.3s ease;
-
-    &:focus {
-      border: 2px solid #3a8de6ff;
-      box-shadow: 0 0 12px 4px #3a8de6ff;
-    }
-  }
 `;
 
 export const chatBoxWrapper = css`
@@ -58,7 +30,7 @@ export const chatBoxWrapper = css`
   margin-top: 60px;
   display: flex;
   justify-content: center;
-  position: relative; /* 하트 기준 */
+  position: relative;
 `;
 
 export const chatBox = css`
@@ -73,7 +45,6 @@ export const chatBox = css`
   max-height: 60vh;
   overflow-y: auto;
   position: relative;
-
   scrollbar-width: none;
   -ms-overflow-style: none;
   &::-webkit-scrollbar {
@@ -117,15 +88,13 @@ export const heartIconBottom = css`
   transition: color 0.2s ease;
 `;
 
-/* ---------------- 모달 관련 CSS ---------------- */
-
 export const modalBackdrop = css`
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.6);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -141,7 +110,7 @@ export const modalContent = css`
   display: flex;
   flex-direction: column;
   gap: 15px;
-  box-shadow: 0 0 12px rgba(0,0,0,0.8);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.8);
   color: white;
 
   h3 {
@@ -188,4 +157,91 @@ export const modalButtons = css`
       color: #333;
     }
   }
+`;
+
+export const splitInputWrapper = css`
+  display: flex;
+  align-items: center;
+  width: 90%;
+  max-width: 800px;
+  height: 50px;
+  padding: 0 15px;
+  border-radius: 9999px;
+  background-color: #1f2b38;
+  border: 1px solid #3a8de6ff;
+  box-sizing: border-box;
+  gap: 8px;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+
+  &:focus-within {
+    box-shadow: 0 0 12px 2px #3a8de6ff;
+    transform: scale(1.02);
+  }
+
+  svg {
+    font-size: 24px;
+    color: #3a8de6ff;
+    cursor: pointer;
+  }
+`;
+
+export const splitInput = css`
+  flex: 1;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: #1f2b38; /* select/input 배경 통일 */
+  color: white;
+  font-size: 16px;
+  padding: 0 10px;
+  border-radius: 9999px;
+
+  -moz-appearance: textfield;
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+`;
+
+export const splitDivider = css`
+  width: 1px;
+  height: 60%;
+  background-color: rgba(255, 255, 255, 0.5);
+  user-select: none;
+`;
+
+const heartFloatNatural = keyframes`
+  0% {
+    transform: translateY(0) translateX(var(--dx,0)) scale(0.5) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    transform: translateY(-5px) translateX(calc(var(--dx,0) + 5px)) scale(1.3) rotate(-15deg);
+    opacity: 1;
+  }
+  25% {
+    transform: translateY(-30px) translateX(calc(var(--dx,0) - 5px)) scale(1.1) rotate(10deg);
+  }
+  50% {
+    transform: translateY(-60px) translateX(calc(var(--dx,0) + 8px)) scale(1.2) rotate(-10deg);
+  }
+  75% {
+    transform: translateY(-90px) translateX(calc(var(--dx,0) - 6px)) scale(1) rotate(5deg);
+  }
+  100% {
+    transform: translateY(-130px) translateX(var(--dx,0)) scale(0.8) rotate(0deg);
+    opacity: 0;
+  }
+`;
+
+export const flyingHeart = css`
+  position: absolute;
+  bottom: -40px;
+  font-size: var(--size, 16px);
+  right: 0;
+  color: #ff4d6d;
+  pointer-events: none;
+  animation: ${heartFloatNatural} 1.6s ease-in-out forwards;
+  will-change: transform, opacity;
 `;

@@ -33,7 +33,6 @@ function Header() {
     };
   }, []);
 
-
   const handleGoSetting = () => {
     navigate("/setting");
   };
@@ -65,11 +64,10 @@ function Header() {
     setActiveSidebarItem(index);
     setIsSidebarOpen(false);
 
-    if (index === 0) navigate("/");
+    if (index === 0) navigate("/search");
     else if (index === 2) navigate("/picklist");
-    else if (index === 3) navigate("/");
+    else if (index === 3) navigate("/search");
   };
-
 
   const SigninClick = () => navigate("/auth/signin");
   // const SignupClick = () => navigate("/auth/signup");
@@ -83,7 +81,6 @@ function Header() {
     navigate("/");
   };
 
-
   // 회원가입 항목 클릭 -> 페이지 이동
   const SignupClick = () => {
     navigate("/auth/signup");
@@ -93,12 +90,16 @@ function Header() {
     navigate("/auth/profile");
   };
 
-
   return (
     <div css={s.container} onClick={closeMenu}>
-      <div css={s.fixedMenuIconWrapper(isSidebarOpen)} onClick={toggleSidebar}>
-        <FiMenu />
-      </div>
+      {isLoggedIn && (
+        <div
+          css={s.fixedMenuIconWrapper(isSidebarOpen)}
+          onClick={toggleSidebar}
+        >
+          <FiMenu />
+        </div>
+      )}
 
       <div css={s.header}>
         <div>
@@ -107,19 +108,19 @@ function Header() {
         <div>
           <ul>
             {!isLoggedIn ? (
-      <>
-        <li css={s.login} onClick={SigninClick}>
-          로그인
-        </li>
-        <li css={s.signup} onClick={SignupClick}>
-          회원가입
-        </li>
-      </>
-    ) : (
-      <li css={s.profileIcon} onClick={ProfileClick}>
-        <img src={profileImage} alt="프로필" />
-      </li>
-    )}
+              <>
+                <li css={s.login} onClick={SigninClick}>
+                  로그인
+                </li>
+                <li css={s.signup} onClick={SignupClick}>
+                  회원가입
+                </li>
+              </>
+            ) : (
+              <li css={s.profileIcon} onClick={ProfileClick}>
+                <img src={profileImage} alt="프로필" />
+              </li>
+            )}
             <li>
               <DiAptana css={s.headerIcon(isRotated)} onClick={toggleMenu} />
             </li>
@@ -129,7 +130,7 @@ function Header() {
 
       <div css={s.headerSlidingMenu(isMenuOpen)}>
         <ul>
-          <li onClick={ProfileClick}>프로필</li>
+          {isLoggedIn && <li onClick={ProfileClick}>프로필</li>}
           <li onClick={handleGoSetting}>설정</li>
           {isLoggedIn && <li onClick={handleLogout}>로그아웃</li>}
         </ul>
