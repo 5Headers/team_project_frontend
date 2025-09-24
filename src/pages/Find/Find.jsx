@@ -8,10 +8,10 @@ import {
 
 function Find() {
   const [activeTab, setActiveTab] = useState("id");
-  const [name, setName] = useState(""); // 아이디 찾기용 이름
+  const [name, setName] = useState(""); // 아이디,비밀번호 찾기용 이름
   const [email, setEmail] = useState(""); // 공통 이메일
   const [userId, setUserId] = useState(""); // 아이디 찾기 결과
-  const [username, setUsername] = useState(""); // 비밀번호 찾기용 아이디
+  
 
   // 아이디 찾기 버튼
   const findIdHandler = async () => {
@@ -38,13 +38,13 @@ function Find() {
 
   // 비밀번호 재설정 버튼
   const resetPasswordHandler = async () => {
-    if (!username || !email) {
+    if (!name || !email) {
       alert("모든 항목을 입력하세요.");
       return;
     }
 
     try {
-      const response = await resetPasswordRequest({ username, email });
+      const response = await resetPasswordRequest({ name, email });
       if (response.data?.status === "success") {
         alert("비밀번호 재설정 메일이 발송되었습니다.");
       } else {
@@ -99,9 +99,9 @@ function Find() {
           <div css={s.inputBox}>
             <input
               type="text"
-              placeholder="아이디 입력"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              placeholder="이름 입력"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
             <input
               type="email"

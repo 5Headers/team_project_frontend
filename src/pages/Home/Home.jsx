@@ -22,7 +22,7 @@ export default function Home() {
   const token = localStorage.getItem("accessToken");
 
   // JWT 토큰 가져오기
-  const token = localStorage.getItem("accessToken");
+  // const token = localStorage.getItem("accessToken");
 
 
   // GPT 요청 함수 (JSON 반환 요청)
