@@ -18,7 +18,6 @@ function Header() {
 
   const navigate = useNavigate();
 
-  // 로그인 이벤트 감지 + 다른 탭 storage 이벤트
   useEffect(() => {
     const handleLogin = () => setIsLoggedIn(true);
     const handleStorage = () =>
@@ -36,8 +35,6 @@ function Header() {
   const handleGoSetting = () => {
     navigate("/setting");
   };
-
-  // 사이드바 토글
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -61,31 +58,36 @@ function Header() {
   };
 
   const handleSidebarItemClick = (index) => {
-    setActiveSidebarItem(index);
     setIsSidebarOpen(false);
 
-    if (index === 0) navigate("/search");
-    else if (index === 2) navigate("/picklist");
-    else if (index === 3) navigate("/search");
+    if (index === 0) {
+      setActiveSidebarItem(0);
+      navigate("/search");
+    } else if (index === 2) {
+      setActiveSidebarItem(2);
+      navigate("/picklist");
+    } else if (index === 3) {
+      // 새로운 대화 클릭
+      setActiveSidebarItem(0); // 장비 추천 hover 고정
+      navigate("/search");
+      setTimeout(() => window.location.reload(), 100);
+    }
   };
 
   const SigninClick = () => navigate("/auth/signin");
-  // const SignupClick = () => navigate("/auth/signup");
-  // const ProfileClick = () => navigate("/auth/profile");
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
-    setIsLoggedIn(false); // 상태 즉시 업데이트
+    setIsLoggedIn(false);
     setIsMenuOpen(false);
     setIsRotated(false);
     navigate("/");
   };
 
-  // 회원가입 항목 클릭 -> 페이지 이동
   const SignupClick = () => {
     navigate("/auth/signup");
   };
-  //프로필 항목 클릭 -> 페이지이동
+
   const ProfileClick = () => {
     navigate("/auth/profile");
   };
@@ -159,7 +161,7 @@ function Header() {
           </li>
           <li
             onClick={() => handleSidebarItemClick(3)}
-            css={s.sidebarItem(3 === activeSidebarItem)}
+            css={s.sidebarItem(false)} // ✅ hover/active 고정 X
           >
             새로운 대화
           </li>
