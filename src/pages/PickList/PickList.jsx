@@ -19,6 +19,8 @@ function PickList() {
   const [bookmarks, setBookmarks] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
+
+  // 북마크 불러오기
   useEffect(() => {
     const fetchBookmarks = async () => {
       try {
@@ -27,7 +29,7 @@ function PickList() {
         if (!token) throw new Error("로그인 필요");
 
         const payload = parseJwt(token);
-        const userId = payload?.userId;
+        const userId = payload?.jti;
         if (!userId) throw new Error("유효하지 않은 토큰");
 
         const resp = await fetch(`http://localhost:8080/bookmark/user/${userId}`, {
@@ -37,8 +39,9 @@ function PickList() {
         });
 
         if (!resp.ok) throw new Error("북마크 불러오기 실패");
+        // const data = await resp.json();
         const data = await resp.json();
-        setBookmarks(data);
+        setBookmarks(data || []);
       } catch (err) {
         console.error("북마크 불러오기 실패:", err);
       }
@@ -46,6 +49,38 @@ function PickList() {
 
     fetchBookmarks();
   }, []);
+
+  // 찜 추가 영역
+  const newBookmark = async (estimateId) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) throw new Error("로그인 필요");
+      const payload = parseJwt(token);
+      const userId = payload?.jti;
+      if (!userId) throw new Error("유효하지 않은 토큰");
+
+      const resp = await fetch("http://localhost:8080/bookmark/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ userId, estimateId }),
+        // body: JSON.stringify({ estimateId }),
+      });
+
+      if (!resp.ok) throw new Error("찜 추가 실패");
+
+      // const newBookmark = await resp.json();
+      const newBookmark = await resp.json();
+      // setBookmarks((prev) => [...prev, newBookmark]);
+      setBookmarks((prev) => [...prev, newBookmark]);
+    } catch (err) {
+      console.error("찜 추가 실패:", err);
+    }
+  };
+
+
 
   const totalPages = Math.ceil(bookmarks.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
