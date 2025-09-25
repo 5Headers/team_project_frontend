@@ -24,6 +24,9 @@ function Signin() {
 
     signinRequest({ username, password })
       .then((response) => {
+        //  const data = await response.json();  // JSON 변환
+        console.log("API 응답:", response.data);
+        
         if (response.data.status === "success") {
           localStorage.setItem("accessToken", response.data.data);
 
