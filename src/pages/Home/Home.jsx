@@ -20,14 +20,11 @@ export default function Home() {
   const [hearts, setHearts] = useState([]);
   const heartIdRef = useRef(0);
   const [titleError, setTitleError] = useState(false);
-<<<<<<< HEAD
   
   
-=======
-
->>>>>>> c3808eb (Feat:MAP)
   // JWT 토큰 가져오기
   const token = localStorage.getItem("accessToken");
+
 
   // GPT 요청 함수 (JSON 반환 요청)
   const fetchGPT = async (purposeMessage, budgetValue) => {
@@ -182,7 +179,6 @@ export default function Home() {
             <option value="직접 입력">직접 입력</option>
           </select>
         ) : (
-<<<<<<< HEAD
           <input
             type="text"
             css={s.splitInput}
@@ -191,42 +187,6 @@ export default function Home() {
             onChange={(e) => setCustomPurpose(e.target.value)}
             onKeyDown={handleEnter}
           />
-=======
-          <div
-            css={{
-              display: "flex",
-              flex: 1,
-              alignItems: "center",
-              position: "relative",
-            }}
-          >
-            <input
-              type="text"
-              css={s.splitInput}
-              placeholder="목적 입력"
-              value={customPurpose}
-              onChange={(e) => setCustomPurpose(e.target.value)}
-              onKeyDown={handleEnter}
-            />
-            <button
-              style={{
-                position: "absolute",
-                right: 8,
-                background: "transparent",
-                border: "none",
-                color: "#ccc",
-                cursor: "pointer",
-                fontSize: "16px",
-              }}
-              onClick={() => {
-                setIsCustom(false);
-                setCustomPurpose("");
-              }}
-            >
-              ✕
-            </button>
-          </div>
->>>>>>> c3808eb (Feat:MAP)
         )}
 
         <div css={s.splitDivider}></div>
