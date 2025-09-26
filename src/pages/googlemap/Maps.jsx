@@ -1,13 +1,13 @@
 /** @jsxImportSource @emotion/react */
 import { useEffect, useState, useRef } from "react";
-import { Global } from "@emotion/react"; // ✅ 전역 스타일 적용
+import { Global } from "@emotion/react";
 import * as s from "./styles";
 
 export default function Maps() {
   const [map, setMap] = useState(null);
   const [stores, setStores] = useState([]);
   const [markers, setMarkers] = useState([]);
-  const infoWindowRef = useRef(null); // 현재 열린 인포윈도우
+  const infoWindowRef = useRef(null);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -30,7 +30,7 @@ export default function Maps() {
             map: createdMap,
           });
 
-          // ✅ 주변 컴퓨터 관련 장소 검색
+          // ✅ Places API
           const ps = new window.kakao.maps.services.Places();
           ps.keywordSearch(
             "컴퓨터",
@@ -47,7 +47,6 @@ export default function Maps() {
                     map: createdMap,
                   });
 
-                  // ✅ 마커 저장 (place_name 기준)
                   newMarkers.push({
                     marker,
                     placeName: place.place_name,
@@ -56,7 +55,7 @@ export default function Maps() {
 
                   bounds.extend(new window.kakao.maps.LatLng(place.y, place.x));
 
-                  // 마커 클릭 → 인포윈도우 열기
+                  // 마커 클릭 시 인포윈도우 열기
                   window.kakao.maps.event.addListener(marker, "click", () => {
                     openInfoWindow(createdMap, marker, place);
                   });
@@ -76,32 +75,35 @@ export default function Maps() {
     }
   }, []);
 
-  // ✅ 인포윈도우 열기 함수
+  // ✅ 인포윈도우 열기
   const openInfoWindow = (map, marker, place) => {
     if (infoWindowRef.current) {
       infoWindowRef.current.close();
     }
 
-    // styles.js 안에 정의된 customInfoWindow 클래스 사용
     const content = `
       <div class="customInfoWindow">
-        <strong class="title">${place.place_name}</strong>
-        <span class="address">${place.road_address_name || place.address_name || "주소 정보 없음"}</span>
-        <span class="phone">${place.phone || "전화번호 없음"}</span>
-        <a href="${place.place_url}" target="_blank" class="link">상세보기 →</a>
+        <div class="inner">
+          <strong class="title">${place.place_name}</strong>
+          <span class="address">${
+            place.road_address_name || place.address_name || "주소 정보 없음"
+          }</span>
+          <span class="phone">${place.phone || "전화번호 없음"}</span>
+          <a href="${place.place_url}" target="_blank" class="link">상세보기 →</a>
+        </div>
       </div>
     `;
 
     const infowindow = new window.kakao.maps.InfoWindow({
       content,
-      removable: true, // 닫기 버튼 표시
+      removable: true,
     });
 
     infowindow.open(map, marker);
     infoWindowRef.current = infowindow;
   };
 
-  // ✅ 리스트 클릭 시 해당 마커 인포윈도우 열기
+  // ✅ 리스트 클릭 → 마커 기준 인포윈도우 열기
   const handleClick = (store) => {
     if (!map) return;
 
@@ -116,7 +118,6 @@ export default function Maps() {
 
   return (
     <div css={s.container}>
-      {/* ✅ 전역 스타일 적용 (customInfoWindow) */}
       <Global styles={s.globalStyles} />
 
       <div css={s.mapArea}>

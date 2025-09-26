@@ -87,16 +87,27 @@ export const listItem = css`
 
 /* ✅ 커스텀 인포윈도우 스타일 */
 export const globalStyles = css`
+  /* 카카오 기본 infowindow 배경/테두리 제거 */
   .customInfoWindow {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    position: relative;
+  }
+
+  /* 내부 카드: 흰 프레임 가리도록 위로 이동 */
+  .customInfoWindow .inner {
+    position: relative;
+    top: -12px; /* ✅ 다크 카드 위로 올려서 흰색 배경 가림 */
     background: #1f2b38;
     color: white;
-    border-radius: 8px;
+    border-radius: 12px;
     padding: 12px;
     font-size: 13px;
     max-width: 240px;
     word-break: break-word;
     line-height: 1.5;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
   }
 
   .customInfoWindow .title {
@@ -132,5 +143,11 @@ export const globalStyles = css`
 
   .customInfoWindow .link:hover {
     color: #5c9eff;
+  }
+
+  /* 카카오 기본 꼬리 제거 */
+  .customInfoWindow:before,
+  .customInfoWindow:after {
+    display: none !important;
   }
 `;
