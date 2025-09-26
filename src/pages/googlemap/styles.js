@@ -87,67 +87,91 @@ export const listItem = css`
 
 /* ✅ 커스텀 인포윈도우 스타일 */
 export const globalStyles = css`
-  /* 카카오 기본 infowindow 배경/테두리 제거 */
+  /* 카카오 기본 InfoWindow 배경/프레임 제거 */
   .customInfoWindow {
     background: none !important;
     border: none !important;
     box-shadow: none !important;
-    position: relative;
+    padding: 0 !important;
   }
 
-  /* 내부 카드: 흰 프레임 가리도록 위로 이동 */
+  /* ✅ 카카오맵이 자동으로 넣는 꼬리, 배경, 닫기 버튼 제거 */
+  .customInfoWindow .info,
+  .customInfoWindow .bg,
+  .customInfoWindow .close,
+  .customInfoWindow .tail,
+  .customInfoWindow .tailBorder,
+  .customInfoWindow:before,
+  .customInfoWindow:after {
+    display: none !important;
+    content: none !important;
+  }
+
+  /* ✅ 다크카드 */
   .customInfoWindow .inner {
     position: relative;
-    top: -12px; /* ✅ 다크 카드 위로 올려서 흰색 배경 가림 */
     background: #1f2b38;
     color: white;
     border-radius: 12px;
-    padding: 12px;
-    font-size: 13px;
-    max-width: 240px;
+    padding: 16px 16px 20px 16px;
+    font-size: 14px;
+    min-width: 260px;
+    max-width: 320px;
     word-break: break-word;
-    line-height: 1.5;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+    line-height: 1.6;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.7);
   }
 
+  /* ✅ 커스텀 닫기 버튼 */
+  .customInfoWindow .inner .custom-close {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  .customInfoWindow .inner .custom-close:hover {
+    color: #ff4d6d;
+  }
+
+  /* ✅ 타이틀 */
   .customInfoWindow .title {
     color: #3a8de6;
-    font-size: 14px;
-    display: block;
-    margin-bottom: 4px;
+    font-size: 15px;
     font-weight: bold;
+    margin-bottom: 6px;
+    display: block;
+    padding-right: 20px; /* 닫기 버튼 영역 확보 */
   }
 
   .customInfoWindow .address {
-    display: block;
     color: #ccc;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
+    display: block;
   }
 
   .customInfoWindow .phone {
-    display: block;
     color: #aaa;
     margin-bottom: 6px;
+    display: block;
   }
 
   .customInfoWindow .link {
+    color: #3a8de6;
+    font-weight: bold;
+    font-size: 13px;
+    text-decoration: none;
     display: inline-block;
-    margin-top: 4px;
+    margin-top: 6px;
     text-align: right;
     width: 100%;
-    color: #3a8de6;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 12px;
   }
 
   .customInfoWindow .link:hover {
     color: #5c9eff;
-  }
-
-  /* 카카오 기본 꼬리 제거 */
-  .customInfoWindow:before,
-  .customInfoWindow:after {
-    display: none !important;
   }
 `;
