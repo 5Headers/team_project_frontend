@@ -88,13 +88,13 @@ function Signin() {
         <div css={s.oauthBtnBox}>
           <p className="title">소셜 로그인</p>
           <div className="icons">
-            <a className="google">
+            <a className="google" href="http://localhost:8080/oauth2/authorization/google">
               <FcGoogle size={28} />
             </a>
-            <a className="naver">
+            <a className="naver" href="http://localhost:8080/oauth2/authorization/naver">
               <SiNaver size={28} color="#03C75A" />
             </a>
-            <a className="kakao">
+            <a className="kakao" href="http://localhost:8080/oauth2/authorization/kakao">
               <RiKakaoTalkFill size={28} color="#Fee500" />
             </a>
           </div>
