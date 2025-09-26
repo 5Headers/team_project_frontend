@@ -8,73 +8,36 @@ export default function Home() {
   const [showLogo, setShowLogo] = useState(true);
   const [inputMoved, setInputMoved] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [purpose, setPurpose] = useState(""); // 드롭다운 목적
-  const [customPurpose, setCustomPurpose] = useState(""); // 직접 입력용
-  const [isCustom, setIsCustom] = useState(false); // 직접 입력 모드
+  const [purpose, setPurpose] = useState("");
+  const [customPurpose, setCustomPurpose] = useState("");
+  const [isCustom, setIsCustom] = useState(false);
   const [budget, setBudget] = useState("");
-  const chatBoxRef = useRef(null);
+  const [budgetUnit, setBudgetUnit] = useState("만원");
+  const [isTyping, setIsTyping] = useState(false);
 
+  const chatBoxRef = useRef(null);
   const [liked, setLiked] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("제목 없음");
   const [hearts, setHearts] = useState([]);
   const heartIdRef = useRef(0);
   const [titleError, setTitleError] = useState(false);
-  
-  
-  // JWT 토큰 가져오기
+
   const token = localStorage.getItem("accessToken");
 
-
-
-
- 
-
-
-  // GPT 요청 함수 (JSON 반환 요청)
-  const fetchGPT = async (purposeMessage, budgetValue) => {
-    try {
-      const response = await fetch("http://localhost:8080/chat/estimate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          purpose: purposeMessage,
-          cost: Number(budgetValue) || 0,
-          instruction:
-            "추천 부품과 가격을 JSON 배열로 반환하세요. 예: { parts: [{name:'CPU', price:250000}, ...] }",
-        }),
-      });
-      if (!response.ok) throw new Error("서버 오류: " + response.status);
-      const data = await response.json();
-      return data.data || "응답이 없습니다.";
-    } catch (error) {
-      console.error(error);
-      return "서버 오류가 발생했습니다.";
-    }
-  };
-
-  const handleSaveToDB = async (gptText) => {
-    try {
-      const resp = await fetch("http://localhost:8080/estimate/save-gpt", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          gptResponse: gptText,
-          title: title,
-          purpose: isCustom ? customPurpose : purpose,
-          budget: Number(budget) || 0,
-        }),
-      });
-      const data = await resp.json();
-      console.log("DB 저장 결과:", data);
-    } catch (err) {
-      console.error("DB 저장 실패", err);
+  // ✅ 단위 변환 함수
+  const convertToWon = (value, unit) => {
+    let num = Number(value.replace(/,/g, "")) || 0;
+    switch (unit) {
+      case "억":
+        return num * 100000000;
+      case "만원":
+        return num * 10000;
+      case "천원":
+        return num * 1000;
+      case "원":
+      default:
+        return num;
     }
   };
 
@@ -85,7 +48,7 @@ export default function Home() {
         behavior: "smooth",
       });
     }
-  }, [messages]);
+  }, [messages, isTyping]);
 
   const sendMessage = async () => {
     const finalPurpose = isCustom ? customPurpose : purpose;
@@ -93,7 +56,7 @@ export default function Home() {
 
     const userMessage = {
       sender: "user",
-      text: `목적: ${finalPurpose}, 예산: ${budget}`,
+      text: `목적: ${finalPurpose}, 예산: ${budget}${budgetUnit}`,
     };
     setMessages((prev) => [...prev, userMessage]);
     setPurpose("");
@@ -103,26 +66,64 @@ export default function Home() {
     setShowLogo(false);
     setInputMoved(true);
 
-    const gptResponse = await fetchGPT(userMessage.text, budget);
-    const gptMessage = { sender: "gpt", text: gptResponse };
-    setMessages((prev) => [...prev, gptMessage]);
+    setIsTyping(true);
 
-    await handleSaveToDB(gptResponse);
+    try {
+      // ✅ 단위 변환 적용
+      const costInWon = convertToWon(budget, budgetUnit);
+
+      const response = await fetch("http://localhost:8080/estimate/gpt", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title,
+          purpose: finalPurpose,
+          cost: costInWon,
+        }),
+      });
+
+      if (!response.ok) throw new Error("서버 오류: " + response.status);
+
+      const data = await response.json();
+      const gptResponse = data.data || "응답이 없습니다.";
+
+      setIsTyping(false);
+      setMessages((prev) => [...prev, { sender: "gpt", text: gptResponse }]);
+    } catch (err) {
+      console.error(err);
+      setIsTyping(false);
+      setMessages((prev) => [
+        ...prev,
+        { sender: "gpt", text: "서버 오류가 발생했습니다." },
+      ]);
+    }
   };
 
   const handleEnter = (e) => {
     if (e.key === "Enter") sendMessage();
   };
 
-  const handleHeartClick = () => {
+  const handleHeartClick = (e) => {
     setLiked(true);
     setShowModal(true);
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const startX = rect.left + rect.width / 2;
+    const startY = rect.top;
 
     for (let i = 0; i < 3; i++) {
       const id = heartIdRef.current++;
       const size = 14 + Math.round(Math.random() * 6);
       const dx = Math.round(Math.random() * 40 - 20);
-      setHearts((prev) => [...prev, { id, delay: i * 200, size, dx }]);
+
+      setHearts((prev) => [
+        ...prev,
+        { id, x: startX, y: startY, delay: i * 200, size, dx },
+      ]);
+
       setTimeout(() => {
         setHearts((prev) => prev.filter((h) => h.id !== id));
       }, 1600 + i * 200);
@@ -135,13 +136,6 @@ export default function Home() {
     if (title.trim() === "") {
       setTitleError(true);
       return;
-    }
-    const lastGPTMessage = messages
-      .slice()
-      .reverse()
-      .find((msg) => msg.sender === "gpt");
-    if (lastGPTMessage) {
-      await handleSaveToDB(lastGPTMessage.text);
     }
     setShowModal(false);
     setLiked(false);
@@ -171,9 +165,7 @@ export default function Home() {
               if (e.target.value === "직접 입력") {
                 setIsCustom(true);
                 setPurpose("");
-              } else {
-                setPurpose(e.target.value);
-              }
+              } else setPurpose(e.target.value);
             }}
           >
             <option value="">목적 선택</option>
@@ -184,26 +176,50 @@ export default function Home() {
             <option value="직접 입력">직접 입력</option>
           </select>
         ) : (
-          <input
-            type="text"
-            css={s.splitInput}
-            placeholder="목적 입력"
-            value={customPurpose}
-            onChange={(e) => setCustomPurpose(e.target.value)}
-            onKeyDown={handleEnter}
-          />
+          <div css={s.customPurposeWrapper}>
+            <input
+              type="text"
+              css={s.splitInput}
+              placeholder="목적 입력"
+              value={customPurpose}
+              onChange={(e) => setCustomPurpose(e.target.value)}
+              onKeyDown={handleEnter}
+            />
+            <span
+              css={s.clearX}
+              onClick={() => {
+                setIsCustom(false);
+                setCustomPurpose("");
+              }}
+            >
+              ×
+            </span>
+          </div>
         )}
 
-        <div css={s.splitDivider}></div>
-
-        <input
-          type="number"
-          placeholder="예산 입력"
-          value={budget}
-          onChange={(e) => setBudget(e.target.value)}
-          onKeyDown={handleEnter}
-          css={s.splitInput}
-        />
+        <div css={s.budgetWrapper}>
+          <input
+            type="text"
+            placeholder="예산 입력"
+            value={budget.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+            onChange={(e) => {
+              const rawValue = e.target.value.replace(/,/g, "");
+              if (/^\d*$/.test(rawValue)) setBudget(rawValue);
+            }}
+            onKeyDown={handleEnter}
+            css={s.budgetInput}
+          />
+          <select
+            value={budgetUnit}
+            onChange={(e) => setBudgetUnit(e.target.value)}
+            css={s.budgetUnitSelect}
+          >
+            <option value="억">억</option>
+            <option value="만원">만원</option>
+            <option value="천원">천원</option>
+            <option value="원">원</option>
+          </select>
+        </div>
       </div>
 
       <div css={s.chatBoxWrapper}>
@@ -216,10 +232,21 @@ export default function Home() {
               {msg.text}
             </div>
           ))}
+
+          {isTyping && (
+            <div css={s.gptMessage}>
+              GPT가 입력 중
+              <span css={s.jumpingDots}>
+                <span>.</span>
+                <span>.</span>
+                <span>.</span>
+              </span>
+            </div>
+          )}
         </div>
 
         {inputMoved && (
-          <div style={{ position: "relative", display: "inline-block" }}>
+          <div css={s.heartWrapper}>
             <FaHeart
               css={s.heartIconBottom}
               onClick={handleHeartClick}
@@ -230,9 +257,11 @@ export default function Home() {
                 key={h.id}
                 css={s.flyingHeart}
                 style={{
-                  animationDelay: `${h.delay}ms`,
                   "--size": `${h.size}px`,
                   "--dx": `${h.dx}px`,
+                  "--x": `${h.x}px`,
+                  "--y": `${h.y}px`,
+                  animationDelay: `${h.delay}ms`,
                 }}
               />
             ))}
