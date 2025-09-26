@@ -12,7 +12,10 @@ export default function Home() {
   const [customPurpose, setCustomPurpose] = useState("");
   const [isCustom, setIsCustom] = useState(false);
   const [budget, setBudget] = useState("");
+
   const [budgetUnit, setBudgetUnit] = useState("만원");
+
+
   const [isTyping, setIsTyping] = useState(false);
 
   const chatBoxRef = useRef(null);
@@ -22,6 +25,7 @@ export default function Home() {
   const [hearts, setHearts] = useState([]);
   const heartIdRef = useRef(0);
   const [titleError, setTitleError] = useState(false);
+
 
   const token = localStorage.getItem("accessToken");
 
@@ -38,6 +42,61 @@ export default function Home() {
       case "원":
       default:
         return num;
+
+  const token = localStorage.getItem("accessToken");
+
+  // === 독자적인 예산 동의 모달 상태 ===
+  const [showBudgetConsent, setShowBudgetConsent] = useState(false);
+  const [pendingBudget, setPendingBudget] = useState(0);
+  const [pendingPurpose, setPendingPurpose] = useState("");
+
+  const fetchGPT = async (purposeMessage, budgetValue) => {
+    try {
+      const response = await fetch("http://localhost:8080/chat/estimate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          purpose: purposeMessage,
+          cost: budgetValue,
+          instruction:
+            "추천 부품과 가격을 JSON 배열로 반환하세요. 예: { parts: [{name:'CPU', price:250000}, ...] }",
+        }),
+      });
+      if (!response.ok) throw new Error("서버 오류: " + response.status);
+      const data = await response.json();
+      return data.data || "응답이 없습니다.";
+    } catch (error) {
+      console.error(error);
+      return "서버 오류가 발생했습니다.";
+    }
+  };
+
+  const handleSaveToDB = async (gptText) => {
+    try {
+      const rawBudget = Number(budget.replace(/,/g, "")) || 0;
+      const budgetInWon = rawBudget * 10000;
+
+      const resp = await fetch("http://localhost:8080/estimate/save-gpt", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          gptResponse: gptText,
+          title,
+          purpose: isCustom ? customPurpose : purpose,
+          budget: budgetInWon,
+          budgetUnit: "원",
+        }),
+      });
+      const data = await resp.json();
+      console.log("DB 저장 결과:", data);
+    } catch (err) {
+      console.error("DB 저장 실패", err);
     }
   };
 
@@ -54,20 +113,26 @@ export default function Home() {
     const finalPurpose = isCustom ? customPurpose : purpose;
     if (!finalPurpose.trim()) return;
 
+    const rawBudget = Number(budget.replace(/,/g, "")) || 0;
+
     const userMessage = {
       sender: "user",
+
       text: `목적: ${finalPurpose}, 예산: ${budget}${budgetUnit}`,
+
+      text: `목적: ${finalPurpose}, 예산: ${
+        budget ? `${budget}만원` : "미입력"
+      }`,
+
     };
+
     setMessages((prev) => [...prev, userMessage]);
     setPurpose("");
     setCustomPurpose("");
     setIsCustom(false);
-    setBudget("");
     setShowLogo(false);
     setInputMoved(true);
-
     setIsTyping(true);
-
     try {
       // ✅ 단위 변환 적용
       const costInWon = convertToWon(budget, budgetUnit);
@@ -100,12 +165,84 @@ export default function Home() {
         { sender: "gpt", text: "서버 오류가 발생했습니다." },
       ]);
     }
+    // === 기존 터무니없는 예산 처리 코드 유지 ===
+    if (rawBudget < 1) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "gpt",
+          text: "😅 예산의 단위가 이상해요! 1원 이상 입력해주세요!",
+        },
+      ]);
+      return;
+    } else if (rawBudget > 9999) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "gpt",
+          text: "😅 예산의 단위가 이상해요! 단위를 확인하고 다시 입력해주세요!.",
+        },
+      ]);
+      return;
+    }
+    // === 추가: 독립적 예산 범위 확인 ===
+    if (rawBudget < 40 || rawBudget > 300) {
+      // 40 ~ 300만원 밖이면 동의 모달 띄움
+      setPendingBudget(rawBudget);
+      setPendingPurpose(finalPurpose);
+      setShowBudgetConsent(true);
+      return;
+    }
+
+    // === 정상 범위 ===
+    setIsTyping(true);
+    const budgetInWon = rawBudget * 10000;
+    const gptResponse = await fetchGPT(userMessage.text, budgetInWon);
+    setIsTyping(false);
+
+    setMessages((prev) => [...prev, { sender: "gpt", text: gptResponse }]);
+    await handleSaveToDB(gptResponse);
   };
 
   const handleEnter = (e) => {
     if (e.key === "Enter") sendMessage();
   };
+  // === 예산 동의 모달 확인 / 취소 ===
+  const handleBudgetConsentConfirm = async () => {
+    setShowBudgetConsent(false);
+    if (!pendingPurpose) return;
 
+    const userMessage = {
+      sender: "user",
+      text: `목적: ${pendingPurpose}, 예산: ${pendingBudget}만원`,
+    };
+    setMessages((prev) => [...prev, userMessage]);
+
+    setIsTyping(true);
+    const gptResponse = await fetchGPT(
+      userMessage.text,
+      pendingBudget * 10000
+    );
+    setIsTyping(false);
+
+    setMessages((prev) => [...prev, { sender: "gpt", text: gptResponse }]);
+    await handleSaveToDB(gptResponse);
+
+    setPendingBudget(0);
+    setPendingPurpose("");
+  };
+
+  const handleBudgetConsentCancel = () => {
+    setShowBudgetConsent(false);
+    setPendingBudget(0);
+    setPendingPurpose("");
+    setMessages((prev) => [
+      ...prev,
+      { sender: "gpt", text: "❌ 추천이 취소되었습니다." },
+    ]);
+  };
+
+  // === 이하 기존 하트 / 저장 모달 유지 ===
   const handleHeartClick = (e) => {
     setLiked(true);
     setShowModal(true);
@@ -137,6 +274,13 @@ export default function Home() {
       setTitleError(true);
       return;
     }
+
+    const lastGPTMessage = messages
+      .slice()
+      .reverse()
+      .find((msg) => msg.sender === "gpt");
+    if (lastGPTMessage) await handleSaveToDB(lastGPTMessage.text);
+
     setShowModal(false);
     setLiked(false);
     setTitle("제목 없음");
@@ -167,6 +311,7 @@ export default function Home() {
                 setPurpose("");
               } else setPurpose(e.target.value);
             }}
+            onKeyDown={handleEnter}
           >
             <option value="">목적 선택</option>
             <option value="사무용">사무용</option>
@@ -200,7 +345,10 @@ export default function Home() {
         <div css={s.budgetWrapper}>
           <input
             type="text"
+
             placeholder="예산 입력"
+
+            placeholder="예산 입력 (단위: 만원)"
             value={budget.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
             onChange={(e) => {
               const rawValue = e.target.value.replace(/,/g, "");
@@ -209,6 +357,7 @@ export default function Home() {
             onKeyDown={handleEnter}
             css={s.budgetInput}
           />
+
           <select
             value={budgetUnit}
             onChange={(e) => setBudgetUnit(e.target.value)}
@@ -219,6 +368,8 @@ export default function Home() {
             <option value="천원">천원</option>
             <option value="원">원</option>
           </select>
+
+          <span style={{ marginLeft: "8px", color: "#aaa" }}>만원</span>
         </div>
       </div>
 
@@ -269,6 +420,7 @@ export default function Home() {
         )}
       </div>
 
+      {/* 일반 찜 모달 */}
       {showModal && (
         <div css={s.modalBackdrop}>
           <div css={s.modalContent}>
@@ -303,6 +455,20 @@ export default function Home() {
             <div css={s.modalButtons}>
               <button onClick={handleModalConfirm}>확인</button>
               <button onClick={handleModalCancel}>취소</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 독자적 예산 범위 동의 모달 */}
+      {showBudgetConsent && (
+        <div css={s.modalBackdrop}>
+          <div css={s.modalContent}>
+            <h3>⚠️ 이 값은 추천 범위를 벗어났습니다.</h3>
+            <p>그래도 진행하시겠습니까?</p>
+            <div css={s.modalButtons}>
+              <button onClick={handleBudgetConsentConfirm}>동의</button>
+              <button onClick={handleBudgetConsentCancel}>취소</button>
             </div>
           </div>
         </div>

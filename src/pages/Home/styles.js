@@ -19,7 +19,9 @@ export const logo = css`
   color: white;
   font-size: 4vh;
   margin: 0 0 20px 0;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6), 0 0 6px white, 0 0 12px #1f5fbf;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6),
+    0 0 6px white,
+    0 0 12px #1f5fbf;
   font-weight: 400;
 `;
 
@@ -269,7 +271,12 @@ export const flyingHeart = css`
   will-change: transform, opacity;
 `;
 
+
 export const purposeDropdownWrapper = css`
+=======
+// 목적 선택 select 스타일
+export const purposeSelectWrapper = css`
+
   position: relative;
   width: 100%;
   max-width: 300px;
@@ -280,7 +287,11 @@ export const purposeSelect = css`
   height: 40px;
   padding: 0 12px;
   border-radius: 8px;
+
   border: 1px solid #3a8de6ff; /* 고급스러운 테두리 */
+
+  border: 1px solid #3a8de6ff; /* 테두리 색상 */
+
   background-color: #1f2b38;
   color: white;
   font-size: 14px;
@@ -331,7 +342,12 @@ export const purposeOptionsMenu = css`
     &:hover {
       background-color: #121920ff;
       color: #b0e0ff;
+
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6), 0 0 6px #3a8de6,
+
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6),
+        0 0 6px #3a8de6,
+
         0 0 12px #1f5fbf;
     }
   }
@@ -399,3 +415,25 @@ export const jumpingDots = css`
     animation-delay: 0.4s;
   }
 `;
+
+
+
+export const dontShowWrapper = css`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #3a8de6ff;
+  }
+
+  span {
+    font-size: 14px;
+    color: white;
+    user-select: none;
+  }
+`;
+
