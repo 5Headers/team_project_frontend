@@ -30,7 +30,7 @@ export default function Maps() {
             map: createdMap,
           });
 
-          // ✅ Places API
+          // ✅ Places API 검색
           const ps = new window.kakao.maps.services.Places();
           ps.keywordSearch(
             "컴퓨터",
@@ -47,15 +47,9 @@ export default function Maps() {
                     map: createdMap,
                   });
 
-                  newMarkers.push({
-                    marker,
-                    placeName: place.place_name,
-                    place,
-                  });
-
+                  newMarkers.push({ marker, placeName: place.place_name, place });
                   bounds.extend(new window.kakao.maps.LatLng(place.y, place.x));
 
-                  // 마커 클릭 시 인포윈도우 열기
                   window.kakao.maps.event.addListener(marker, "click", () => {
                     openInfoWindow(createdMap, marker, place);
                   });
@@ -84,6 +78,7 @@ export default function Maps() {
     const content = `
       <div class="customInfoWindow">
         <div class="inner">
+          <div class="custom-close" id="customCloseBtn">✕</div>
           <strong class="title">${place.place_name}</strong>
           <span class="address">${
             place.road_address_name || place.address_name || "주소 정보 없음"
@@ -96,14 +91,24 @@ export default function Maps() {
 
     const infowindow = new window.kakao.maps.InfoWindow({
       content,
-      removable: true,
+      removable: false, // 기본 닫기 버튼 제거
     });
 
     infowindow.open(map, marker);
     infoWindowRef.current = infowindow;
+
+    // ✅ 커스텀 닫기 버튼 이벤트 등록
+    setTimeout(() => {
+      const closeBtn = document.getElementById("customCloseBtn");
+      if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+          infowindow.close(); // InfoWindow 자체 닫기
+        });
+      }
+    }, 0);
   };
 
-  // ✅ 리스트 클릭 → 마커 기준 인포윈도우 열기
+  // ✅ 리스트 클릭 → 마커 인포윈도우 열기
   const handleClick = (store) => {
     if (!map) return;
 
