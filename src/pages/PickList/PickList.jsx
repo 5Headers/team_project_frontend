@@ -41,7 +41,8 @@ function PickList() {
         if (!resp.ok) throw new Error("북마크 불러오기 실패");
         // const data = await resp.json();
         const data = await resp.json();
-        setBookmarks(data || []);
+        console.log("찜 목록 응답:", data); // ← 추가!
+        setBookmarks(Array.isArray(data) ? data : []); // ← 수정!
       } catch (err) {
         console.error("북마크 불러오기 실패:", err);
       }
@@ -80,11 +81,16 @@ function PickList() {
     }
   };
 
+// const safeBookmarks = Array.isArray(bookmarks) ? bookmarks : [];
+// const totalPages = Math.ceil(safeBookmarks.length / ITEMS_PER_PAGE);
+// const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+// const currentItems = safeBookmarks.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
 
-  const totalPages = Math.ceil(bookmarks.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentItems = bookmarks.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+const safeBookmarks = Array.isArray(bookmarks) ? bookmarks : [];const totalPages = Math.ceil(safeBookmarks.length / ITEMS_PER_PAGE);
+const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+const currentItems = safeBookmarks.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
 
   const goToPage = (page) => {
     if (page < 1 || page > totalPages) return;
