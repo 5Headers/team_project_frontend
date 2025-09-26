@@ -12,6 +12,10 @@ export default function Home() {
   const [customPurpose, setCustomPurpose] = useState("");
   const [isCustom, setIsCustom] = useState(false);
   const [budget, setBudget] = useState("");
+
+  const [budgetUnit, setBudgetUnit] = useState("만원");
+
+
   const [isTyping, setIsTyping] = useState(false);
 
   const chatBoxRef = useRef(null);
@@ -21,6 +25,23 @@ export default function Home() {
   const [hearts, setHearts] = useState([]);
   const heartIdRef = useRef(0);
   const [titleError, setTitleError] = useState(false);
+
+
+  const token = localStorage.getItem("accessToken");
+
+  // ✅ 단위 변환 함수
+  const convertToWon = (value, unit) => {
+    let num = Number(value.replace(/,/g, "")) || 0;
+    switch (unit) {
+      case "억":
+        return num * 100000000;
+      case "만원":
+        return num * 10000;
+      case "천원":
+        return num * 1000;
+      case "원":
+      default:
+        return num;
 
   const token = localStorage.getItem("accessToken");
 
@@ -96,9 +117,13 @@ export default function Home() {
 
     const userMessage = {
       sender: "user",
+
+      text: `목적: ${finalPurpose}, 예산: ${budget}${budgetUnit}`,
+
       text: `목적: ${finalPurpose}, 예산: ${
         budget ? `${budget}만원` : "미입력"
       }`,
+
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -107,7 +132,39 @@ export default function Home() {
     setIsCustom(false);
     setShowLogo(false);
     setInputMoved(true);
+    setIsTyping(true);
+    try {
+      // ✅ 단위 변환 적용
+      const costInWon = convertToWon(budget, budgetUnit);
 
+      const response = await fetch("http://localhost:8080/estimate/gpt", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title,
+          purpose: finalPurpose,
+          cost: costInWon,
+        }),
+      });
+
+      if (!response.ok) throw new Error("서버 오류: " + response.status);
+
+      const data = await response.json();
+      const gptResponse = data.data || "응답이 없습니다.";
+
+      setIsTyping(false);
+      setMessages((prev) => [...prev, { sender: "gpt", text: gptResponse }]);
+    } catch (err) {
+      console.error(err);
+      setIsTyping(false);
+      setMessages((prev) => [
+        ...prev,
+        { sender: "gpt", text: "서버 오류가 발생했습니다." },
+      ]);
+    }
     // === 기존 터무니없는 예산 처리 코드 유지 ===
     if (rawBudget < 1) {
       setMessages((prev) => [
@@ -128,7 +185,6 @@ export default function Home() {
       ]);
       return;
     }
-
     // === 추가: 독립적 예산 범위 확인 ===
     if (rawBudget < 40 || rawBudget > 300) {
       // 40 ~ 300만원 밖이면 동의 모달 띄움
@@ -151,7 +207,6 @@ export default function Home() {
   const handleEnter = (e) => {
     if (e.key === "Enter") sendMessage();
   };
-
   // === 예산 동의 모달 확인 / 취소 ===
   const handleBudgetConsentConfirm = async () => {
     setShowBudgetConsent(false);
@@ -219,11 +274,13 @@ export default function Home() {
       setTitleError(true);
       return;
     }
+
     const lastGPTMessage = messages
       .slice()
       .reverse()
       .find((msg) => msg.sender === "gpt");
     if (lastGPTMessage) await handleSaveToDB(lastGPTMessage.text);
+
     setShowModal(false);
     setLiked(false);
     setTitle("제목 없음");
@@ -288,6 +345,9 @@ export default function Home() {
         <div css={s.budgetWrapper}>
           <input
             type="text"
+
+            placeholder="예산 입력"
+
             placeholder="예산 입력 (단위: 만원)"
             value={budget.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
             onChange={(e) => {
@@ -297,6 +357,18 @@ export default function Home() {
             onKeyDown={handleEnter}
             css={s.budgetInput}
           />
+
+          <select
+            value={budgetUnit}
+            onChange={(e) => setBudgetUnit(e.target.value)}
+            css={s.budgetUnitSelect}
+          >
+            <option value="억">억</option>
+            <option value="만원">만원</option>
+            <option value="천원">천원</option>
+            <option value="원">원</option>
+          </select>
+
           <span style={{ marginLeft: "8px", color: "#aaa" }}>만원</span>
         </div>
       </div>
