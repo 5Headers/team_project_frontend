@@ -25,6 +25,11 @@ export default function Home() {
 
   const token = localStorage.getItem("accessToken");
 
+  // === 독자적인 예산 동의 모달 상태 ===
+  const [showBudgetConsent, setShowBudgetConsent] = useState(false);
+  const [pendingBudget, setPendingBudget] = useState(0);
+  const [pendingPurpose, setPendingPurpose] = useState("");
+
   const fetchGPT = async (purposeMessage, budgetValue) => {
     try {
       const response = await fetch("http://localhost:8080/chat/estimate", {
@@ -35,7 +40,7 @@ export default function Home() {
         },
         body: JSON.stringify({
           purpose: purposeMessage,
-          cost: budgetValue, // 이미 원 단위로 변환된 값 전달
+          cost: budgetValue,
           instruction:
             "추천 부품과 가격을 JSON 배열로 반환하세요. 예: { parts: [{name:'CPU', price:250000}, ...] }",
         }),
@@ -52,7 +57,7 @@ export default function Home() {
   const handleSaveToDB = async (gptText) => {
     try {
       const rawBudget = Number(budget.replace(/,/g, "")) || 0;
-      const budgetInWon = rawBudget * 10000; // ✅ 만원 → 원 변환
+      const budgetInWon = rawBudget * 10000; // 만원 → 원 변환
 
       const resp = await fetch("http://localhost:8080/estimate/save-gpt", {
         method: "POST",
@@ -64,7 +69,7 @@ export default function Home() {
           gptResponse: gptText,
           title,
           purpose: isCustom ? customPurpose : purpose,
-          budget: budgetInWon, // DB에는 원 단위 저장
+          budget: budgetInWon,
           budgetUnit: "원",
         }),
       });
@@ -89,36 +94,61 @@ export default function Home() {
     if (!finalPurpose.trim()) return;
 
     const rawBudget = Number(budget.replace(/,/g, "")) || 0;
-    const budgetInWon = rawBudget * 10000; // ✅ 원 단위 변환
 
     const userMessage = {
       sender: "user",
-      text: `목적: ${finalPurpose}, 예산: ${budget ? `${budget}만원` : "미입력"}`,
+      text: `목적: ${finalPurpose}, 예산: ${
+        budget ? `${budget}만원` : "미입력"
+      }`,
     };
+
     setMessages((prev) => [...prev, userMessage]);
     setPurpose("");
     setCustomPurpose("");
     setIsCustom(false);
-    setBudget("");
     setShowLogo(false);
     setInputMoved(true);
 
-    if (rawBudget > 8000) {
-      const politeMessage = {
-        sender: "gpt",
-        text: "현재 시중에서는 이런 가격대의 추천은 어려울 수 있습니다 😅 조금만 낮춰주실 수 있을까요?",
-      };
-      setMessages((prev) => [...prev, politeMessage]);
+    // === 예산 단위 체크 ===
+    if (rawBudget < 1) {
+      setMessages((prev) => [
+        ...prev,
+        { sender: "gpt", text: "😅 예산의 단위가 이상해요! 1원 이상 입력해주세요!" },
+      ]);
+      return;
+    } else if (rawBudget > 9999) {
+      setMessages((prev) => [
+        ...prev,
+        { sender: "gpt", text: "😅 예산의 단위가 이상해요! 단위를 확인하고 다시 입력해주세요!." },
+      ]);
       return;
     }
 
+    // === 독립적 범위 체크 (40~300만원 벗어나면 모달) ===
+    if (rawBudget < 40 || rawBudget > 300) {
+      setPendingBudget(rawBudget);
+      setPendingPurpose(finalPurpose);
+      setShowBudgetConsent(true);
+      return;
+    }
+
+    // === 초고가 안내 메시지 ===
+    if (rawBudget > 8000) {
+      setBudgetError(
+        "현재 시중에서는 이런 가격대의 물건은 추천드리기 어려워요 😅 조금만 낮춰주실 수 있을까요?"
+      );
+      return;
+    } else {
+      setBudgetError("");
+    }
+
+    // === 정상 범위 ===
     setIsTyping(true);
+    const budgetInWon = rawBudget * 10000;
     const gptResponse = await fetchGPT(userMessage.text, budgetInWon);
     setIsTyping(false);
 
-    const gptMessage = { sender: "gpt", text: gptResponse };
-    setMessages((prev) => [...prev, gptMessage]);
-
+    setMessages((prev) => [...prev, { sender: "gpt", text: gptResponse }]);
     await handleSaveToDB(gptResponse);
   };
 
@@ -126,6 +156,42 @@ export default function Home() {
     if (e.key === "Enter") sendMessage();
   };
 
+  // === 예산 동의 모달 확인 / 취소 ===
+  const handleBudgetConsentConfirm = async () => {
+    setShowBudgetConsent(false);
+    if (!pendingPurpose) return;
+
+    const userMessage = {
+      sender: "user",
+      text: `목적: ${pendingPurpose}, 예산: ${pendingBudget}만원`,
+    };
+    setMessages((prev) => [...prev, userMessage]);
+
+    setIsTyping(true);
+    const gptResponse = await fetchGPT(
+      userMessage.text,
+      pendingBudget * 10000
+    );
+    setIsTyping(false);
+
+    setMessages((prev) => [...prev, { sender: "gpt", text: gptResponse }]);
+    await handleSaveToDB(gptResponse);
+
+    setPendingBudget(0);
+    setPendingPurpose("");
+  };
+
+  const handleBudgetConsentCancel = () => {
+    setShowBudgetConsent(false);
+    setPendingBudget(0);
+    setPendingPurpose("");
+    setMessages((prev) => [
+      ...prev,
+      { sender: "gpt", text: "❌ 추천이 취소되었습니다." },
+    ]);
+  };
+
+  // === 이하 기존 하트 / 저장 모달 ===
   const handleHeartClick = (e) => {
     setLiked(true);
     setShowModal(true);
@@ -232,7 +298,6 @@ export default function Home() {
               const rawValue = e.target.value.replace(/,/g, "");
               if (/^\d*$/.test(rawValue)) {
                 setBudget(rawValue);
-
                 const numValue = Number(rawValue);
                 if (numValue > 8000) {
                   setBudgetError(
@@ -310,6 +375,7 @@ export default function Home() {
         )}
       </div>
 
+      {/* 일반 찜 모달 */}
       {showModal && (
         <div css={s.modalBackdrop}>
           <div css={s.modalContent}>
@@ -344,6 +410,20 @@ export default function Home() {
             <div css={s.modalButtons}>
               <button onClick={handleModalConfirm}>확인</button>
               <button onClick={handleModalCancel}>취소</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 독자적 예산 범위 동의 모달 */}
+      {showBudgetConsent && (
+        <div css={s.modalBackdrop}>
+          <div css={s.modalContent}>
+            <h3>⚠️ 이 값은 추천 범위를 벗어났습니다.</h3>
+            <p>그래도 진행하시겠습니까?</p>
+            <div css={s.modalButtons}>
+              <button onClick={handleBudgetConsentConfirm}>동의</button>
+              <button onClick={handleBudgetConsentCancel}>취소</button>
             </div>
           </div>
         </div>

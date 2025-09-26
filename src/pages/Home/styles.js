@@ -81,7 +81,6 @@ export const gptMessage = css`
   white-space: pre-wrap;
 `;
 
-/* 클릭 가능한 하트 아이콘 (하단) */
 export const heartIconBottom = css`
   position: absolute;
   right: 0;
@@ -89,7 +88,7 @@ export const heartIconBottom = css`
   font-size: 24px;
   cursor: pointer;
   transition: color 0.2s ease;
-  pointer-events: auto; /* 클릭 가능 */
+  pointer-events: auto;
 `;
 
 export const modalBackdrop = css`
@@ -195,12 +194,11 @@ export const splitInput = css`
   height: 100%;
   border: none;
   outline: none;
-  background: #1f2b38; /* select/input 배경 통일 */
+  background: #1f2b38;
   color: white;
   font-size: 16px;
   padding: 0 10px;
   border-radius: 9999px;
-
   -moz-appearance: textfield;
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {
@@ -223,7 +221,6 @@ export const budgetInput = css`
   background: transparent;
   color: white;
   font-size: 16px;
-
   -moz-appearance: textfield;
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {
@@ -259,9 +256,8 @@ const heartFloatNatural = keyframes`
   }
 `;
 
-/* 올라가는 하트 (장식용) */
 export const flyingHeart = css`
-  position: fixed; /* 화면 전체 기준 */
+  position: fixed;
   left: var(--x, 0);
   top: var(--y, 0);
   font-size: var(--size, 16px);
@@ -271,7 +267,7 @@ export const flyingHeart = css`
   will-change: transform, opacity;
 `;
 
-export const purposeDropdownWrapper = css`
+export const purposeSelectWrapper = css`
   position: relative;
   width: 100%;
   max-width: 300px;
@@ -282,12 +278,12 @@ export const purposeSelect = css`
   height: 40px;
   padding: 0 12px;
   border-radius: 8px;
-  border: 1px solid #3a8de6ff; /* 고급스러운 테두리 */
+  border: 1px solid #3a8de6ff;
   background-color: #1f2b38;
   color: white;
   font-size: 14px;
   cursor: pointer;
-  appearance: none; /* 기본 화살표 제거 */
+  appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
   position: relative;
@@ -312,7 +308,7 @@ export const dropdownArrow = css`
 
 export const purposeOptionsMenu = css`
   position: absolute;
-  top: 45px; /* select 높이 + 간격 */
+  top: 45px;
   left: 0;
   width: 100%;
   background-color: #1f2b38;
@@ -365,9 +361,9 @@ export const heartWrapper = css`
   bottom: 0;
   right: 0;
   width: 40px;
-  height: 160px; /* 하트 애니메이션 높이 고려 */
+  height: 160px;
   pointer-events: none;
-  overflow: visible; /* 반드시 visible로 */
+  overflow: visible;
 `;
 
 const bounce = keyframes`
@@ -381,7 +377,6 @@ const bounce = keyframes`
   }
 `;
 
-// GPT 입력 중 점 스타일
 export const jumpingDots = css`
   display: inline-flex;
   margin-left: 6px;
@@ -400,5 +395,24 @@ export const jumpingDots = css`
   }
   span:nth-of-type(3) {
     animation-delay: 0.4s;
+  }
+`;
+
+export const dontShowWrapper = css`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #3a8de6ff;
+  }
+
+  span {
+    font-size: 14px;
+    color: white;
+    user-select: none;
   }
 `;
