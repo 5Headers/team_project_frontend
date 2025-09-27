@@ -6,6 +6,8 @@ import { Route, Routes } from "react-router-dom";
 import AuthRouter from "../AuthRouter/AuthRouter";
 import Maps from "../../pages/googlemap/Maps";
 import Main from "../../pages/Main/Main";
+import OnlineShopping from "../../pages/OnlineShopping/OnlineShopping";
+import OfflineShopping from "../../pages/OfflineShopping/OfflineShopping";
 
 function MainRouter() {
   return (
@@ -58,14 +60,16 @@ function MainRouter() {
           </Layout>
         }
       />
-      <Route
-        path="/setting"
-        element={
-          <Layout>
-            <Setting />
-          </Layout>
-        }
-      ></Route>
+
+      <Route path="/onlineshopping" element={
+        <Layout>
+          <OnlineShopping/>
+        </Layout>}/>
+      <Route path="/offlineshopping" element={
+        <Layout>
+          <OfflineShopping/>
+        </Layout>
+      }/>
     </Routes>
   );
 }
