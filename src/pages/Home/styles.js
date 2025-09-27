@@ -19,9 +19,7 @@ export const logo = css`
   color: white;
   font-size: 4vh;
   margin: 0 0 20px 0;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6),
-    0 0 6px white,
-    0 0 12px #1f5fbf;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6), 0 0 6px white, 0 0 12px #1f5fbf;
   font-weight: 400;
 `;
 
@@ -334,8 +332,7 @@ export const purposeOptionsMenu = css`
     &:hover {
       background-color: #121920ff;
       color: #b0e0ff;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6),
-        0 0 6px #3a8de6,
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6), 0 0 6px #3a8de6,
         0 0 12px #1f5fbf;
     }
   }
@@ -461,7 +458,6 @@ export const methodButton = css`
     background-color: #3a4f6d;
   }
 `;
-
 
 export const gptButtonGroup = css`
   display: flex;
