@@ -3,6 +3,7 @@ import * as s from "./styles";
 import React, { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { oauth2MergeRequest } from '../../apis/auth/authApi';
+import AuthInput from "../../components/AuthInput/AuthInput";
 
 function OAuth2Merge() {
   // 아이디, 비밀번호 입력 상태 관리

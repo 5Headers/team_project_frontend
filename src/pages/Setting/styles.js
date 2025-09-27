@@ -157,7 +157,7 @@ export const content = css`
 
 export const verticalDivider = css`
   width: 2px;
-  height: 500px;
+  height: 700px;
   background-color: #3a8de6;
   box-shadow: 0 0 6px #3a8de6, 0 0 12px #1f5fbf, 0 0 20px #1f5fbf;
   border-radius: 1px;

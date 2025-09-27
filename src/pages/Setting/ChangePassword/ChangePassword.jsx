@@ -1,18 +1,38 @@
 /** @jsxImportSource @emotion/react */
-
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import * as s from "./styles";
+import { changePasswordRequest } from "../../../apis/account/accountApis";
 
 function ChangePassword() {
   const [currentPwd, setCurrentPwd] = useState("");
   const [newPwd, setNewPwd] = useState("");
+  const navigate = useNavigate();
 
-  const handleChange = () => {
+  const handleChange = async () => {
     if (!currentPwd || !newPwd) {
       alert("모든 필드를 입력해주세요");
       return;
     }
-    alert("비밀번호가 변경되었습니다.");
+
+    try {
+      const data = {
+        oldPassword: currentPwd,
+        newPassword: newPwd,
+      };
+
+      const response = await changePasswordRequest(data);
+
+      if (response?.data?.status === "success") {
+        alert(response.data.message);
+        navigate("/auth/signin"); // 비밀번호 변경 후 로그인 페이지 이동
+      } else {
+        alert(response.data.message || "비밀번호 변경 실패");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("서버와 통신 중 오류가 발생했습니다.");
+    }
   };
 
   return (

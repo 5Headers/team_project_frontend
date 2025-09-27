@@ -58,14 +58,7 @@ function MainRouter() {
           </Layout>
         }
       />
-      <Route
-        path="/setting"
-        element={
-          <Layout>
-            <Setting />
-          </Layout>
-        }
-      ></Route>
+      
     </Routes>
   );
 }

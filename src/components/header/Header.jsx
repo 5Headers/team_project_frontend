@@ -5,6 +5,7 @@ import { FiMenu } from "react-icons/fi";
 import { GoTriangleLeft } from "react-icons/go";
 import { DiAptana } from "react-icons/di";
 import profileImage from "../../assets/기본프로필.png";
+import { IoHome } from "react-icons/io5";
 import * as s from "./styles";
 
 function Header() {
@@ -146,6 +147,7 @@ function Header() {
         <div css={s.sidebarToggle(isSidebarOpen)} onClick={toggleSidebar}>
           <GoTriangleLeft />
         </div>
+
         <ul css={s.Menusidebar}>
           <li
             onClick={() => handleSidebarItemClick(0)}
@@ -161,12 +163,19 @@ function Header() {
           </li>
           <li
             onClick={() => handleSidebarItemClick(3)}
-            css={s.sidebarItem(false)} // ✅ hover/active 고정 X
+            css={s.sidebarItem(false)}
           >
             새로운 대화
           </li>
         </ul>
       </div>
+
+      {/* 사이드바 오른쪽에 띄우는 홈 아이콘 */}
+      {isLoggedIn && (
+        <div css={s.homeIconNextToSidebar} onClick={() => navigate("/")}>
+          <IoHome />
+        </div>
+      )}
     </div>
   );
 }
