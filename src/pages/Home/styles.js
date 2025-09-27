@@ -19,7 +19,9 @@ export const logo = css`
   color: white;
   font-size: 4vh;
   margin: 0 0 20px 0;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6), 0 0 6px white, 0 0 12px #1f5fbf;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6),
+    0 0 6px white,
+    0 0 12px #1f5fbf;
   font-weight: 400;
 `;
 
@@ -332,7 +334,8 @@ export const purposeOptionsMenu = css`
     &:hover {
       background-color: #121920ff;
       color: #b0e0ff;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6), 0 0 6px #3a8de6,
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6),
+        0 0 6px #3a8de6,
         0 0 12px #1f5fbf;
     }
   }
@@ -417,5 +420,81 @@ export const dontShowWrapper = css`
     font-size: 14px;
     color: white;
     user-select: none;
+  }
+`;
+
+// 버튼 그룹 (GPT 메시지 아래)
+export const buttonGroup = css`
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+`;
+
+// 버튼 공통 스타일
+export const chatButton = css`
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  background-color: #3a8de6ff;
+  color: white;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background-color: #5c9eff;
+  }
+`;
+
+// 온라인 / 오프라인 선택 버튼
+export const methodButton = css`
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  background-color: #2b3a4d;
+  color: white;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background-color: #3a4f6d;
+  }
+`;
+
+
+export const gptButtonGroup = css`
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+`;
+
+export const gptChatButton = css`
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  background-color: #3a8de6ff;
+  color: white;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background-color: #5c9eff;
+  }
+`;
+
+export const gptMethodButton = css`
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  background-color: #3a8de6ff;
+  color: white;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background-color: #5c9eff;
   }
 `;
