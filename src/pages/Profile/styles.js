@@ -127,3 +127,70 @@ export const profileMain = css`
   justify-content: center;
   align-items: center;
 `;
+
+/* ===== 견적 리스트 ===== */
+export const estimateContainer = css`
+  margin-top: 20px;
+`;
+
+export const estimateTitle = css`
+  text-align: center;
+  margin-bottom: 10px;
+`;
+
+export const estimateBox = css`
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 15px;
+`;
+
+export const estimateList = css`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+`;
+
+export const estimateItem = css`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+`;
+
+export const itemNumber = css`
+  width: 30px;
+`;
+
+export const itemName = css`
+  flex: 1;
+  
+`;
+
+export const deleteBtn = css`
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+`;
+
+export const pagenateContainer = css`
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+   gap: 40px; /* 좌우 간격 넓힘 */
+
+  a {
+    text-decoration: none; /* 밑줄 제거 */
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+  }
+`;
+
+export const activePage = css`
+  color: #0d6efd;
+  font-weight: 600;
+`;
