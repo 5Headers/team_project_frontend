@@ -258,3 +258,28 @@ export const profileIcon = css`
     object-fit: cover;  /* 이미지 비율 유지, 영역 꽉 채움 */
   }
 `;
+
+export const homeIconNextToSidebar = css`
+  position: fixed; /* 화면에 고정 */
+  left: 80px;      /* 사이드바 바로 오른쪽 위치 */
+  top: 20px;       /* 화면 상단 위치 */
+  width: 35px;     /* 사이드바 버튼과 동일한 크기 */
+  height: 35px;
+  border-radius: 50%; /* 동그란 원 */
+  background-color: #5c5c5c; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 1100; /* 사이드바 위 */
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #e0e0e0; 
+  }
+
+  svg {
+    color: black;   /* 아이콘 검정/회색 */
+    font-size: 24px;
+  }
+`;
