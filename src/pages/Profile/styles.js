@@ -42,7 +42,8 @@ export const profileImgBox = css`
     & > img {
       width: 100%;
       height: 100%;
-      object-fit: cover; /* 이미지 비율 유지하며 꽉 채우기 */
+      border-radius: 50%;
+      object-fit: cover;
     }
   }
 `;
@@ -56,76 +57,29 @@ export const profileInfoBox = css`
 
   & > h3 {
     font-size: 24px;
+    margin-bottom: 5px;
   }
 
-  & > div {
-    display: flex;
-    align-items: center;
-    gap: 15px;
+  & > p {
+    margin-bottom: 10px;
+  }
 
-    & > p {
-      margin: 0;
-    }
+  & > button {
+    border: none;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 4px;
+    background-color: #333;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-right: 10px;
 
-    & > button {
-      border: none;
-      padding: 3px 5px;
-      font-size: 11px;
-      font-weight: 600;
-      border-radius: 4px;
-      background-color: #0d6efd;
-      color: white;
-      cursor: pointer;
+    &:hover {
+      background-color: black;
     }
   }
-`;
-
-export const profileBox = css`
-  width: 100%;
-  height: 500px;
-  border: 1px solid #dbdbdb;
-  box-sizing: border-box;
-`;
-
-export const profileTab = (tabChild) => css`
-  width: 100%;
-  height: 40px;
-  border-bottom: 1px solid #dbdbdb;
-  box-sizing: border-box;
-
-  & > ul {
-    display: flex;
-
-    & > li {
-      height: 40px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 14px;
-      padding: 0 14px;
-      border-right: 1px solid #dbdbdb;
-      box-sizing: border-box;
-      color: #333;
-      cursor: pointer;
-
-      &:nth-of-type(${tabChild}) {
-        border-bottom: 1px solid white;
-      }
-
-      &:hover {
-        background-color: #f2f2f2;
-        font-weight: 600;
-      }
-    }
-  }
-`;
-
-export const profileMain = css`
-  width: 100%;
-  height: 460px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 `;
 
 /* ===== 견적 리스트 ===== */
@@ -160,30 +114,50 @@ export const estimateItem = css`
 
 export const itemNumber = css`
   width: 30px;
+  flex-shrink: 0;
 `;
 
-export const itemName = css`
-  flex: 1;
-  
+export const itemDetails = css`
+  display: flex;
+  justify-content: space-between; /* 좌측: 목적+가격, 우측: 생성날짜 */
+  align-items: center;
+  width: 100%;
 `;
+
+export const leftSide = css`
+  display: flex;
+  gap: 50px; /* 목적과 가격 간격 */
+  font-weight: bold;
+`;
+
+export const createdAt = css`
+  color: #666;
+  font-weight: bold;
+  margin-left: 20px;
+`;
+
 
 export const deleteBtn = css`
-  background-color: #ff4d4f;
-  color: white;
+  background-color: transparent;
+  color: #333;
   border: none;
-  padding: 5px 10px;
+  padding: 5px;
   cursor: pointer;
   border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
 `;
 
 export const pagenateContainer = css`
   margin-top: 30px;
   display: flex;
   justify-content: center;
-   gap: 40px; /* 좌우 간격 넓힘 */
+  gap: 40px;
 
   a {
-    text-decoration: none; /* 밑줄 제거 */
+    text-decoration: none;
     font-size: 14px;
     color: #333;
     cursor: pointer;
@@ -194,3 +168,4 @@ export const activePage = css`
   color: #0d6efd;
   font-weight: 600;
 `;
+
