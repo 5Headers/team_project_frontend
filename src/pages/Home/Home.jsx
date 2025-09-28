@@ -12,7 +12,6 @@ export default function Home() {
   const heartIdRef = useRef(0);
 
   // ===================== 상태 관리 =====================
-  const [showLogo, setShowLogo] = useState(true);
   const [inputMoved, setInputMoved] = useState(false);
   const [messages, setMessages] = useState([]);
   const [purpose, setPurpose] = useState("");
@@ -25,16 +24,10 @@ export default function Home() {
   const [title, setTitle] = useState("제목 없음");
   const [titleError, setTitleError] = useState(false);
   const [recommendedParts, setRecommendedParts] = useState([]);
-
   const [hearts, setHearts] = useState([]);
-
-  // 예산 범위 동의 모달
   const [showBudgetConsent, setShowBudgetConsent] = useState(false);
   const [pendingBudget, setPendingBudget] = useState(0);
   const [pendingPurpose, setPendingPurpose] = useState("");
-
-  // 입력창 표시 여부
-  const [inputVisible, setInputVisible] = useState(true);
 
   // ===================== 채팅 스크롤 =====================
   useEffect(() => {
@@ -79,7 +72,6 @@ export default function Home() {
 
     const rawBudget = Number(budget.replace(/,/g, "")) || 0;
 
-    // 유저 메시지 추가
     setMessages((prev) => [
       ...prev,
       {
@@ -93,9 +85,7 @@ export default function Home() {
     setPurpose("");
     setCustomPurpose("");
     setIsCustom(false);
-    setShowLogo(false);
     setInputMoved(true);
-    setInputVisible(false);
 
     // 예산 단위 체크
     if (rawBudget < 1 || rawBudget > 9999) {
@@ -103,7 +93,6 @@ export default function Home() {
         ...prev,
         { sender: "gpt", text: "😅 예산 단위를 확인해주세요!" },
       ]);
-      setInputVisible(true);
       return;
     }
 
@@ -115,7 +104,6 @@ export default function Home() {
       return;
     }
 
-    // GPT 호출
     setIsTyping(true);
     const gptResponse = await fetchGPT(finalPurpose, rawBudget * 10000);
     setIsTyping(false);
@@ -143,7 +131,6 @@ export default function Home() {
     setIsTyping(true);
     const gptResponse = await fetchGPT(pendingPurpose, pendingBudget * 10000);
     setIsTyping(false);
-
     setRecommendedParts(gptResponse.parts || gptResponse);
 
     setMessages((prev) => [
@@ -167,7 +154,6 @@ export default function Home() {
       ...prev,
       { sender: "gpt", text: "❌ 추천이 취소되었습니다." },
     ]);
-    setInputVisible(true);
   };
 
   // ===================== 구매 여부/방법 =====================
@@ -175,7 +161,6 @@ export default function Home() {
     setMessages((prev) =>
       prev.map((m, i) => (i === msgIdx ? { ...m, nextStep: null } : m))
     );
-    setInputVisible(false);
     setMessages((prev) => [
       ...prev,
       {
@@ -190,7 +175,6 @@ export default function Home() {
     setMessages((prev) =>
       prev.map((m, i) => (i === msgIdx ? { ...m, nextStep: null } : m))
     );
-    setInputVisible(true);
     setMessages((prev) => [
       ...prev,
       { sender: "gpt", text: "NuroPC를 이용해주셔서 감사합니다." },
@@ -201,7 +185,7 @@ export default function Home() {
     if (method === "online") {
       navigate("/onlineshopping", { state: { parts: recommendedParts } });
     } else {
-      navigate("/offlineshopping");
+      navigate("/maps", { state: { parts: recommendedParts } });
     }
   };
 
@@ -251,78 +235,112 @@ export default function Home() {
   return (
     <div css={s.container}>
       {/* 로고 */}
-      {showLogo && <h2 css={s.logo}>NuroPC</h2>}
+      <h2 css={s.logo}>NuroPC</h2>
 
       {/* 입력 영역 */}
-      {inputVisible && !isTyping && (
-        <div css={s.splitInputWrapper}>
-          <IoSearchCircleSharp onClick={sendMessage} />
-          {!isCustom ? (
-            <select
-              css={s.splitInput}
-              value={purpose}
-              onChange={(e) => {
-                if (e.target.value === "직접 입력") {
-                  setIsCustom(true);
-                  setPurpose("");
-                } else setPurpose(e.target.value);
-              }}
-              onKeyDown={handleEnter}
-            >
-              <option value="">목적 선택</option>
-              <option value="사무용">사무용</option>
-              <option value="게임용">게임용</option>
-              <option value="프로그래밍용">프로그래밍용</option>
-              <option value="영상편집용">영상편집용</option>
-              <option value="직접 입력">직접 입력</option>
-            </select>
-          ) : (
-            <div css={s.customPurposeWrapper}>
-              <input
-                type="text"
-                css={s.splitInput}
-                placeholder="목적 입력"
-                value={customPurpose}
-                onChange={(e) => setCustomPurpose(e.target.value)}
-                onKeyDown={handleEnter}
-              />
-              <span
-                css={s.clearX}
-                onClick={() => {
-                  setIsCustom(false);
-                  setCustomPurpose("");
-                }}
-              >
-                ×
-              </span>
-            </div>
-          )}
-          <div css={s.budgetWrapper}>
+      <div css={s.splitInputWrapper}>
+        <IoSearchCircleSharp onClick={sendMessage} />
+        {!isCustom ? (
+          <select
+            css={s.splitInput}
+            value={purpose}
+            onChange={(e) => {
+              if (e.target.value === "직접 입력") {
+                setIsCustom(true);
+                setPurpose("");
+              } else setPurpose(e.target.value);
+            }}
+            onKeyDown={handleEnter}
+          >
+            <option value="">목적 선택</option>
+            <option value="사무용">사무용</option>
+            <option value="게임용">게임용</option>
+            <option value="프로그래밍용">프로그래밍용</option>
+            <option value="영상편집용">영상편집용</option>
+            <option value="직접 입력">직접 입력</option>
+          </select>
+        ) : (
+          <div css={s.customPurposeWrapper}>
             <input
               type="text"
-              placeholder="예산 입력 (단위: 만원)"
-              value={budget.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-              onChange={(e) => {
-                const rawValue = e.target.value.replace(/,/g, "");
-                if (/^\d*$/.test(rawValue)) setBudget(rawValue);
-              }}
+              css={s.splitInput}
+              placeholder="목적 입력"
+              value={customPurpose}
+              onChange={(e) => setCustomPurpose(e.target.value)}
               onKeyDown={handleEnter}
-              css={s.budgetInput}
             />
-            <span style={{ marginLeft: "8px", color: "#aaa" }}>만원</span>
+            <span
+              css={s.clearX}
+              onClick={() => {
+                setIsCustom(false);
+                setCustomPurpose("");
+              }}
+            >
+              ×
+            </span>
           </div>
+        )}
+        <div css={s.budgetWrapper}>
+          <input
+            type="text"
+            placeholder="예산 입력 (단위: 만원)"
+            value={budget.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+            onChange={(e) => {
+              const rawValue = e.target.value.replace(/,/g, "");
+              if (/^\d*$/.test(rawValue)) setBudget(rawValue);
+            }}
+            onKeyDown={handleEnter}
+            css={s.budgetInput}
+          />
+          <span style={{ marginLeft: "8px", color: "#aaa" }}>만원</span>
         </div>
-      )}
+      </div>
 
       {/* 채팅 영역 */}
       <div css={s.chatBoxWrapper}>
         <div css={s.chatBox} ref={chatBoxRef}>
           {messages.map((msg, idx) => (
-            <div
-              key={idx}
-              css={msg.sender === "user" ? s.userMessage : s.gptMessage}
-            >
-              {msg.text}
+            <div key={idx}>
+              {msg.sender === "user" ? (
+                <div css={s.userMessage}>{msg.text}</div>
+              ) : msg.sender === "gpt" ? (
+                <div css={s.gptMessage}>
+                  {/** === 텍스트를 줄 단위로 나눠서 부품 카드로 렌더링 === */}
+                  {msg.text.split("\n").map((line, i) => {
+                    const partMatch = line.match(
+                      /^(.+?):\s*(.+?),\s*([\d,]+)원?,\s*링크:\s*(http.+)$/
+                    );
+                    if (line.startsWith("총 가격")) {
+                      return (
+                        <div key={i} css={s.totalPrice}>
+                          {line}
+                        </div>
+                      );
+                    } else if (partMatch) {
+                      const [, partType, partName, partPrice, partLink] =
+                        partMatch;
+                      return (
+                        <div key={i} css={s.partCard}>
+                          <div className="part-name">{partName}</div>
+                          <div className="part-price">
+                            {Number(
+                              partPrice.replace(/,/g, "")
+                            ).toLocaleString()}
+                            원
+                          </div>
+                          <a href={partLink} target="_blank" rel="noreferrer">
+                            링크 보기
+                          </a>
+                        </div>
+                      );
+                    } else {
+                      return <div key={i}>{line}</div>;
+                    }
+                  })}
+                </div>
+              ) : null}
+
+              {/** === 다음 단계 버튼 처리 === */}
               {msg.nextStep === "askPurchase" && (
                 <div css={s.gptButtonGroup}>
                   <button
@@ -357,6 +375,7 @@ export default function Home() {
               )}
             </div>
           ))}
+
           {isTyping && (
             <div css={s.gptMessage}>
               NuroPc가 알아보는 중

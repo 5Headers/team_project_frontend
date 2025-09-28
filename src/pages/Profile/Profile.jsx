@@ -14,8 +14,8 @@ function Profile() {
       try {
         const res = await getPrincipalRequest();
         if (res.data && res.data.data) {
-          const { username, email, userId } = res.data.data;
-          setUser({ name: username, email, userId });
+          const { name, email, userId } = res.data.data;
+          setUser({ name, email, userId });
         }
       } catch (err) {
         console.error("사용자 정보 가져오기 실패:", err);
