@@ -16,7 +16,7 @@ function MainRouter() {
         path="*"
         element={
           <Layout>
-            <Main/>
+            <Main />
           </Layout>
         }
       />
@@ -61,15 +61,22 @@ function MainRouter() {
         }
       />
 
-      <Route path="/onlineshopping" element={
-        <Layout>
-          <OnlineShopping/>
-        </Layout>}/>
-      <Route path="/offlineshopping" element={
-        <Layout>
-          <OfflineShopping/>
-        </Layout>
-      }/>
+      <Route
+        path="/onlineshopping"
+        element={
+          <Layout>
+            <OnlineShopping />
+          </Layout>
+        }
+      />
+      <Route
+        path="/maps"
+        element={
+          <Layout>
+            <Maps />
+          </Layout>
+        }
+      />
     </Routes>
   );
 }

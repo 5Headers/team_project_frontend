@@ -59,6 +59,7 @@ function Profile() {
             isFirstLoad = false; // 첫 로드 완료
             return unique;
           });
+
         }
       } catch (err) {
         console.error("사용자/견적 가져오기 실패:", err);

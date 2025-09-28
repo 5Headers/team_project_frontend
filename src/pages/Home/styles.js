@@ -66,17 +66,89 @@ export const userMessage = css`
   white-space: pre-wrap;
 `;
 
+const slideUp = keyframes`
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+`;
+
+// ===== GPT 메시지 박스 전체 =====
 export const gptMessage = css`
-  background-color: #2b3a4d;
-  color: white;
-  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: linear-gradient(135deg, #2b3a4d, #1f2b38);
+  color: #fff;
+  padding: 18px;
   border-radius: 16px;
-  margin: 6px 0;
+  margin: 8px 0;
   max-width: 85%;
   align-self: flex-start;
   word-break: break-word;
   box-sizing: border-box;
   white-space: pre-wrap;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  border: 1px solid #3a8de6ff;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  animation: ${slideUp} 0.3s ease-out;
+
+  /* 카드 내부 정렬 */
+  .parts-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+`;
+
+// ===== 개별 부품 카드 =====
+export const partCard = css`
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid #3a8de6ff;
+  background: linear-gradient(135deg, #1f2b38, #2b3a4d);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  gap: 6px;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+  }
+
+  .part-name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #ffd166;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
+  }
+
+  .part-price {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #06d6a0;
+  }
+
+  a {
+    font-size: 0.9rem;
+    color: #4fc3f7;
+    text-decoration: underline;
+    &:hover {
+      color: #82ccf7;
+    }
+  }
+`;
+
+
+// ===== 총 가격 강조 =====
+export const totalPrice = css`
+  margin-top: 12px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #1e9ae2ff;
+  text-align: right;
+  padding-right: 6px;
 `;
 
 /* 클릭 가능한 하트 아이콘 (하단) */
