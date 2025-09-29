@@ -162,6 +162,7 @@ export const heartIconBottom = css`
   pointer-events: auto; /* 클릭 가능 */
 `;
 
+
 export const modalBackdrop = css`
   position: fixed;
   top: 0;
