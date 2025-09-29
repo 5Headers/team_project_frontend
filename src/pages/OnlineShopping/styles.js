@@ -10,6 +10,22 @@ export const container = css`
   color: white;
 `;
 
+
+export const topBar = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  marginBottom: "16px",
+};
+
+export const closeButton = {
+  fontSize: "20px",
+  background: "transparent",
+  border: "none",
+  color: "white",
+  cursor: "pointer",
+};
+
 // 로고
 export const logo = css`
   font-size: 2.5rem;

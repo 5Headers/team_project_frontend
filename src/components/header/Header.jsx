@@ -33,9 +33,7 @@ function Header() {
     };
   }, []);
 
-  const handleGoSetting = () => {
-    navigate("/setting");
-  };
+  const handleGoSetting = () => navigate("/setting");
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -69,9 +67,9 @@ function Header() {
       navigate("/picklist");
     } else if (index === 3) {
       // 새로운 대화 클릭
-      localStorage.removeItem("gptMessages"); // ✅ 대화 기록 초기화
-      window.dispatchEvent(new Event("newChat")); // ✅ 이벤트 발생
-      setActiveSidebarItem(0); // 장비 추천 hover 고정
+      localStorage.removeItem("chatMessages"); // Home 메시지 초기화
+      window.dispatchEvent(new Event("newChat")); // 이벤트 발생
+      setActiveSidebarItem(0);
       navigate("/search");
     }
   };
@@ -86,13 +84,9 @@ function Header() {
     navigate("/");
   };
 
-  const SignupClick = () => {
-    navigate("/auth/signup");
-  };
+  const SignupClick = () => navigate("/auth/signup");
 
-  const ProfileClick = () => {
-    navigate("/auth/profile");
-  };
+  const ProfileClick = () => navigate("/auth/profile");
 
   return (
     <div css={s.container} onClick={closeMenu}>
@@ -166,12 +160,11 @@ function Header() {
             onClick={() => handleSidebarItemClick(3)}
             css={s.sidebarItem(false)}
           >
-            새로운 대화
+            새로운 견적
           </li>
         </ul>
       </div>
 
-      {/* 사이드바 오른쪽에 띄우는 홈 아이콘 */}
       {isLoggedIn && !isSidebarOpen && (
         <div css={s.homeIconNextToSidebar} onClick={() => navigate("/")}>
           <IoHome />

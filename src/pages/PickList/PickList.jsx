@@ -75,7 +75,7 @@ function PickList() {
 
   return (
     <div css={s.container}>
-      <h2 css={s.estimateTitle}>나의 견적</h2>
+      <h2 css={s.estimateTitle}>견적 기록</h2>
       <div css={[s.estimateBox, s.estimateBoxScrollbar]}>
         {estimates
           .slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE)
