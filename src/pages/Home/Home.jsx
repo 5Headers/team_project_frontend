@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaHeart } from "react-icons/fa";
 import { IoSearchCircleSharp } from "react-icons/io5";
+import axios from "axios";
 import * as s from "./styles";
 
 export default function Home() {
@@ -21,9 +22,6 @@ export default function Home() {
   const [isCustom, setIsCustom] = useState(false);
   const [budget, setBudget] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [title, setTitle] = useState("제목 없음");
-  const [titleError, setTitleError] = useState(false);
   const [recommendedParts, setRecommendedParts] = useState([]);
   const [showBudgetConsent, setShowBudgetConsent] = useState(false);
   const [pendingBudget, setPendingBudget] = useState(0);
@@ -31,6 +29,7 @@ export default function Home() {
 
   // ===================== flyingHeart 상태 =====================
   const [flyingHearts, setFlyingHearts] = useState([]);
+  const clickedRef = useRef({});
 
   useEffect(() => {
     localStorage.setItem("gptMessages", JSON.stringify(messages));
@@ -74,6 +73,8 @@ export default function Home() {
 
       if (!response.ok) throw new Error("서버 오류: " + response.status);
       const data = await response.json();
+
+      // 🔹 서버에서 estimateId 포함해서 반환했다고 가정
       return data.data || "응답이 없습니다.";
     } catch (error) {
       console.error(error);
@@ -129,6 +130,7 @@ export default function Home() {
         sender: "gpt",
         text: `${gptResponse}\n구매를 추천할 수 있습니다. 구매하시겠습니까?`,
         nextStep: "askPurchase",
+        estimateId: gptResponse.estimateId, // 🔹 estimateId 추가
       },
     ]);
   };
@@ -153,6 +155,7 @@ export default function Home() {
         sender: "gpt",
         text: `${gptResponse}\n구매를 추천할 수 있습니다. 구매하시겠습니까?`,
         nextStep: "askPurchase",
+        estimateId: gptResponse.estimateId, // 🔹 estimateId 추가
       },
     ]);
 
@@ -187,8 +190,11 @@ export default function Home() {
 
   const handlePurchaseNo = (msgIdx) => {
     setMessages((prev) =>
-      prev.map((m, i) => (i === msgIdx ? { ...m, nextStep: null } : m))
+      prev.map((m, i) =>
+        i === msgIdx ? { ...m, nextStep: null, liked: m.liked || false } : m
+      )
     );
+
     setMessages((prev) => [
       ...prev,
       { sender: "gpt", text: "NuroPC를 이용해주셔서 감사합니다." },
@@ -204,9 +210,13 @@ export default function Home() {
   };
 
   // ===================== 하트 클릭 =====================
+
   const clickedRef = useRef({});
 
   const handleHeartClick = (msgIdx, e) => {
+
+  const handleHeartClick = async (msgIdx, e, estimateId) => {
+
     e.stopPropagation();
 
     setMessages((prev) => {
@@ -217,9 +227,14 @@ export default function Home() {
         i === msgIdx ? { ...m, liked: willLike } : m
       );
 
+
       // flyingHeart는 이전 상태가 false(회색)이고, 이미 생성되지 않았으면
       if (!clickedMessage.liked && willLike && !clickedRef.current[msgIdx]) {
         clickedRef.current[msgIdx] = true; // 중복 방지
+
+      if (!clickedMessage.liked && willLike && !clickedRef.current[msgIdx]) {
+        clickedRef.current[msgIdx] = true;
+
         setFlyingHearts((prevHearts) => [
           ...prevHearts,
           {
@@ -235,15 +250,21 @@ export default function Home() {
           setFlyingHearts((prevHearts) =>
             prevHearts.filter((h) => h.id !== h.id)
           );
+
           clickedRef.current[msgIdx] = false; // 완료 후 초기화
         }, 1600);
 
         // ✅ 여기서만 모달 띄우기
         setShowModal(true);
+
+          clickedRef.current[msgIdx] = false;
+        }, 1600);
+
       }
 
       return newMessages;
     });
+
   };
 
   // ===================== 찜 모달 =====================
@@ -251,16 +272,20 @@ export default function Home() {
     if (title.trim() === "") {
       setTitleError(true);
       return;
-    }
-    setShowModal(false);
-    setTitle("제목 없음");
-    setTitleError(false);
-  };
 
-  const handleModalCancel = () => {
-    setShowModal(false);
-    setTitle("제목 없음");
-    setTitleError(false);
+
+    // ===================== 북마크 저장 =====================
+    if (!estimateId) return; // estimateId 없으면 토글하지 않음
+    try {
+      await axios.post(
+        `http://localhost:8080/bookmark/toggle/${estimateId}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } catch (err) {
+      console.error("북마크 토글 실패:", err);
+
+    }
   };
 
   // ===================== 렌더 =====================
@@ -368,7 +393,7 @@ export default function Home() {
                   <FaHeart
                     css={s.heartIconBottom}
                     color={msg.liked ? "red" : "lightgray"}
-                    onClick={(e) => handleHeartClick(idx, e)}
+                    onClick={(e) => handleHeartClick(idx, e, msg.estimateId)}
                   />
                 </div>
               )}
@@ -435,43 +460,6 @@ export default function Home() {
           ❤️
         </div>
       ))}
-
-      {showModal && (
-        <div css={s.modalBackdrop}>
-          <div css={s.modalContent}>
-            <h3>추천을 찜 목록에 저장</h3>
-            <input
-              placeholder="제목 없음"
-              type="text"
-              value={title}
-              onChange={(e) => {
-                setTitle(e.target.value);
-                if (titleError && e.target.value.trim() !== "")
-                  setTitleError(false);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleModalConfirm();
-              }}
-            />
-            {titleError && (
-              <p
-                style={{
-                  color: "red",
-                  fontSize: "0.9rem",
-                  marginTop: "4px",
-                  fontWeight: "bold",
-                }}
-              >
-                ⚠️ 제목을 입력해주세요
-              </p>
-            )}
-            <div css={s.modalButtons}>
-              <button onClick={handleModalConfirm}>확인</button>
-              <button onClick={handleModalCancel}>취소</button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {showBudgetConsent && (
         <div css={s.modalBackdrop}>
