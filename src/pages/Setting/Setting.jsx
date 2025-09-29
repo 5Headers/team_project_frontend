@@ -16,14 +16,14 @@ function Setting() {
     switch (activeTab) {
       case "ChangePassword":
         return <ChangePassword />;
-      case "ChangeProfileImage":
-        return <ChangeProfileImage />;
+      // case "ChangeProfileImage":
+      //   return <ChangeProfileImage />;
       case "DeleteAccount":
         return <DeleteAccount />;
       case "DeletePickList":
         return <DeletePickList />;
-      case "Logout":
-        return <Logout />;
+      // case "Logout":
+      //   return <Logout />;
       default:
         return <ChangePassword />;
     }
@@ -42,12 +42,12 @@ function Setting() {
             >
               비밀번호 변경
             </button>
-            <button
+            {/* <button
               className={activeTab === "ChangeProfileImage" ? "active" : ""}
               onClick={() => setActiveTab("ChangeProfileImage")}
             >
               프로필 이미지 변경
-            </button>
+            </button> */}
             <button
               className={activeTab === "DeleteAccount" ? "active" : ""}
               onClick={() => setActiveTab("DeleteAccount")}
@@ -60,12 +60,12 @@ function Setting() {
             >
               찜 전체 삭제
             </button>
-            <button
+            {/* <button
               className={activeTab === "Logout" ? "active" : ""}
               onClick={() => setActiveTab("Logout")}
             >
               로그아웃
-            </button>
+            </button> */}
           </div>
 
           {/* 🔹 세로 네온 구분선 */}

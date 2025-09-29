@@ -5,6 +5,10 @@ import profileImageDefault from "../../assets/기본프로필.png";
 import { getPrincipalRequest } from "../../apis/auth/authApi";
 import { MdDelete } from "react-icons/md";
 
+// --- Firebase import --- (추가)
+import { storage } from "../../firebase"; // firebase.js 경로 확인
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
 function Profile() {
   const [user, setUser] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
@@ -23,8 +27,11 @@ function Profile() {
       try {
         const res = await getPrincipalRequest();
         if (res.data && res.data.data) {
-          const { name, email, userId } = res.data.data;
+          const { name, email, userId, profileImageUrl } = res.data.data;
           setUser({ name, email, userId });
+
+          // --- 서버에 저장된 프로필 이미지 로드 ---
+          if (profileImageUrl) setProfileImage(profileImageUrl);
 
           // 견적 데이터 가져오기
           const resEst = await fetch(
@@ -46,20 +53,17 @@ function Profile() {
           }));
 
           setEstimates((prev) => {
-            // 첫 로드 시 중복 누적 방지
             let combined = isFirstLoad ? formatted : [...formatted, ...prev];
 
-            // estimateId 기준으로 중복 제거
             const unique = combined.filter(
               (v, i, a) =>
                 a.findIndex((e) => e.estimateId === v.estimateId) === i
             );
 
             setTotalPages(Math.ceil(unique.length / amountPerPage));
-            isFirstLoad = false; // 첫 로드 완료
+            isFirstLoad = false;
             return unique;
           });
-
         }
       } catch (err) {
         console.error("사용자/견적 가져오기 실패:", err);
@@ -81,9 +85,39 @@ function Profile() {
     document.getElementById("fileUpload").click();
   };
 
-  const handleSave = () => {
-    if (!profileImage) return alert("이미지를 선택해주세요");
-    alert("프로필 이미지가 변경되었습니다.");
+  // --- 서버에 이미지 저장 (Firebase 방식) --- (수정)
+  const handleSave = async () => {
+    const fileInput = document.getElementById("fileUpload");
+    const file = fileInput.files[0];
+    if (!file) return alert("파일을 선택해주세요");
+
+    try {
+      // --- Firebase Storage 경로 설정 ---
+      const storageRef = ref(storage, `profiles/${user.userId}/${file.name}`);
+
+      // --- 파일 업로드 ---
+      await uploadBytes(storageRef, file);
+
+      // --- 업로드 후 URL 가져오기 ---
+      const downloadURL = await getDownloadURL(storageRef);
+
+      // --- React 상태 갱신 ---
+      setProfileImage(downloadURL);
+      alert("프로필 이미지가 저장되었습니다.");
+
+      // --- 서버 DB에 URL 저장 --- (수정)
+      await fetch(`http://localhost:8080/account/profile/url`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ profileImageUrl: downloadURL }),
+      });
+    } catch (err) {
+      console.error("Firebase 업로드 실패:", err);
+      alert("이미지 저장 실패");
+    }
   };
 
   // --- 페이지 변경 ---
@@ -243,4 +277,3 @@ function Profile() {
 }
 
 export default Profile;
-

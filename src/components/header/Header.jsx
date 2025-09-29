@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { FiMenu } from "react-icons/fi";
 import { GoTriangleLeft } from "react-icons/go";
 import { DiAptana } from "react-icons/di";
-import profileImage from "../../assets/기본프로필.png";
 import { IoHome } from "react-icons/io5";
+import profileImage from "../../assets/기본프로필.png";
 import * as s from "./styles";
 
 function Header() {
@@ -19,23 +19,19 @@ function Header() {
 
   const navigate = useNavigate();
 
+  // 로그인 상태 감지 (storage 이벤트만 사용, login 이벤트 제거)
   useEffect(() => {
-    const handleLogin = () => setIsLoggedIn(true);
     const handleStorage = () =>
       setIsLoggedIn(!!localStorage.getItem("accessToken"));
 
-    window.addEventListener("login", handleLogin);
     window.addEventListener("storage", handleStorage);
 
     return () => {
-      window.removeEventListener("login", handleLogin);
       window.removeEventListener("storage", handleStorage);
     };
   }, []);
 
-  const handleGoSetting = () => {
-    navigate("/setting");
-  };
+  const handleGoSetting = () => navigate("/setting");
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -60,22 +56,16 @@ function Header() {
 
   const handleSidebarItemClick = (index) => {
     setIsSidebarOpen(false);
+    setActiveSidebarItem(index);
 
-    if (index === 0) {
-      setActiveSidebarItem(0);
-      navigate("/search");
-    } else if (index === 2) {
-      setActiveSidebarItem(2);
-      navigate("/picklist");
-    } else if (index === 3) {
-      // 새로운 대화 클릭
-      setActiveSidebarItem(0); // 장비 추천 hover 고정
-      navigate("/search");
-      setTimeout(() => window.location.reload(), 100);
-    }
+    if (index === 0) navigate("/search");
+    else if (index === 2) navigate("/picklist");
+    else if (index === 3) navigate("/search"); // reload 제거
   };
 
   const SigninClick = () => navigate("/auth/signin");
+  const SignupClick = () => navigate("/auth/signup");
+  const ProfileClick = () => navigate("/auth/profile");
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
@@ -83,14 +73,6 @@ function Header() {
     setIsMenuOpen(false);
     setIsRotated(false);
     navigate("/");
-  };
-
-  const SignupClick = () => {
-    navigate("/auth/signup");
-  };
-
-  const ProfileClick = () => {
-    navigate("/auth/profile");
   };
 
   return (
@@ -121,6 +103,7 @@ function Header() {
               </>
             ) : (
               <li css={s.profileIcon} onClick={ProfileClick}>
+                {/* Context 제거, 항상 기본 이미지 사용 */}
                 <img src={profileImage} alt="프로필" />
               </li>
             )}
@@ -163,14 +146,13 @@ function Header() {
           </li>
           <li
             onClick={() => handleSidebarItemClick(3)}
-            css={s.sidebarItem(false)}
+            css={s.sidebarItem(3 === activeSidebarItem)}
           >
             새로운 대화
           </li>
         </ul>
       </div>
 
-      {/* 사이드바 오른쪽에 띄우는 홈 아이콘 */}
       {isLoggedIn && !isSidebarOpen && (
         <div css={s.homeIconNextToSidebar} onClick={() => navigate("/")}>
           <IoHome />
