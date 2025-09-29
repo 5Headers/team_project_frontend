@@ -44,7 +44,9 @@ function MainRouter() {
         path="/picklist"
         element={
           <Layout>
-            <PickList />
+            <div style={{ minHeight: "100vh", backgroundColor: "white" }}>
+              <PickList />
+            </div>
           </Layout>
         }
       />

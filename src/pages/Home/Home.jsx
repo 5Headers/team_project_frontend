@@ -13,7 +13,10 @@ export default function Home() {
 
   // ===================== 상태 관리 =====================
   const [inputMoved, setInputMoved] = useState(false);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(() => {
+    const saved = localStorage.getItem("gptMessages");
+    return saved ? JSON.parse(saved) : [];
+  });
   const [purpose, setPurpose] = useState("");
   const [customPurpose, setCustomPurpose] = useState("");
   const [isCustom, setIsCustom] = useState(false);
@@ -28,6 +31,10 @@ export default function Home() {
   const [flyingHearts, setFlyingHearts] = useState([]);
   const clickedRef = useRef({});
 
+  useEffect(() => {
+    localStorage.setItem("gptMessages", JSON.stringify(messages));
+  }, [messages]);
+
   // ===================== 채팅 스크롤 =====================
   useEffect(() => {
     if (chatBoxRef.current) {
@@ -37,6 +44,15 @@ export default function Home() {
       });
     }
   }, [messages, isTyping]);
+
+  useEffect(() => {
+    const handleNewChat = () => {
+      setMessages([]); // ✅ 대화 내용 초기화
+    };
+
+    window.addEventListener("newChat", handleNewChat);
+    return () => window.removeEventListener("newChat", handleNewChat);
+  }, []);
 
   // ===================== GPT 요청 =====================
   const fetchGPT = async (purposeValue, budgetValue) => {
@@ -194,7 +210,13 @@ export default function Home() {
   };
 
   // ===================== 하트 클릭 =====================
+
+  const clickedRef = useRef({});
+
+  const handleHeartClick = (msgIdx, e) => {
+
   const handleHeartClick = async (msgIdx, e, estimateId) => {
+
     e.stopPropagation();
 
     setMessages((prev) => {
@@ -205,8 +227,14 @@ export default function Home() {
         i === msgIdx ? { ...m, liked: willLike } : m
       );
 
+
+      // flyingHeart는 이전 상태가 false(회색)이고, 이미 생성되지 않았으면
+      if (!clickedMessage.liked && willLike && !clickedRef.current[msgIdx]) {
+        clickedRef.current[msgIdx] = true; // 중복 방지
+
       if (!clickedMessage.liked && willLike && !clickedRef.current[msgIdx]) {
         clickedRef.current[msgIdx] = true;
+
         setFlyingHearts((prevHearts) => [
           ...prevHearts,
           {
@@ -222,12 +250,29 @@ export default function Home() {
           setFlyingHearts((prevHearts) =>
             prevHearts.filter((h) => h.id !== h.id)
           );
+
+          clickedRef.current[msgIdx] = false; // 완료 후 초기화
+        }, 1600);
+
+        // ✅ 여기서만 모달 띄우기
+        setShowModal(true);
+
           clickedRef.current[msgIdx] = false;
         }, 1600);
+
       }
 
       return newMessages;
     });
+
+  };
+
+  // ===================== 찜 모달 =====================
+  const handleModalConfirm = () => {
+    if (title.trim() === "") {
+      setTitleError(true);
+      return;
+
 
     // ===================== 북마크 저장 =====================
     if (!estimateId) return; // estimateId 없으면 토글하지 않음
@@ -239,6 +284,7 @@ export default function Home() {
       );
     } catch (err) {
       console.error("북마크 토글 실패:", err);
+
     }
   };
 

@@ -1,84 +1,144 @@
+/** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 
+/* ===== PickList 컨테이너 ===== */
 export const container = css`
-  padding-top: 20px;
-  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-`;
-
-export const ListBox = css`
-  display: flex;
-  width: 500px;
-  gap: 10px;
-  cursor: pointer;
-  border: 2px solid #1f2b38;
-  margin-bottom: 10px;
-
-  :hover {
-    border: 2px solid #3a8de6ff;
-    box-shadow: 0 0 12px 4px #3a8de6ff;
-  }
-`;
-
-export const ImgBox = css`
-  width: 100px;
-  height: 100px;
-  background-color: #ff6666;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 10px;
-  margin: 10px;
+  width: 100%;
+  padding: 40px 200px;
   box-sizing: border-box;
 `;
 
-export const TitleBox = css`
-  flex: 1;
+/* ===== 제목 ===== */
+export const estimateTitle = css`
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 24px;
+  font-weight: 600;
+`;
+
+/* ===== 견적 리스트 박스 ===== */
+export const estimateBox = css`
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  padding: 10px;
+  width: 100%;
+  gap: 12px;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 12px;
+  box-sizing: border-box;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  height: 400px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.3) rgba(255,255,255,0.8);
 `;
 
-export const TitleText = css`
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 5px;
+/* 크롬/사파리/엣지 스크롤 */
+export const estimateBoxScrollbar = css`
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.3);
+    border-radius: 6px;
+  }
 `;
 
-export const ExportText = css`
-  font-size: 14px;
-  color: #ccc;
-`;
-
-export const pagination = css`
+/* ===== 각 견적 카드 ===== */
+export const estimateList = css`
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 14px 16px;
   display: flex;
-  gap: 5px;
+  align-items: center;
+  justify-content: space-between;
+  transition: background-color 0.3s, box-shadow 0.3s;
+
+  &:hover {
+    background-color: #f2f2f2;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    cursor: pointer;
+  }
+`;
+
+export const itemNumber = css`
+  width: 30px;
+  flex-shrink: 0;
+`;
+
+export const itemDetails = css`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+  padding: 0 10px;
+`;
+
+export const leftSide = css`
+  display: flex;
+  gap: 50px;
+  font-weight: bold;
+`;
+
+export const createdAt = css`
+  color: #666;
+  font-weight: bold;
+  margin-left: 20px;
+`;
+
+export const deleteBtn = css`
+  background-color: transparent;
+  color: #333;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+/* ===== 페이지네이션 ===== */
+export const pagenateContainer = css`
   margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 
   button {
-    padding: 5px 10px;
-    border: 1px solid #1f2b38;
-    background-color: #1f2b38;
-    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    color: #333;
     cursor: pointer;
+    background: none;
+    border: 1px solid #333;
+    padding: 4px 8px;
     border-radius: 4px;
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+    transition: all 0.2s;
 
     &:hover:not(:disabled) {
-      background-color: #3a8de6ff;
-      border-color: #3a8de6ff;
+      background-color: #333;
+      color: #fff;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
     }
   }
 `;
 
 export const activePage = css`
-  background-color: #3a8de6ff !important;
-  border-color: #3a8de6ff !important;
+  background-color: #0d6efd;
+  color: #fff;
+  font-weight: 600;
 `;
+

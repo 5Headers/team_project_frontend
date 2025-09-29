@@ -80,12 +80,25 @@ function EstimateDetail() {
       <ul css={s.modalList}>
         {parts.map((p, idx) => (
           <li key={idx}>
-            <span css={s.partIcon}>{getIcon(p.category)}</span>
-            <span css={s.partName}>{p.category} - {p.name}</span>
-            <span css={s.partPrice}>({p.price?.toLocaleString()}원)</span>
+            <div css={s.leftSide}>
+              <span css={s.partIcon}>{getIcon(p.category)}</span>
+              <span css={s.partName}>
+                {p.category} - {p.name}
+              </span>
+              <span css={s.partPrice}>{p.price?.toLocaleString()}원</span>
+            </div>
+            <a
+              href={p.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              css={s.partLinkBtn}
+            >
+              온라인
+            </a>
           </li>
         ))}
       </ul>
+
       <button css={s.modalCloseBtn} onClick={() => navigate(-1)}>
         뒤로가기
       </button>

@@ -1,17 +1,15 @@
+/** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 
+/* ===== 컨테이너 ===== */
 export const container = css`
-  max-width: 800px;
-  margin:  auto; /* 상하 여백 40px, 좌우 자동 중앙 */
+  width: 100%;
+  margin: auto;
   padding: 20px 30px;
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  color: #333;
-
   display: flex;
   flex-direction: column;
-  align-items: center; /* 내부 내용도 중앙 정렬 */
+  align-items: center;
 `;
 
 export const modalList = css`
@@ -23,34 +21,62 @@ export const modalList = css`
   border: 1px solid #ddd;
   border-radius: 6px;
   background-color: #f9f9f9;
-  
+  width: 60%;
 
   li {
     padding: 10px 16px;
     border-bottom: 1px solid #eee;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* 좌우 끝 정렬 */
+    align-items: center;
     font-weight: 500;
 
     &:last-of-type {
       border-bottom: none;
     }
   }
+`;
 
-  /* 커스텀 스크롤바 */
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 6px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 6px;
+export const leftSide = css`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+export const partIcon = css`
+  font-size: 20px;
+  color: #333;
+`;
+
+export const partName = css`
+  font-weight: 500;
+  color: #333;
+`;
+
+export const partPrice = css`
+  font-weight: 600;
+  color: #333;
+`;
+
+export const partLinkBtn = css`
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #fff;
+  background-color: #333;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  text-decoration: none;
+
+  &:hover {
+    background-color: black;
   }
 `;
 
+
+/* ===== 뒤로가기 버튼 ===== */
 export const modalCloseBtn = css`
   display: block;
   margin: 20px auto 0;
