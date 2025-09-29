@@ -19,38 +19,34 @@ function EstimateDetail() {
   const [parts, setParts] = useState([]);
   const token = localStorage.getItem("accessToken");
 
-  // ===== 아이콘 매핑 함수 (카테고리 기준) =====
-  const getIcon = (category) => {
-    const cat = category.replace(/\*|-/g, "").trim().toLowerCase();
-
-    if (cat.includes("cpu") || cat.includes("프로세서")) return <FiCpu />;
-    if (cat.includes("메인보드")) return <BsFillMotherboardFill />;
-    if (cat.includes("ram") || cat.includes("메모리") || cat.includes("램"))
+  // ===== 아이콘 매핑 함수 =====
+  const getIcon = (rawName) => {
+    const name = rawName.replace(/\*|-/g, "").trim().toLowerCase();
+    if (name.includes("cpu") || name.includes("프로세서")) return <FiCpu />;
+    if (name.includes("메인보드")) return <BsFillMotherboardFill />;
+    if (name.includes("ram") || name.includes("메모리") || name.includes("램"))
       return <RiRam2Fill />;
-    if (cat.includes("gpu") || cat.includes("그래픽카드")) return <BsGpuCard />;
+    if (name.includes("gpu") || name.includes("그래픽카드")) return <BsGpuCard />;
     if (
-      cat.includes("ssd") ||
-      cat.includes("hdd") ||
-      cat.includes("스토리지") ||
-      cat.includes("저장장치")
+      name.includes("ssd") ||
+      name.includes("hdd") ||
+      name.includes("스토리지") ||
+      name.includes("저장장치")
     )
       return <BsSdCard />;
     if (
-      cat.includes("파워") ||
-      cat.includes("power") ||
-      cat.includes("전원 공급 장치")
+      name.includes("파워") ||
+      name.includes("power") ||
+      name.includes("전원 공급 장치")
     )
       return <FaPowerOff />;
-    if (cat.includes("케이스") || cat.includes("case"))
-      return <PiComputerTowerBold />;
-    if (cat.includes("쿨러") || cat.includes("fan")) return <GiCooler />;
-    if (cat.includes("모니터") || cat.includes("monitor")) return <MdMonitor />;
-    if (cat.includes("키보드") || cat.includes("keyboard"))
-      return <FaKeyboard />;
-    if (cat.includes("마우스") || cat.includes("mouse")) return <FaMouse />;
-    if (cat.includes("운영체제")) return <AiFillWindows />;
-
-    return <FiClipboard />; // 기본 아이콘
+    if (name.includes("케이스") || name.includes("case")) return <PiComputerTowerBold />;
+    if (name.includes("쿨러") || name.includes("fan")) return <GiCooler />;
+    if (name.includes("모니터") || name.includes("monitor")) return <MdMonitor />;
+    if (name.includes("키보드") || name.includes("keyboard")) return <FaKeyboard />;
+    if (name.includes("마우스") || name.includes("mouse")) return <FaMouse />;
+    if (name.includes("운영체제")) return <AiFillWindows />;
+    return <FiClipboard />;
   };
 
   // ===== 부품 데이터 가져오기 =====
@@ -74,29 +70,60 @@ function EstimateDetail() {
     fetchParts();
   }, [id, token]);
 
+  // ===== 마크다운 링크 추출 =====
+  const extractLink = (str) => {
+    if (!str) return { text: "", url: "" };
+    const clean = str.replace(/\\/g, "").trim(); // 백슬래시 제거 및 공백 제거
+    const mdMatch = clean.match(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/);
+    if (mdMatch) {
+      return { text: mdMatch[1], url: mdMatch[2] };
+    }
+    return { text: "네이버 링크", url: clean }; // 단순 URL도 사용
+  };
+
+  // ===== 안전한 링크 처리 =====
+  const safeLink = (url) => {
+    if (!url) return "";
+    const trimmed = url.trim();
+    return trimmed.startsWith("http://") || trimmed.startsWith("https://")
+      ? trimmed
+      : "https://" + trimmed;
+  };
+
   return (
     <div css={s.container}>
       <h2>견적 상세 부품</h2>
       <ul css={s.modalList}>
-        {parts.map((p, idx) => (
-          <li key={idx}>
-            <div css={s.leftSide}>
-              <span css={s.partIcon}>{getIcon(p.category)}</span>
-              <span css={s.partName}>
-                {p.category} - {p.name}
-              </span>
-              <span css={s.partPrice}>{p.price?.toLocaleString()}원</span>
-            </div>
-            <a
-              href={p.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              css={s.partLinkBtn}
-            >
-              온라인
-            </a>
-          </li>
-        ))}
+        {parts.map((p, idx) => {
+          // 마크다운 링크 추출
+          const { text: linkText, url: linkUrl } = extractLink(p.link);
+
+          return (
+            <li key={idx}>
+              <div css={s.leftSide}>
+                <span css={s.partIcon}>{getIcon(p.category)}</span>
+                <span css={s.partName}>
+                  {p.category} - {p.name}
+                </span>
+                <span css={s.partPrice}>{p.price?.toLocaleString()}원</span>
+              </div>
+              {linkUrl ? (
+                <a
+                  href={safeLink(linkUrl)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  css={s.partLinkBtn}
+                >
+                  {linkText}
+                </a>
+              ) : (
+                <span css={s.partLinkBtn} style={{ opacity: 0.5 }}>
+                  링크 없음
+                </span>
+              )}
+            </li>
+          );
+        })}
       </ul>
 
       <button css={s.modalCloseBtn} onClick={() => navigate(-1)}>

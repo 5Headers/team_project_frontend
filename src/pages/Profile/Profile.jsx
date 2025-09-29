@@ -111,7 +111,7 @@ function Profile() {
 
         {/* 북마크된 견적 리스트 */}
         <div css={s.estimateContainer}>
-          <h2 css={s.estimateTitle}>나의 견적</h2>
+          <h2 css={s.estimateTitle}>찜한 견적</h2>
           <div css={[s.estimateBox, s.estimateBoxScrollbar]}>
             {bookmarkedEstimates
               .slice(
