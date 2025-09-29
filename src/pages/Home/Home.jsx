@@ -9,7 +9,6 @@ export default function Home() {
   const navigate = useNavigate();
   const token = localStorage.getItem("accessToken");
   const chatBoxRef = useRef(null);
-  const heartIdRef = useRef(0);
 
   // ===================== 상태 관리 =====================
   const [inputMoved, setInputMoved] = useState(false);
@@ -19,15 +18,17 @@ export default function Home() {
   const [isCustom, setIsCustom] = useState(false);
   const [budget, setBudget] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [liked, setLiked] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("제목 없음");
   const [titleError, setTitleError] = useState(false);
   const [recommendedParts, setRecommendedParts] = useState([]);
-  const [hearts, setHearts] = useState([]);
   const [showBudgetConsent, setShowBudgetConsent] = useState(false);
   const [pendingBudget, setPendingBudget] = useState(0);
   const [pendingPurpose, setPendingPurpose] = useState("");
+  
+
+  // ===================== flyingHeart 상태 =====================
+  const [flyingHearts, setFlyingHearts] = useState([]);
 
   // ===================== 채팅 스크롤 =====================
   useEffect(() => {
@@ -87,7 +88,6 @@ export default function Home() {
     setIsCustom(false);
     setInputMoved(true);
 
-    // 예산 단위 체크
     if (rawBudget < 1 || rawBudget > 9999) {
       setMessages((prev) => [
         ...prev,
@@ -96,7 +96,6 @@ export default function Home() {
       return;
     }
 
-    // 예산 범위 동의 체크
     if (rawBudget < 40 || rawBudget > 300) {
       setPendingBudget(rawBudget);
       setPendingPurpose(finalPurpose);
@@ -189,44 +188,63 @@ export default function Home() {
     }
   };
 
-  // ===================== 하트/찜 모달 =====================
-  const handleHeartClick = (e) => {
-    setLiked(true);
-    setShowModal(true);
-    const rect = e.currentTarget.getBoundingClientRect();
-    const startX = rect.left + rect.width / 2;
-    const startY = rect.top;
+  // ===================== 하트 클릭 =====================
+const clickedRef = useRef({});
 
-    for (let i = 0; i < 3; i++) {
-      const id = heartIdRef.current++;
-      const size = 14 + Math.round(Math.random() * 6);
-      const dx = Math.round(Math.random() * 40 - 20);
+const handleHeartClick = (msgIdx, e) => {
+  e.stopPropagation();
 
-      setHearts((prev) => [
-        ...prev,
-        { id, x: startX, y: startY, delay: i * 200, size, dx },
+  setMessages((prev) => {
+    const clickedMessage = prev[msgIdx];
+    const willLike = !clickedMessage.liked;
+
+    const newMessages = prev.map((m, i) =>
+      i === msgIdx ? { ...m, liked: willLike } : m
+    );
+
+    // flyingHeart는 이전 상태가 false(회색)이고, 이미 생성되지 않았으면
+    if (!clickedMessage.liked && willLike && !clickedRef.current[msgIdx]) {
+      clickedRef.current[msgIdx] = true; // 중복 방지
+      setFlyingHearts((prevHearts) => [
+        ...prevHearts,
+        {
+          id: Date.now() + Math.random(),
+          x: e.clientX,
+          y: e.clientY,
+          size: 24 + Math.random() * 12,
+          dx: (Math.random() - 0.5) * 50,
+        },
       ]);
 
       setTimeout(() => {
-        setHearts((prev) => prev.filter((h) => h.id !== id));
-      }, 1600 + i * 200);
-    }
-  };
+        setFlyingHearts((prevHearts) =>
+          prevHearts.filter((h) => h.id !== h.id)
+        );
+        clickedRef.current[msgIdx] = false; // 완료 후 초기화
+      }, 1600);
 
+      // ✅ 여기서만 모달 띄우기
+      setShowModal(true);
+    }
+
+    return newMessages;
+  });
+};
+
+
+  // ===================== 찜 모달 =====================
   const handleModalConfirm = () => {
     if (title.trim() === "") {
       setTitleError(true);
       return;
     }
     setShowModal(false);
-    setLiked(false);
     setTitle("제목 없음");
     setTitleError(false);
   };
 
   const handleModalCancel = () => {
     setShowModal(false);
-    setLiked(false);
     setTitle("제목 없음");
     setTitleError(false);
   };
@@ -234,10 +252,8 @@ export default function Home() {
   // ===================== 렌더 =====================
   return (
     <div css={s.container}>
-      {/* 로고 */}
       <h2 css={s.logo}>NuroPC</h2>
 
-      {/* 입력 영역 */}
       <div css={s.splitInputWrapper}>
         <IoSearchCircleSharp onClick={sendMessage} />
         {!isCustom ? (
@@ -296,16 +312,14 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 채팅 영역 */}
       <div css={s.chatBoxWrapper}>
         <div css={s.chatBox} ref={chatBoxRef}>
           {messages.map((msg, idx) => (
             <div key={idx}>
               {msg.sender === "user" ? (
                 <div css={s.userMessage}>{msg.text}</div>
-              ) : msg.sender === "gpt" ? (
+              ) : (
                 <div css={s.gptMessage}>
-                  {/** === 텍스트를 줄 단위로 나눠서 부품 카드로 렌더링 === */}
                   {msg.text.split("\n").map((line, i) => {
                     const partMatch = line.match(
                       /^(.+?):\s*(.+?),\s*([\d,]+)원?,\s*링크:\s*(http.+)$/
@@ -317,8 +331,7 @@ export default function Home() {
                         </div>
                       );
                     } else if (partMatch) {
-                      const [, partType, partName, partPrice, partLink] =
-                        partMatch;
+                      const [, , partName, partPrice, partLink] = partMatch;
                       return (
                         <div key={i} css={s.partCard}>
                           <div className="part-name">{partName}</div>
@@ -337,10 +350,15 @@ export default function Home() {
                       return <div key={i}>{line}</div>;
                     }
                   })}
-                </div>
-              ) : null}
 
-              {/** === 다음 단계 버튼 처리 === */}
+                  <FaHeart
+                    css={s.heartIconBottom}
+                    color={msg.liked ? "red" : "lightgray"}
+                    onClick={(e) => handleHeartClick(idx, e)}
+                  />
+                </div>
+              )}
+
               {msg.nextStep === "askPurchase" && (
                 <div css={s.gptButtonGroup}>
                   <button
@@ -361,13 +379,13 @@ export default function Home() {
                 <div css={s.gptButtonGroup}>
                   <button
                     css={s.gptMethodButton}
-                    onClick={() => handlePurchaseMethod("online", idx)}
+                    onClick={() => handlePurchaseMethod("online")}
                   >
                     온라인
                   </button>
                   <button
                     css={s.gptMethodButton}
-                    onClick={() => handlePurchaseMethod("offline", idx)}
+                    onClick={() => handlePurchaseMethod("offline")}
                   >
                     오프라인
                   </button>
@@ -389,31 +407,21 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 하트 영역 */}
-      {inputMoved && (
-        <div css={s.heartWrapper}>
-          <FaHeart
-            css={s.heartIconBottom}
-            onClick={handleHeartClick}
-            color={liked ? "red" : "lightgray"}
-          />
-          {hearts.map((h) => (
-            <FaHeart
-              key={h.id}
-              css={s.flyingHeart}
-              style={{
-                "--size": `${h.size}px`,
-                "--dx": `${h.dx}px`,
-                "--x": `${h.x}px`,
-                "--y": `${h.y}px`,
-                animationDelay: `${h.delay}ms`,
-              }}
-            />
-          ))}
+      {flyingHearts.map((heart) => (
+        <div
+          key={heart.id}
+          css={s.flyingHeart}
+          style={{
+            "--x": `${heart.x}px`,
+            "--y": `${heart.y}px`,
+            "--size": `${heart.size}px`,
+            "--dx": `${heart.dx}px`,
+          }}
+        >
+          ❤️
         </div>
-      )}
+      ))}
 
-      {/* 찜 모달 */}
       {showModal && (
         <div css={s.modalBackdrop}>
           <div css={s.modalContent}>
@@ -451,7 +459,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* 예산 범위 동의 모달 */}
       {showBudgetConsent && (
         <div css={s.modalBackdrop}>
           <div css={s.modalContent}>
