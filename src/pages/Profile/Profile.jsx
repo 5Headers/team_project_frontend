@@ -4,29 +4,27 @@ import * as s from "./styles";
 import profileImageDefault from "../../assets/기본프로필.png";
 import { getPrincipalRequest } from "../../apis/auth/authApi";
 import { MdDelete } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 
 function Profile() {
   const [user, setUser] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [profileImage, setProfileImage] = useState(profileImageDefault);
   const [estimates, setEstimates] = useState([]);
-  const amountPerPage = 5;
   const [totalPages, setTotalPages] = useState(0);
-
+  const amountPerPage = 5;
   const token = localStorage.getItem("accessToken");
+  const navigate = useNavigate();
 
-  // --- 사용자 정보 및 초기 견적 로드 ---
+  // --- 사용자 정보 및 견적 조회 ---
   useEffect(() => {
-    let isFirstLoad = true;
-
     const fetchUserAndEstimates = async () => {
       try {
         const res = await getPrincipalRequest();
-        if (res.data && res.data.data) {
+        if (res.data?.data) {
           const { name, email, userId } = res.data.data;
           setUser({ name, email, userId });
 
-          // 견적 데이터 가져오기
           const resEst = await fetch(
             `http://localhost:8080/estimate/user/${userId}`,
             { headers: { Authorization: `Bearer ${token}` } }
@@ -45,27 +43,13 @@ function Profile() {
               : "",
           }));
 
-          setEstimates((prev) => {
-            // 첫 로드 시 중복 누적 방지
-            let combined = isFirstLoad ? formatted : [...formatted, ...prev];
-
-            // estimateId 기준으로 중복 제거
-            const unique = combined.filter(
-              (v, i, a) =>
-                a.findIndex((e) => e.estimateId === v.estimateId) === i
-            );
-
-            setTotalPages(Math.ceil(unique.length / amountPerPage));
-            isFirstLoad = false; // 첫 로드 완료
-            return unique;
-          });
-
+          setEstimates(formatted);
+          setTotalPages(Math.ceil(formatted.length / amountPerPage));
         }
       } catch (err) {
         console.error("사용자/견적 가져오기 실패:", err);
       }
     };
-
     fetchUserAndEstimates();
   }, [token]);
 
@@ -94,44 +78,23 @@ function Profile() {
   // --- 견적 삭제 ---
   const handleDelete = async (estimateId) => {
     if (!window.confirm("정말 삭제하시겠습니까?")) return;
-
     try {
       await fetch(`http://localhost:8080/estimate/remove/${estimateId}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      setEstimates((prev) => {
-        const updated = prev.filter((e) => e.estimateId !== estimateId);
-        setTotalPages(Math.ceil(updated.length / amountPerPage));
-        return updated;
-      });
+      const updated = estimates.filter((e) => e.estimateId !== estimateId);
+      setEstimates(updated);
+      setTotalPages(Math.ceil(updated.length / amountPerPage));
     } catch (err) {
       console.error("삭제 실패:", err);
+      alert("삭제에 실패했습니다.");
     }
   };
 
-  // --- 상세 부품 조회 ---
-  const handleShowParts = async (estimateId) => {
-    try {
-      const res = await fetch(
-        `http://localhost:8080/estimate-part/list/${estimateId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      const data = await res.json();
-      const sorted = data.sort((a, b) => a.price - b.price);
-      const partText = sorted
-        .map(
-          (part) =>
-            `${part.category} - ${part.name} (${part.price?.toLocaleString()}원)`
-        )
-        .join("\n");
-
-      alert(`견적 상세 부품:\n\n${partText}`);
-    } catch (err) {
-      console.error("부품 불러오기 실패:", err);
-      alert("부품 데이터를 불러오는데 실패했습니다.");
-    }
+  // --- 상세 페이지 이동 ---
+  const handleShowParts = (estimateId) => {
+    navigate(`/auth/estimate/${estimateId}`);
   };
 
   return (
@@ -159,47 +122,40 @@ function Profile() {
           </div>
         </div>
 
-        {/* ===== 견적 리스트 ===== */}
+        {/* 견적 리스트 */}
         <div css={s.estimateContainer}>
           <h2 css={s.estimateTitle}>나의 견적</h2>
-          <div css={s.estimateBox}>
-            <ul css={s.estimateList}>
-              {estimates
-                .slice(
-                  currentPage * amountPerPage,
-                  (currentPage + 1) * amountPerPage
-                )
-                .map((est, index) => {
-                  const itemNumber = currentPage * amountPerPage + index + 1;
-                  return (
-                    <li
-                      key={est.estimateId}
-                      css={s.estimateItem}
-                      onClick={() => handleShowParts(est.estimateId)}
-                    >
-                      <span css={s.itemNumber}>{itemNumber}.</span>
-
-                      <div css={s.itemDetails}>
-                        <div css={s.leftSide}>
-                          <span>목적: {est.purpose}</span>
-                          <span>가격: {est.budget}원</span>
-                        </div>
-                        <span css={s.createdAt}>{est.createdAt}</span>
+          <div css={[s.estimateBox, s.estimateBoxScrollbar]}>
+            {estimates
+              .slice(currentPage * amountPerPage, (currentPage + 1) * amountPerPage)
+              .map((est, idx) => {
+                const itemNumber = currentPage * amountPerPage + idx + 1;
+                return (
+                  <div
+                    key={est.estimateId}
+                    css={s.estimateList}
+                    onClick={() => handleShowParts(est.estimateId)}
+                  >
+                    <span css={s.itemNumber}>{itemNumber}.</span>
+                    <div css={s.itemDetails}>
+                      <div css={s.leftSide}>
+                        <span>목적: {est.purpose}</span>
+                        <span>가격: {est.budget}원</span>
                       </div>
-
-                      <button
-                        css={s.deleteBtn}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(est.estimateId);
-                        }}
-                      >
-                        <MdDelete size={30} />
-                      </button>
-                    </li>
-                  );
-                })}
-            </ul>
+                      <span css={s.createdAt}>{est.createdAt}</span>
+                    </div>
+                    <button
+                      css={s.deleteBtn}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(est.estimateId);
+                      }}
+                    >
+                      <MdDelete size={30} />
+                    </button>
+                  </div>
+                );
+              })}
           </div>
 
           {/* 페이지네이션 */}
