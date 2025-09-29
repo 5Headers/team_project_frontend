@@ -12,7 +12,10 @@ export default function Home() {
 
   // ===================== 상태 관리 =====================
   const [inputMoved, setInputMoved] = useState(false);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(() => {
+    const saved = localStorage.getItem("gptMessages");
+    return saved ? JSON.parse(saved) : [];
+  });
   const [purpose, setPurpose] = useState("");
   const [customPurpose, setCustomPurpose] = useState("");
   const [isCustom, setIsCustom] = useState(false);
@@ -25,10 +28,13 @@ export default function Home() {
   const [showBudgetConsent, setShowBudgetConsent] = useState(false);
   const [pendingBudget, setPendingBudget] = useState(0);
   const [pendingPurpose, setPendingPurpose] = useState("");
-  
 
   // ===================== flyingHeart 상태 =====================
   const [flyingHearts, setFlyingHearts] = useState([]);
+
+  useEffect(() => {
+    localStorage.setItem("gptMessages", JSON.stringify(messages));
+  }, [messages]);
 
   // ===================== 채팅 스크롤 =====================
   useEffect(() => {
@@ -39,6 +45,15 @@ export default function Home() {
       });
     }
   }, [messages, isTyping]);
+
+  useEffect(() => {
+    const handleNewChat = () => {
+      setMessages([]); // ✅ 대화 내용 초기화
+    };
+
+    window.addEventListener("newChat", handleNewChat);
+    return () => window.removeEventListener("newChat", handleNewChat);
+  }, []);
 
   // ===================== GPT 요청 =====================
   const fetchGPT = async (purposeValue, budgetValue) => {
@@ -189,48 +204,47 @@ export default function Home() {
   };
 
   // ===================== 하트 클릭 =====================
-const clickedRef = useRef({});
+  const clickedRef = useRef({});
 
-const handleHeartClick = (msgIdx, e) => {
-  e.stopPropagation();
+  const handleHeartClick = (msgIdx, e) => {
+    e.stopPropagation();
 
-  setMessages((prev) => {
-    const clickedMessage = prev[msgIdx];
-    const willLike = !clickedMessage.liked;
+    setMessages((prev) => {
+      const clickedMessage = prev[msgIdx];
+      const willLike = !clickedMessage.liked;
 
-    const newMessages = prev.map((m, i) =>
-      i === msgIdx ? { ...m, liked: willLike } : m
-    );
+      const newMessages = prev.map((m, i) =>
+        i === msgIdx ? { ...m, liked: willLike } : m
+      );
 
-    // flyingHeart는 이전 상태가 false(회색)이고, 이미 생성되지 않았으면
-    if (!clickedMessage.liked && willLike && !clickedRef.current[msgIdx]) {
-      clickedRef.current[msgIdx] = true; // 중복 방지
-      setFlyingHearts((prevHearts) => [
-        ...prevHearts,
-        {
-          id: Date.now() + Math.random(),
-          x: e.clientX,
-          y: e.clientY,
-          size: 24 + Math.random() * 12,
-          dx: (Math.random() - 0.5) * 50,
-        },
-      ]);
+      // flyingHeart는 이전 상태가 false(회색)이고, 이미 생성되지 않았으면
+      if (!clickedMessage.liked && willLike && !clickedRef.current[msgIdx]) {
+        clickedRef.current[msgIdx] = true; // 중복 방지
+        setFlyingHearts((prevHearts) => [
+          ...prevHearts,
+          {
+            id: Date.now() + Math.random(),
+            x: e.clientX,
+            y: e.clientY,
+            size: 24 + Math.random() * 12,
+            dx: (Math.random() - 0.5) * 50,
+          },
+        ]);
 
-      setTimeout(() => {
-        setFlyingHearts((prevHearts) =>
-          prevHearts.filter((h) => h.id !== h.id)
-        );
-        clickedRef.current[msgIdx] = false; // 완료 후 초기화
-      }, 1600);
+        setTimeout(() => {
+          setFlyingHearts((prevHearts) =>
+            prevHearts.filter((h) => h.id !== h.id)
+          );
+          clickedRef.current[msgIdx] = false; // 완료 후 초기화
+        }, 1600);
 
-      // ✅ 여기서만 모달 띄우기
-      setShowModal(true);
-    }
+        // ✅ 여기서만 모달 띄우기
+        setShowModal(true);
+      }
 
-    return newMessages;
-  });
-};
-
+      return newMessages;
+    });
+  };
 
   // ===================== 찜 모달 =====================
   const handleModalConfirm = () => {

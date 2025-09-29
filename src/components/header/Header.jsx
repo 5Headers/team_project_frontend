@@ -69,9 +69,10 @@ function Header() {
       navigate("/picklist");
     } else if (index === 3) {
       // 새로운 대화 클릭
+      localStorage.removeItem("gptMessages"); // ✅ 대화 기록 초기화
+      window.dispatchEvent(new Event("newChat")); // ✅ 이벤트 발생
       setActiveSidebarItem(0); // 장비 추천 hover 고정
       navigate("/search");
-      setTimeout(() => window.location.reload(), 100);
     }
   };
 
@@ -159,7 +160,7 @@ function Header() {
             onClick={() => handleSidebarItemClick(2)}
             css={s.sidebarItem(2 === activeSidebarItem)}
           >
-            찜 목록
+            견적 기록
           </li>
           <li
             onClick={() => handleSidebarItemClick(3)}
