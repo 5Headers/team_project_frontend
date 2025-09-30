@@ -20,15 +20,6 @@ export const sendmailRequest = async (data) => {
   }
 };
 
-// 프로필 이미지 변경 요청 API
-export const changeProfileImg = async (data) => {
-  try {
-    const response = await instance.post("/account/change/profileimg", data);
-    return response;
-  } catch (error) {
-    return error.response;
-  }
-};
 
 // 아이디 찾기 API (이름 + 이메일)
 export const findIdRequest = async (name, email) => {
@@ -53,4 +44,17 @@ export const resetPasswordRequest = async (data) => {
   } catch (error) {
     return error.response;
   }
+};
+
+
+export const changeProfileImg = async (data) => {
+	try {
+		const response = await instance.post(
+			"/auth/profile",
+			data
+		);
+		return response;
+	} catch (error) {
+		return error.response;
+	}
 };

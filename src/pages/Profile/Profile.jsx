@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react"; // ✅ useRef 추가
 import * as s from "./styles";
 import profileImageDefault from "../../assets/기본프로필.png";
 import { getPrincipalRequest } from "../../apis/auth/authApi";
@@ -8,15 +8,30 @@ import { useNavigate } from "react-router-dom";
 import { FaHeart } from "react-icons/fa";
 import axios from "axios";
 
+// ✅ Firebase 관련 import 추가
+import { storage } from "../../apis/config/firebaseConfig";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { v4 as uuid } from "uuid";
+import { changeProfileImg } from "../../apis/account/accountApis";
+
 function Profile() {
   const [user, setUser] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [profileImage, setProfileImage] = useState(profileImageDefault);
+
   const [bookmarkedEstimates, setBookmarkedEstimates] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const amountPerPage = 5;
   const token = localStorage.getItem("accessToken");
   const navigate = useNavigate();
+
+  // ✅ 업로드 관련 상태 변수
+  const [newProfileImg, setNewProfileImg] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  // ✅ ref 연결
+  const fileInputRef = useRef(null);
 
   // --- 사용자 정보 및 북마크된 견적 조회 ---
   useEffect(() => {
@@ -27,7 +42,6 @@ function Profile() {
           const { name, email, userId } = res.data.data;
           setUser({ name, email, userId });
 
-          // 🔹 bookmark_tb 기준으로 견적 가져오기
           const resBookmarked = await fetch(
             `http://localhost:8080/bookmark/user/${userId}`,
             { headers: { Authorization: `Bearer ${token}` } }
@@ -39,7 +53,6 @@ function Profile() {
             ? resJson.data
             : [];
 
-          // 날짜 포맷팅
           const formatted = estimatesArray.map((e) => ({
             ...e.estimate,
             createdAt: e.estimate?.createdAt
@@ -59,20 +72,73 @@ function Profile() {
 
   if (!user) return <p>Loading...</p>;
 
-  // --- 이미지 변경 ---
-  const handleUpload = (e) => {
+  // --- 이미지 변경 핸들러 ---
+  const onChangeFileHandler = (e) => {
     const file = e.target.files[0];
-    if (file) setProfileImage(URL.createObjectURL(file));
+    if (!file) return;
+    setNewProfileImg(file);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProfileImage(reader.result); // ✅ profileImg → profileImage
+    };
+    reader.readAsDataURL(file);
   };
 
-  const triggerFileSelect = () => {
-    document.getElementById("fileUpload").click();
+  const onClickProfileImgHandler = () => {
+    fileInputRef.current.click();
   };
 
-  const handleSave = () => {
-    if (!profileImage) return alert("이미지를 선택해주세요");
-    alert("프로필 이미지가 변경되었습니다.");
+  const onClickChangeBtnHandler = () => {
+    if (!newProfileImg) {
+      alert("이미지를 선택하세요.");
+      return;
+    }
+
+    setIsUploading(true);
+
+    const imageRef = ref(
+      storage,
+      `profile-img/${uuid()}_${newProfileImg.name}` // ✅ 수정: 기존 pop() 제거, 원래 이름 그대로 사용
+    );
+
+    const uploadTask = uploadBytesResumable(imageRef, newProfileImg);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progressPercent = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
+        setProgress(progressPercent);
+      },
+      (error) => {
+        console.error(error);
+        alert("업로드 중 에러가 발생했습니다.");
+        setIsUploading(false);
+      },
+      async () => {
+        try {
+          const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+
+          await changeProfileImg({
+            userId: user.userId, // ✅ userId 정의
+            profileImg: downloadUrl,
+          });
+
+          alert("프로필 이미지가 변경되었습니다.");
+          window.location.reload();
+        } catch (error) {
+          console.error(error);
+          alert("이미지 URL 가져오기 중 에러 발생");
+        } finally {
+          setIsUploading(false);
+          setProgress(0);
+        }
+      }
+    );
   };
+  
 
   // --- 페이지 변경 ---
   const handlePageChange = (page) => {
@@ -90,13 +156,17 @@ function Profile() {
         <div css={s.profileHeader}>
           <div css={s.profileImgBox}>
             <div>
-              <img src={profileImage} alt="profileImage" />
+              <img
+                src={profileImage}
+                alt="profileImage"
+                onClick={onClickProfileImgHandler} // ✅ 클릭하면 파일 선택
+              />
             </div>
             <input
               type="file"
               accept="image/*"
-              onChange={handleUpload}
-              id="fileUpload"
+              ref={fileInputRef}
+              onChange={onChangeFileHandler} // ✅ 핸들러 연결
               style={{ display: "none" }}
             />
           </div>
@@ -104,8 +174,9 @@ function Profile() {
           <div css={s.profileInfoBox}>
             <h3>{user.name}</h3>
             <p>{user.email}</p>
-            <button onClick={triggerFileSelect}>변경하기</button>
-            <button onClick={handleSave}>저장</button>
+            <button onClick={onClickChangeBtnHandler}>
+              {isUploading ? `${progress}%` : "변경하기"}
+            </button>
           </div>
         </div>
 
@@ -114,10 +185,7 @@ function Profile() {
           <h2 css={s.estimateTitle}>찜한 견적</h2>
           <div css={[s.estimateBox, s.estimateBoxScrollbar]}>
             {bookmarkedEstimates
-              .slice(
-                currentPage * amountPerPage,
-                (currentPage + 1) * amountPerPage
-              )
+              .slice(currentPage * amountPerPage, (currentPage + 1) * amountPerPage)
               .map((est, idx) => {
                 const itemNumber = currentPage * amountPerPage + idx + 1;
                 return (
@@ -134,20 +202,16 @@ function Profile() {
                       </div>
                       <span css={s.createdAt}>{est.createdAt}</span>
                     </div>
-
-                    {/* 하트 버튼 추가 */}
                     <FaHeart
                       css={s.heartIconBottom}
                       color={est.liked ? "red" : "lightgray"}
                       onClick={async (e) => {
                         e.stopPropagation();
-                        // 상태 토글
                         setBookmarkedEstimates((prev) =>
                           prev.map((b, i) =>
                             i === idx ? { ...b, liked: !b.liked } : b
                           )
                         );
-                        // 백엔드 toggle 호출
                         try {
                           await axios.post(
                             `http://localhost:8080/bookmark/toggle/${est.estimateId}`,
