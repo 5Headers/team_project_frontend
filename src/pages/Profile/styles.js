@@ -98,16 +98,16 @@ export const estimateBox = css`
   width: 100%;
   height: 350px;
   gap: 12px; /* 카드 사이 간격 */
-  border: 1px solid #333;        /* 테두리 */
-  border-radius: 5px;            /* 모서리 둥글게 */
-  padding: 12px;                  /* 내부 여백 */
+  border: 1px solid #333; /* 테두리 */
+  border-radius: 5px; /* 모서리 둥글게 */
+  padding: 12px; /* 내부 여백 */
   box-sizing: border-box;
-  background-color: #fff;         /* 배경색 */
+  background-color: #fff; /* 배경색 */
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* 살짝 그림자 */
-  
-  overflow-y: auto;               /* 세로 스크롤 */
-  scrollbar-width: thin;          /* 파이어폭스 스크롤 얇게 */
-  scrollbar-color: rgba(0,0,0,0.3) rgba(255,255,255,0.8); /* 스크롤 색 */
+
+  overflow-y: auto; /* 세로 스크롤 */
+  scrollbar-width: thin; /* 파이어폭스 스크롤 얇게 */
+  scrollbar-color: rgba(0, 0, 0, 0.3) rgba(255, 255, 255, 0.8); /* 스크롤 색 */
 `;
 
 /* 크롬/사파리/엣지 커스텀 스크롤 */
@@ -122,11 +122,10 @@ export const estimateBoxScrollbar = css`
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: rgba(0,0,0,0.3);
+    background-color: rgba(0, 0, 0, 0.3);
     border-radius: 6px;
   }
 `;
-
 
 /* 각 견적 카드 스타일 */
 export const estimateList = css`
@@ -140,7 +139,7 @@ export const estimateList = css`
 
   &:hover {
     background-color: #f2f2f2;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     cursor: pointer;
   }
 `;
@@ -155,7 +154,7 @@ export const itemDetails = css`
   justify-content: space-between; /* 좌측: 목적+가격, 우측: 생성날짜 */
   align-items: center;
   flex: 1;
-  padding: 0 10px;   /* 내부 좌우 여백 */
+  padding: 0 10px; /* 내부 좌우 여백 */
 `;
 
 export const leftSide = css`
@@ -188,7 +187,8 @@ export const pagenateContainer = css`
   justify-content: center;
   gap: 40px;
 
-  a, button {
+  a,
+  button {
     text-decoration: none;
     font-size: 14px;
     color: #333;
@@ -203,5 +203,27 @@ export const activePage = css`
   color: #0d6efd;
   font-weight: 600;
 `;
+export const offlineBtn = css`
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 
+  &:hover {
+    background-color: #e0e0e0;
+    border-color: #bbb;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  }
 
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+`;
