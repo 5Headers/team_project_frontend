@@ -88,7 +88,7 @@ export default function Home() {
     const finalPurpose = isCustom ? customPurpose : purpose;
     if (!finalPurpose.trim()) return;
 
-    // ===== 새 견적 시작 시 이전 데이터 초기화 =====
+    // 새 견적 시작 시 이전 데이터 초기화
     setMessages([]);
     setRecommendedParts([]);
     localStorage.removeItem("gptMessages");
@@ -189,17 +189,24 @@ export default function Home() {
     ]);
   };
 
-  // ===================== 구매 여부/방법 =====================
+  // ===================== 구매 여부 =====================
   const handlePurchaseYes = (msgIdx) => {
+    // 예 버튼 클릭 시 GPT 메시지 nextStep 초기화
     setMessages((prev) =>
       prev.map((m, i) => (i === msgIdx ? { ...m, nextStep: null } : m))
     );
+
+    // 온라인/오프라인 버튼 + 감사 메시지 한 번에 추가
     setMessages((prev) => [
       ...prev,
       {
         sender: "gpt",
         text: "온라인으로 구매하시겠습니까? 오프라인으로 구매하시겠습니까?",
         nextStep: "askMethod",
+      },
+      {
+        sender: "gpt",
+        text: "NuroPC를 이용해주셔서 감사합니다. 즐거운 쇼핑 되세요! 🎉",
       },
     ]);
   };
@@ -214,13 +221,16 @@ export default function Home() {
     ]);
   };
 
-  const handlePurchaseMethod = (method) => {
+  // ===================== 구매 방법 선택 =====================
+  const handlePurchaseMethod = (method, msgIdx) => {
     const parts = JSON.parse(localStorage.getItem("recommendedParts")) || [];
+
     if (method === "online") {
       navigate("/onlineshopping", { state: { parts } });
     } else {
       navigate("/maps", { state: { parts } });
     }
+    // 온라인/오프라인 버튼은 계속 보이므로 메시지 추가 없음
   };
 
   // ===================== 하트 클릭 =====================
@@ -378,13 +388,13 @@ export default function Home() {
                 <div css={s.gptButtonGroup}>
                   <button
                     css={s.gptMethodButton}
-                    onClick={() => handlePurchaseMethod("online")}
+                    onClick={() => handlePurchaseMethod("online", idx)}
                   >
                     온라인
                   </button>
                   <button
                     css={s.gptMethodButton}
-                    onClick={() => handlePurchaseMethod("offline")}
+                    onClick={() => handlePurchaseMethod("offline", idx)}
                   >
                     오프라인
                   </button>
@@ -397,6 +407,7 @@ export default function Home() {
             <div css={s.gptMessage}>
               NuroPc가 알아보는 중
               <span css={s.jumpingDots}>
+                <span>.</span>
                 <span>.</span>
                 <span>.</span>
                 <span>.</span>
