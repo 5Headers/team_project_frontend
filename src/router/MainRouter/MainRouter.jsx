@@ -8,6 +8,7 @@ import Maps from "../../pages/googlemap/Maps";
 import Main from "../../pages/Main/Main";
 import OnlineShopping from "../../pages/OnlineShopping/OnlineShopping";
 import OfflineShopping from "../../pages/OfflineShopping/OfflineShopping";
+import ProtectedRoute from "../../components/ProtectedRouter/ProtectedRouter";
 
 function MainRouter() {
   return (
@@ -34,7 +35,7 @@ function MainRouter() {
         element={
           <Layout>
             <div style={{ minHeight: "100vh", backgroundColor: "white" }}>
-              <Setting />{" "}
+              <Setting />
               {/* 로그인/회원가입 페이지 전용 배경 적용, 설정에도 동일하게 적용함 */}
             </div>
           </Layout>
