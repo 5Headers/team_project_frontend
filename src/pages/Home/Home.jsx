@@ -28,8 +28,6 @@ export default function Home() {
   const [showBudgetConsent, setShowBudgetConsent] = useState(false);
   const [pendingBudget, setPendingBudget] = useState(0);
   const [pendingPurpose, setPendingPurpose] = useState(0);
-
-  // ===================== flyingHeart 상태 =====================
   const [flyingHearts, setFlyingHearts] = useState([]);
 
   // ===================== 로컬 저장 =====================
@@ -60,7 +58,7 @@ export default function Home() {
   // ===================== GPT 요청 =====================
   const fetchGPT = async (purposeValue, budgetValue) => {
     try {
-      const response = await fetch("http://localhost:8080/chat/estimate", {
+      const response = await fetch("http://localhost:8080/estimate/gpt", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -69,17 +67,22 @@ export default function Home() {
         body: JSON.stringify({
           purpose: purposeValue,
           cost: budgetValue,
-          instruction:
-            "추천 부품과 가격, 링크를 JSON 배열로 반환하세요. 예: { parts: [{name:'CPU', price:250000, link:'http://...'}, ...] }",
+          title: "제목 없음",
         }),
       });
 
       if (!response.ok) throw new Error("서버 오류: " + response.status);
-      const data = await response.json();
-      return data.data || "응답이 없습니다.";
+      const result = await response.json();
+      console.log("서버 응답:", result);
+
+      // ✅ result.data 안에 { estimateId, data } 구조 있음
+      return {
+        text: result.data.data,
+        estimateId: result.data.estimateId,
+      };
     } catch (error) {
       console.error(error);
-      return "서버 오류가 발생했습니다.";
+      return { text: "서버 오류가 발생했습니다." };
     }
   };
 
@@ -88,7 +91,6 @@ export default function Home() {
     const finalPurpose = isCustom ? customPurpose : purpose;
     if (!finalPurpose.trim()) return;
 
-    // ===== 새 견적 시작 시 이전 데이터 초기화 =====
     setMessages([]);
     setRecommendedParts([]);
     localStorage.removeItem("gptMessages");
@@ -96,7 +98,6 @@ export default function Home() {
 
     const rawBudget = Number(budget.replace(/,/g, "")) || 0;
 
-    // 유저 메시지 추가
     setMessages((prev) => [
       ...prev,
       {
@@ -132,17 +133,15 @@ export default function Home() {
     setIsTyping(false);
 
     setRecommendedParts(gptResponse.parts || gptResponse);
-    localStorage.setItem(
-      "recommendedParts",
-      JSON.stringify(gptResponse.parts || gptResponse)
-    );
 
+    // ✅ estimateId 추가
     setMessages((prev) => [
       ...prev,
       {
         sender: "gpt",
-        text: `${gptResponse}\n구매를 추천할 수 있습니다. 구매하시겠습니까?`,
+        text: `${gptResponse.text}\n구매를 추천할 수 있습니다. 구매하시겠습니까?`,
         nextStep: "askPurchase",
+        estimateId: gptResponse.estimateId,
       },
     ]);
   };
@@ -161,17 +160,14 @@ export default function Home() {
     setIsTyping(false);
 
     setRecommendedParts(gptResponse.parts || gptResponse);
-    localStorage.setItem(
-      "recommendedParts",
-      JSON.stringify(gptResponse.parts || gptResponse)
-    );
 
     setMessages((prev) => [
       ...prev,
       {
         sender: "gpt",
-        text: `${gptResponse}\n구매를 추천할 수 있습니다. 구매하시겠습니까?`,
+        text: `${gptResponse.text}\n구매를 추천할 수 있습니다. 구매하시겠습니까?`,
         nextStep: "askPurchase",
+        estimateId: gptResponse.estimateId,
       },
     ]);
 
@@ -224,30 +220,71 @@ export default function Home() {
   };
 
   // ===================== 하트 클릭 =====================
-  const handleHeartClick = (msgIdx, e) => {
-    e.stopPropagation();
-    const clickedMessage = messages[msgIdx];
-    const willLike = !clickedMessage.liked;
+  // ===================== 하트 클릭 =====================
+const handleHeartClick = async (msgIdx, e) => {
+  e.stopPropagation();
+  const clickedMessage = messages[msgIdx];
+  const willLike = !clickedMessage.liked;
 
-    setMessages((prev) =>
-      prev.map((m, i) => (i === msgIdx ? { ...m, liked: willLike } : m))
+  if (!clickedMessage.estimateId) {
+    console.warn("⚠️ estimateId 없음 → 북마크 저장 불가");
+    return;
+  }
+
+  // ✅ 토큰 유무 확인
+  if (!token) {
+    console.error("❌ 토큰 없음 → 로그인 필요");
+    alert("로그인이 필요합니다.");
+    return;
+  }
+  console.log("📌 북마크 요청 토큰:", token);
+
+  // 상태 변경
+  setMessages((prev) =>
+    prev.map((m, i) => (i === msgIdx ? { ...m, liked: willLike } : m))
+  );
+
+  // ✅ DB에 저장/해제 요청
+  try {
+    const response = await fetch(
+      `http://localhost:8080/bookmark/toggle/${clickedMessage.estimateId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
 
-    if (!clickedMessage.liked && willLike) {
-      const newHeart = {
-        id: Date.now() + Math.random(),
-        x: e.clientX,
-        y: e.clientY,
-        size: 24 + Math.random() * 12,
-        dx: (Math.random() - 0.5) * 50,
-      };
-      setFlyingHearts((prev) => [...prev, newHeart]);
-
-      setTimeout(() => {
-        setFlyingHearts((prev) => prev.filter((h) => h.id !== newHeart.id));
-      }, 1600);
+    if (!response.ok) {
+      console.error("❌ 북마크 API 상태 코드:", response.status);
+      throw new Error("북마크 API 호출 실패");
     }
-  };
+
+    const result = await response.json();
+    console.log("✅ 북마크 API 응답:", result);
+  } catch (err) {
+    console.error("북마크 처리 오류:", err);
+    alert("북마크 처리 중 오류가 발생했습니다.");
+  }
+
+  // 하트 애니메이션
+  if (!clickedMessage.liked && willLike) {
+    const newHeart = {
+      id: Date.now() + Math.random(),
+      x: e.clientX,
+      y: e.clientY,
+      size: 24 + Math.random() * 12,
+      dx: (Math.random() - 0.5) * 50,
+    };
+    setFlyingHearts((prev) => [...prev, newHeart]);
+
+    setTimeout(() => {
+      setFlyingHearts((prev) => prev.filter((h) => h.id !== newHeart.id));
+    }, 1600);
+  }
+};
 
   // ===================== 렌더 =====================
   return (
@@ -319,36 +356,9 @@ export default function Home() {
                 <div css={s.userMessage}>{msg.text}</div>
               ) : (
                 <div css={s.gptMessage}>
-                  {msg.text.split("\n").map((line, i) => {
-                    const partMatch = line.match(
-                      /^(.+?):\s*(.+?),\s*([\d,]+)원?,\s*링크:\s*(http.+)$/
-                    );
-                    if (line.startsWith("총 가격")) {
-                      return (
-                        <div key={i} css={s.totalPrice}>
-                          {line}
-                        </div>
-                      );
-                    } else if (partMatch) {
-                      const [, , partName, partPrice, partLink] = partMatch;
-                      return (
-                        <div key={i} css={s.partCard}>
-                          <div className="part-name">{partName}</div>
-                          <div className="part-price">
-                            {Number(
-                              partPrice.replace(/,/g, "")
-                            ).toLocaleString()}
-                            원
-                          </div>
-                          <a href={partLink} target="_blank" rel="noreferrer">
-                            링크 보기
-                          </a>
-                        </div>
-                      );
-                    } else {
-                      return <div key={i}>{line}</div>;
-                    }
-                  })}
+                  {msg.text.split("\n").map((line, i) => (
+                    <div key={i}>{line}</div>
+                  ))}
 
                   <FaHeart
                     css={s.heartIconBottom}
