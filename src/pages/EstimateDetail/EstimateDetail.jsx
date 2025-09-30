@@ -26,7 +26,8 @@ function EstimateDetail() {
     if (name.includes("메인보드")) return <BsFillMotherboardFill />;
     if (name.includes("ram") || name.includes("메모리") || name.includes("램"))
       return <RiRam2Fill />;
-    if (name.includes("gpu") || name.includes("그래픽카드")) return <BsGpuCard />;
+    if (name.includes("gpu") || name.includes("그래픽카드"))
+      return <BsGpuCard />;
     if (
       name.includes("ssd") ||
       name.includes("hdd") ||
@@ -40,10 +41,13 @@ function EstimateDetail() {
       name.includes("전원 공급 장치")
     )
       return <FaPowerOff />;
-    if (name.includes("케이스") || name.includes("case")) return <PiComputerTowerBold />;
+    if (name.includes("케이스") || name.includes("case"))
+      return <PiComputerTowerBold />;
     if (name.includes("쿨러") || name.includes("fan")) return <GiCooler />;
-    if (name.includes("모니터") || name.includes("monitor")) return <MdMonitor />;
-    if (name.includes("키보드") || name.includes("keyboard")) return <FaKeyboard />;
+    if (name.includes("모니터") || name.includes("monitor"))
+      return <MdMonitor />;
+    if (name.includes("키보드") || name.includes("keyboard"))
+      return <FaKeyboard />;
     if (name.includes("마우스") || name.includes("mouse")) return <FaMouse />;
     if (name.includes("운영체제")) return <AiFillWindows />;
     return <FiClipboard />;

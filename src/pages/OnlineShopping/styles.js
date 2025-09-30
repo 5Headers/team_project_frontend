@@ -3,28 +3,12 @@ import { css, keyframes } from "@emotion/react";
 
 // 컨테이너
 export const container = css`
-  padding: 20px;
-  max-width: 900px;
+  padding: 30px;
+  max-width: 950px;
   margin: auto;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: white;
 `;
-
-
-export const topBar = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  marginBottom: "16px",
-};
-
-export const closeButton = {
-  fontSize: "20px",
-  background: "transparent",
-  border: "none",
-  color: "white",
-  cursor: "pointer",
-};
 
 // 로고
 export const logo = css`
@@ -32,14 +16,14 @@ export const logo = css`
   text-align: center;
   margin-bottom: 20px;
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
-  animation: 0.8s ease-out fadeIn;
 `;
 
 // 스크롤 영역
 export const scrollWrapper = css`
-  max-height: 70vh;
+  max-height: 78vh;
   overflow-y: auto;
-  padding-right: 10px;
+  padding: 20px 20px 30px 40px;
+  scroll-behavior: smooth;
 
   &::-webkit-scrollbar {
     width: 8px;
@@ -49,43 +33,25 @@ export const scrollWrapper = css`
     border-radius: 4px;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.25);
     border-radius: 4px;
     transition: background 0.2s ease;
   }
   &::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.4);
   }
-`;
-
-// 타이틀 & 서브타이틀
-export const title = css`
-  font-size: 1.8rem;
-  margin-bottom: 10px;
-  font-weight: 700;
-  text-align: center;
-  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
-`;
-
-export const subtitle = css`
-  font-size: 1.4rem;
-  margin-bottom: 12px;
-  font-weight: 600;
-  color: #a0c4ff;
-  text-align: center;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
 `;
 
 // 애니메이션
 const fadeSlideUp = keyframes`
-  0% { opacity: 0; transform: translateY(20px) scale(0.95);}
+  0% { opacity: 0; transform: translateY(15px) scale(0.97);}
   100% { opacity: 1; transform: translateY(0) scale(1);}
 `;
 
-const hoverPulse = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.03); }
-  100% { transform: scale(1); }
+const hoverLift = keyframes`
+  0% { transform: translateY(0) scale(1); filter: brightness(1); }
+  50% { transform: translateY(-5px) scale(1.03); filter: brightness(1.08); }
+  100% { transform: translateY(0) scale(1); filter: brightness(1); }
 `;
 
 // 온라인 아이템
@@ -94,19 +60,17 @@ export const onlineItem = css`
   justify-content: space-between;
   align-items: center;
   background-color: #2b3a4d;
-  padding: 15px 20px;
+  padding: 16px 20px;
   border-radius: 14px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-  margin-bottom: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+  margin-bottom: 14px;
   cursor: pointer;
-- animation: ${fadeSlideUp} 0.5s ease forwards;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.2s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.2s ease;
 
   &:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+    animation: ${hoverLift} 0.5s ease 1; /* 자연스럽게 한 번만 튀기도록 */
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.45);
     background-color: #394b63;
--   animation: ${hoverPulse} 0.6s ease infinite;
   }
 
   a {
@@ -115,31 +79,22 @@ export const onlineItem = css`
   }
 `;
 
-// 부품 이미지
-export const partGIF = css`
-  width: 45px;
-  height: 45px;
-  border-radius: 10px;
-  margin-right: 12px;
-  object-fit: contain;
-  animation: ${fadeSlideUp} 0.5s ease forwards;
-`;
-
 // 부품 정보
 export const partInfo = css`
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  flex: 1;
 `;
 
 // 아이콘
 export const partIcon = css`
-  font-size: 18px;
+  font-size: 20px;
   color: #ffd166;
-  transition: transform 0.3s ease, color 0.2s ease;
+  transition: transform 0.25s ease, color 0.2s ease;
 
   &:hover {
-    transform: scale(1.2);
+    transform: scale(1.25);
     color: #ffea85;
   }
 `;
@@ -176,12 +131,24 @@ export const partLink = css`
   font-weight: 500;
   font-size: 13px;
   padding: 6px 10px;
-  border-radius: 8px;
-  transition: background 0.3s ease, transform 0.2s ease;
+  border-radius: 10px;
+  transition: background 0.25s ease, transform 0.2s ease;
 
   &:hover {
     background-color: #5c9eff;
     transform: scale(1.05);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
   }
+`;
+// 총 예산
+export const totalPrice = css`
+  margin-top: 20px;
+  padding: 16px 22px;
+  font-size: 18px;
+  font-weight: 700;
+  background-color: #3a5a80; /* 카드보다 밝게, 눈에 잘 띄도록 */
+  border-radius: 14px;
+  text-align: center;
+  color: #f8f7f4ff; /* 강조 색 유지 */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35); /* 카드 그림자와 동일 */
 `;

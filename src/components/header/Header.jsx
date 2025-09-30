@@ -1,3 +1,4 @@
+
 /** @jsxImportSource @emotion/react */
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -66,9 +67,10 @@ function Header() {
       setActiveSidebarItem(2);
       navigate("/picklist");
     } else if (index === 3) {
-      // 새로운 대화 클릭
-      localStorage.removeItem("chatMessages"); // Home 메시지 초기화
-      window.dispatchEvent(new Event("newChat")); // 이벤트 발생
+      // ✅ 새로운 대화 클릭 시 Home 데이터 초기화
+      localStorage.removeItem("gptMessages");
+      localStorage.removeItem("recommendedParts");
+      window.dispatchEvent(new Event("newChat")); // Home.jsx에서 상태 초기화
       setActiveSidebarItem(0);
       navigate("/search");
     }

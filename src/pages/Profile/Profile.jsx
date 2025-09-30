@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import * as s from "./styles";
 import profileImageDefault from "../../assets/기본프로필.png";
 import { getPrincipalRequest } from "../../apis/auth/authApi";
-import { MdDelete } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { FaHeart } from "react-icons/fa";
 import axios from "axios";
@@ -18,44 +17,56 @@ function Profile() {
   const token = localStorage.getItem("accessToken");
   const navigate = useNavigate();
 
-  // --- 사용자 정보 및 북마크된 견적 조회 ---
+  // --- 사용자 정보 및 북마크 조회 ---
   useEffect(() => {
-    const fetchUserAndBookmarks = async () => {
+    const fetchBookmarks = async () => {
       try {
-        const res = await getPrincipalRequest();
-        if (res.data?.data) {
-          const { name, email, userId } = res.data.data;
+        const resUser = await getPrincipalRequest();
+        if (resUser.data?.data) {
+          const { name, email, userId } = resUser.data.data;
           setUser({ name, email, userId });
 
-          // 🔹 bookmark_tb 기준으로 견적 가져오기
-          const resBookmarked = await fetch(
+          const resBookmark = await axios.get(
             `http://localhost:8080/bookmark/user/${userId}`,
             { headers: { Authorization: `Bearer ${token}` } }
           );
-          const resJson = await resBookmarked.json();
-          const estimatesArray = Array.isArray(resJson)
-            ? resJson
-            : resJson.data && Array.isArray(resJson.data)
-            ? resJson.data
+
+          const bookmarksArray = Array.isArray(resBookmark.data?.data)
+            ? resBookmark.data.data
             : [];
 
-          // 날짜 포맷팅
-          const formatted = estimatesArray.map((e) => ({
-            ...e.estimate,
-            createdAt: e.estimate?.createdAt
-              ? new Date(e.estimate.createdAt).toISOString().slice(0, 10)
-              : "",
+          // 각 estimateId 상세 데이터 가져오기
+          const fullDataPromises = bookmarksArray.map(async (b) => {
+            if (!b.estimateId) return null;
+            try {
+              const eRes = await axios.get(
+                `http://localhost:8080/estimate/${b.estimateId}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+              );
+              return { ...b, ...(eRes.data?.data || {}), liked: true };
+            } catch (err) {
+              console.error(`estimateId ${b.estimateId} 호출 실패`, err);
+              return { ...b, liked: true };
+            }
+          });
+
+          const fullData = (await Promise.all(fullDataPromises)).filter(Boolean);
+
+          const formatted = fullData.map((e) => ({
+            ...e,
+            createdAt: e.createDt ? new Date(e.createDt).toISOString().slice(0, 10) : "",
           }));
 
           setBookmarkedEstimates(formatted);
           setTotalPages(Math.ceil(formatted.length / amountPerPage));
         }
       } catch (err) {
-        console.error("사용자/북마크 견적 가져오기 실패:", err);
+        console.error("북마크 + 견적 불러오기 실패:", err);
       }
     };
-    fetchUserAndBookmarks();
-  }, [token]);
+
+    if (!user) fetchBookmarks();
+  }, [token, user]);
 
   if (!user) return <p>Loading...</p>;
 
@@ -75,13 +86,44 @@ function Profile() {
   };
 
   // --- 페이지 변경 ---
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
+  const handlePageChange = (page) => setCurrentPage(page);
 
   // --- 상세 페이지 이동 ---
-  const handleShowParts = (estimateId) => {
+  const handleShowParts = (estimateId) =>
     navigate(`/auth/estimate/${estimateId}`);
+
+  // --- 북마크 삭제 + Home 동기화 ---
+  const handleDeleteBookmark = async (bookmarkId, estimateId) => {
+    const confirmDelete = window.confirm("정말 삭제하시겠습니까?");
+    if (!confirmDelete) return;
+
+    try {
+      await axios.delete(
+        `http://localhost:8080/bookmark/remove/${bookmarkId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          data: {},
+        }
+      );
+
+      setBookmarkedEstimates((prev) =>
+        prev.filter((est) => est.bookmarkId !== bookmarkId)
+      );
+
+      // 페이지 재조정
+      const remaining = bookmarkedEstimates.length - 1;
+      const newTotalPages = Math.ceil(remaining / amountPerPage);
+      if (currentPage >= newTotalPages && currentPage > 0) {
+        setCurrentPage(currentPage - 1);
+      }
+      setTotalPages(newTotalPages);
+
+      // Home 화면 하트 회색 표시용 removedBookmarks 동기화
+      const removedBookmarks = JSON.parse(localStorage.getItem("removedBookmarks") || "[]");
+      localStorage.setItem("removedBookmarks", JSON.stringify([...removedBookmarks, estimateId]));
+    } catch (err) {
+      console.error("북마크 삭제 실패:", err);
+    }
   };
 
   return (
@@ -122,41 +164,36 @@ function Profile() {
                 const itemNumber = currentPage * amountPerPage + idx + 1;
                 return (
                   <div
-                    key={est.estimateId}
+                    key={est.bookmarkId}
                     css={s.estimateList}
                     onClick={() => handleShowParts(est.estimateId)}
                   >
                     <span css={s.itemNumber}>{itemNumber}.</span>
                     <div css={s.itemDetails}>
+                      <button
+                        css={s.offlineBtn}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate("/maps");
+                        }}
+                      >
+                        오프라인
+                      </button>
                       <div css={s.leftSide}>
-                        <span>목적: {est.purpose}</span>
-                        <span>가격: {est.budget}원</span>
+                        <span>목적: {est.purpose || "정보 없음"}</span>
+                        <span>
+                          예산: {est.budget ? `${est.budget}원` : "정보 없음"}
+                        </span>
                       </div>
                       <span css={s.createdAt}>{est.createdAt}</span>
                     </div>
 
-                    {/* 하트 버튼 추가 */}
                     <FaHeart
                       css={s.heartIconBottom}
-                      color={est.liked ? "red" : "lightgray"}
-                      onClick={async (e) => {
+                      color="red"
+                      onClick={(e) => {
                         e.stopPropagation();
-                        // 상태 토글
-                        setBookmarkedEstimates((prev) =>
-                          prev.map((b, i) =>
-                            i === idx ? { ...b, liked: !b.liked } : b
-                          )
-                        );
-                        // 백엔드 toggle 호출
-                        try {
-                          await axios.post(
-                            `http://localhost:8080/bookmark/toggle/${est.estimateId}`,
-                            {},
-                            { headers: { Authorization: `Bearer ${token}` } }
-                          );
-                        } catch (err) {
-                          console.error("북마크 토글 실패:", err);
-                        }
+                        handleDeleteBookmark(est.bookmarkId, est.estimateId);
                       }}
                     />
                   </div>
