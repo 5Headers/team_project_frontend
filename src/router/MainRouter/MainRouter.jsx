@@ -1,4 +1,3 @@
-import Layout from "../../components/layout/layout";
 import Home from "../../pages/Home/Home";
 import PickList from "../../pages/PickList/PickList";
 import Setting from "../../pages/Setting/Setting";
@@ -6,6 +5,7 @@ import { Route, Routes } from "react-router-dom";
 import AuthRouter from "../AuthRouter/AuthRouter";
 import Maps from "../../pages/googlemap/Maps";
 import Main from "../../pages/Main/Main";
+import Layout from "../../components/layout/Layout";
 
 function MainRouter() {
   return (
@@ -14,7 +14,7 @@ function MainRouter() {
         path="*"
         element={
           <Layout>
-            <Main/>
+            <Main />
           </Layout>
         }
       />
