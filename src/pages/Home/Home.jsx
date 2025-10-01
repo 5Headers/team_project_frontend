@@ -221,70 +221,70 @@ export default function Home() {
 
   // ===================== 하트 클릭 =====================
   // ===================== 하트 클릭 =====================
-const handleHeartClick = async (msgIdx, e) => {
-  e.stopPropagation();
-  const clickedMessage = messages[msgIdx];
-  const willLike = !clickedMessage.liked;
+  const handleHeartClick = async (msgIdx, e) => {
+    e.stopPropagation();
+    const clickedMessage = messages[msgIdx];
+    const willLike = !clickedMessage.liked;
 
-  if (!clickedMessage.estimateId) {
-    console.warn("⚠️ estimateId 없음 → 북마크 저장 불가");
-    return;
-  }
-
-  // ✅ 토큰 유무 확인
-  if (!token) {
-    console.error("❌ 토큰 없음 → 로그인 필요");
-    alert("로그인이 필요합니다.");
-    return;
-  }
-  console.log("📌 북마크 요청 토큰:", token);
-
-  // 상태 변경
-  setMessages((prev) =>
-    prev.map((m, i) => (i === msgIdx ? { ...m, liked: willLike } : m))
-  );
-
-  // ✅ DB에 저장/해제 요청
-  try {
-    const response = await fetch(
-      `http://localhost:8080/bookmark/toggle/${clickedMessage.estimateId}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      console.error("❌ 북마크 API 상태 코드:", response.status);
-      throw new Error("북마크 API 호출 실패");
+    if (!clickedMessage.estimateId) {
+      console.warn("⚠️ estimateId 없음 → 북마크 저장 불가");
+      return;
     }
 
-    const result = await response.json();
-    console.log("✅ 북마크 API 응답:", result);
-  } catch (err) {
-    console.error("북마크 처리 오류:", err);
-    alert("북마크 처리 중 오류가 발생했습니다.");
-  }
+    // ✅ 토큰 유무 확인
+    if (!token) {
+      console.error("❌ 토큰 없음 → 로그인 필요");
+      alert("로그인이 필요합니다.");
+      return;
+    }
+    console.log("📌 북마크 요청 토큰:", token);
 
-  // 하트 애니메이션
-  if (!clickedMessage.liked && willLike) {
-    const newHeart = {
-      id: Date.now() + Math.random(),
-      x: e.clientX,
-      y: e.clientY,
-      size: 24 + Math.random() * 12,
-      dx: (Math.random() - 0.5) * 50,
-    };
-    setFlyingHearts((prev) => [...prev, newHeart]);
+    // 상태 변경
+    setMessages((prev) =>
+      prev.map((m, i) => (i === msgIdx ? { ...m, liked: willLike } : m))
+    );
 
-    setTimeout(() => {
-      setFlyingHearts((prev) => prev.filter((h) => h.id !== newHeart.id));
-    }, 1600);
-  }
-};
+    // ✅ DB에 저장/해제 요청
+    try {
+      const response = await fetch(
+        `http://localhost:8080/bookmark/toggle/${clickedMessage.estimateId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        console.error("❌ 북마크 API 상태 코드:", response.status);
+        throw new Error("북마크 API 호출 실패");
+      }
+
+      const result = await response.json();
+      console.log("✅ 북마크 API 응답:", result);
+    } catch (err) {
+      console.error("북마크 처리 오류:", err);
+      alert("북마크 처리 중 오류가 발생했습니다.");
+    }
+
+    // 하트 애니메이션
+    if (!clickedMessage.liked && willLike) {
+      const newHeart = {
+        id: Date.now() + Math.random(),
+        x: e.clientX,
+        y: e.clientY,
+        size: 24 + Math.random() * 12,
+        dx: (Math.random() - 0.5) * 50,
+      };
+      setFlyingHearts((prev) => [...prev, newHeart]);
+
+      setTimeout(() => {
+        setFlyingHearts((prev) => prev.filter((h) => h.id !== newHeart.id));
+      }, 1600);
+    }
+  };
 
   // ===================== 렌더 =====================
   return (
