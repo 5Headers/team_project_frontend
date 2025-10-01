@@ -68,30 +68,25 @@ export const header = css`
 `;
 
 export const login = css`
-  background-color: white;
-  color: black;
-  border-radius: 9999px;
+  background-color: transparent;
+  color: #FFF8E5;
   padding: 10px 24px;
+
   :hover {
-    background-color: #dadadaff;
-    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1), 0 0 6px #384e66ff,
-      0 0 12px #384e66ff;
-    transform: translateY(-1px);
+    color: #a3d5ff; /* 글자 색상만 변경 */
+    cursor: pointer; /* 클릭 가능 표시 */
   }
 `;
 
 export const signup = css`
-  color: white;
-  background-color: black;
-  border-radius: 9999px;
+  background-color: transparent;
+  color: #FFF8E5;
   padding: 10px 24px;
-    :hover {
-    background-color: #0e0e0eff;
-    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1), 0 0 6px #161f29ff,
-      0 0 12px #161f29ff;
-    transform: translateY(-1px);
+
+  :hover {
+    color: #a3d5ff; /* 글자 색상만 변경 */
+    cursor: pointer; /* 클릭 가능 표시 */
   }
-  
 `;
 
 export const headerIcon = (isRotated) => css`
@@ -244,29 +239,28 @@ export const sidebarItem = (isActive) => css`
   }
 `;
 
-
 export const profileIcon = css`
   width: 32px;
   height: 32px;
-  border-radius: 50%;   /* 동그란 공 */
-  overflow: hidden;     /* 이미지 잘림 방지 */
+  border-radius: 50%; /* 동그란 공 */
+  overflow: hidden; /* 이미지 잘림 방지 */
   cursor: pointer;
 
   img {
     width: 100%;
     height: 100%;
-    object-fit: cover;  /* 이미지 비율 유지, 영역 꽉 채움 */
+    object-fit: cover; /* 이미지 비율 유지, 영역 꽉 채움 */
   }
 `;
 
 export const homeIconNextToSidebar = css`
   position: fixed; /* 화면에 고정 */
-  left: 80px;      /* 사이드바 바로 오른쪽 위치 */
-  top: 20px;       /* 화면 상단 위치 */
-  width: 35px;     /* 사이드바 버튼과 동일한 크기 */
+  left: 80px; /* 사이드바 바로 오른쪽 위치 */
+  top: 20px; /* 화면 상단 위치 */
+  width: 35px; /* 사이드바 버튼과 동일한 크기 */
   height: 35px;
   border-radius: 50%; /* 동그란 원 */
-  background-color: #5c5c5c; 
+  background-color: #5c5c5c;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -275,11 +269,11 @@ export const homeIconNextToSidebar = css`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: #e0e0e0; 
+    background-color: #e0e0e0;
   }
 
   svg {
-    color: black;   /* 아이콘 검정/회색 */
+    color: black; /* 아이콘 검정/회색 */
     font-size: 24px;
   }
 `;
