@@ -20,10 +20,10 @@ function Setting() {
         return <ChangeProfileImage />;
       case "DeleteAccount":
         return <DeleteAccount />;
-      case "DeletePickList":
-        return <DeletePickList />;
-      case "Logout":
-        return <Logout />;
+      // case "DeletePickList":
+      //   return <DeletePickList />;
+      // case "Logout":
+      //   return <Logout />;
       default:
         return <ChangePassword />;
     }
@@ -32,7 +32,7 @@ function Setting() {
   return (
     <div css={s.container}>
       <div css={s.inner}>
-        <h1 css={s.title}>설정 페이지</h1>
+       
         <div css={s.main}>
           {/* 메뉴 */}
           <div css={s.menu}>
@@ -54,7 +54,7 @@ function Setting() {
             >
               회원 탈퇴
             </button>
-            <button
+            {/* <button
               className={activeTab === "DeletePickList" ? "active" : ""}
               onClick={() => setActiveTab("DeletePickList")}
             >
@@ -65,7 +65,7 @@ function Setting() {
               onClick={() => setActiveTab("Logout")}
             >
               로그아웃
-            </button>
+            </button> */}
           </div>
 
           {/* 🔹 세로 네온 구분선 */}

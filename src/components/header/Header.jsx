@@ -1,10 +1,10 @@
 /** @jsxImportSource @emotion/react */
 import { useState, useEffect } from "react";
+import defaultProfile from "../../assets/기본프로필.png";
 import { useNavigate } from "react-router-dom";
 import { FiMenu } from "react-icons/fi";
 import { GoTriangleLeft } from "react-icons/go";
 import { DiAptana } from "react-icons/di";
-import profileImage from "../../assets/기본프로필.png";
 import { IoHome } from "react-icons/io5";
 import * as s from "./styles";
 
@@ -16,20 +16,24 @@ function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!localStorage.getItem("accessToken")
   );
+  const [profileImage, setProfileImage] = useState(
+    localStorage.getItem("userProfile") || defaultProfile
+  );
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleLogin = () => setIsLoggedIn(true);
-    const handleStorage = () =>
+    const handleAuthChange = () => {
       setIsLoggedIn(!!localStorage.getItem("accessToken"));
+      setProfileImage(localStorage.getItem("userProfile") || defaultProfile);
+    };
 
-    window.addEventListener("login", handleLogin);
-    window.addEventListener("storage", handleStorage);
+    window.addEventListener("login", handleAuthChange);
+    window.addEventListener("logout", handleAuthChange);
 
     return () => {
-      window.removeEventListener("login", handleLogin);
-      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("login", handleAuthChange);
+      window.removeEventListener("logout", handleAuthChange);
     };
   }, []);
 
@@ -58,7 +62,6 @@ function Header() {
 
   const handleSidebarItemClick = (index) => {
     setIsSidebarOpen(false);
-
     if (index === 0) {
       setActiveSidebarItem(0);
       navigate("/search");
@@ -66,27 +69,27 @@ function Header() {
       setActiveSidebarItem(2);
       navigate("/picklist");
     } else if (index === 3) {
-      // 새로운 대화 클릭
-      localStorage.removeItem("chatMessages"); // Home 메시지 초기화
-      window.dispatchEvent(new Event("newChat")); // 이벤트 발생
+      localStorage.removeItem("chatMessages");
+      window.dispatchEvent(new Event("newChat"));
       setActiveSidebarItem(0);
       navigate("/search");
     }
   };
 
   const SigninClick = () => navigate("/auth/signin");
+  const SignupClick = () => navigate("/auth/signup");
+  const ProfileClick = () => navigate("/auth/profile");
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("userProfile");
     setIsLoggedIn(false);
+    setProfileImage(defaultProfile);
     setIsMenuOpen(false);
     setIsRotated(false);
+    window.dispatchEvent(new Event("logout"));
     navigate("/");
   };
-
-  const SignupClick = () => navigate("/auth/signup");
-
-  const ProfileClick = () => navigate("/auth/profile");
 
   return (
     <div css={s.container} onClick={closeMenu}>
@@ -119,20 +122,24 @@ function Header() {
                 <img src={profileImage} alt="프로필" />
               </li>
             )}
-            <li>
-              <DiAptana css={s.headerIcon(isRotated)} onClick={toggleMenu} />
-            </li>
+            {isLoggedIn && (
+              <li>
+                <DiAptana css={s.headerIcon(isRotated)} onClick={toggleMenu} />
+              </li>
+            )}
           </ul>
         </div>
       </div>
 
-      <div css={s.headerSlidingMenu(isMenuOpen)}>
-        <ul>
-          {isLoggedIn && <li onClick={ProfileClick}>프로필</li>}
-          <li onClick={handleGoSetting}>설정</li>
-          {isLoggedIn && <li onClick={handleLogout}>로그아웃</li>}
-        </ul>
-      </div>
+      {isLoggedIn && (
+        <div css={s.headerSlidingMenu(isMenuOpen)}>
+          <ul>
+            <li onClick={ProfileClick}>프로필</li>
+            <li onClick={handleGoSetting}>설정</li>
+            <li onClick={handleLogout}>로그아웃</li>
+          </ul>
+        </div>
+      )}
 
       {isSidebarOpen && (
         <div css={s.overlay(isSidebarOpen)} onClick={toggleSidebar} />
