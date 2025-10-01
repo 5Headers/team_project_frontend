@@ -97,20 +97,19 @@ export const estimateBox = css`
   flex-direction: column;
   width: 100%;
   height: 350px;
-  gap: 12px; /* 카드 사이 간격 */
-  border: 1px solid #333; /* 테두리 */
-  border-radius: 5px; /* 모서리 둥글게 */
-  padding: 12px; /* 내부 여백 */
+  gap: 12px;
+  border: 1px solid #333;
+  border-radius: 5px;
+  padding: 12px;
   box-sizing: border-box;
-  background-color: #fff; /* 배경색 */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* 살짝 그림자 */
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 
-  overflow-y: auto; /* 세로 스크롤 */
-  scrollbar-width: thin; /* 파이어폭스 스크롤 얇게 */
-  scrollbar-color: rgba(0, 0, 0, 0.3) rgba(255, 255, 255, 0.8); /* 스크롤 색 */
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.3) rgba(255, 255, 255, 0.8);
 `;
 
-/* 크롬/사파리/엣지 커스텀 스크롤 */
 export const estimateBoxScrollbar = css`
   &::-webkit-scrollbar {
     width: 6px;
@@ -127,7 +126,6 @@ export const estimateBoxScrollbar = css`
   }
 `;
 
-/* 각 견적 카드 스타일 */
 export const estimateList = css`
   border: 1px solid #333;
   border-radius: 6px;
@@ -151,22 +149,30 @@ export const itemNumber = css`
 
 export const itemDetails = css`
   display: flex;
-  justify-content: space-between; /* 좌측: 목적+가격, 우측: 생성날짜 */
   align-items: center;
   flex: 1;
-  padding: 0 10px; /* 내부 좌우 여백 */
+  gap: 20px;
+  padding: 0 10px;
+  justify-content: flex-start; /* 왼쪽 정렬 */
 `;
 
 export const leftSide = css`
   display: flex;
-  gap: 50px; /* 목적과 가격 간격 */
+  gap: 20px;
   font-weight: bold;
+  justify-content: flex-start;
 `;
 
 export const createdAt = css`
   color: #666;
   font-weight: bold;
-  margin-left: 20px;
+`;
+
+export const rightSide = css`
+  margin-left: auto; /* 오른쪽 끝으로 */
+  display: flex;
+  align-items: center;
+  gap: 10px;
 `;
 
 export const deleteBtn = css`
@@ -203,6 +209,7 @@ export const activePage = css`
   color: #0d6efd;
   font-weight: 600;
 `;
+
 export const offlineBtn = css`
   padding: 6px 12px;
   font-size: 14px;
