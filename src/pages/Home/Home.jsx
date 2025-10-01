@@ -67,6 +67,19 @@ export default function Home() {
     // localStorage는 지우지 않음 → 새로고침/뒤로가기 후 유지
   };
 
+  // ====== 새로운 견적 클릭 이벤트 수신 ======
+  useEffect(() => {
+    const handleNewChat = () => {
+      resetChat(); // Home 화면 상태 초기화
+    };
+
+    window.addEventListener("newChat", handleNewChat);
+
+    return () => {
+      window.removeEventListener("newChat", handleNewChat);
+    };
+  }, []);
+
   // ====== 로컬 저장 ======
   useEffect(() => {
     localStorage.setItem("gptMessages", JSON.stringify(messages));
