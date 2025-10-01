@@ -7,7 +7,6 @@ import AuthRouter from "../AuthRouter/AuthRouter";
 import Maps from "../../pages/googlemap/Maps";
 import Main from "../../pages/Main/Main";
 import OnlineShopping from "../../pages/OnlineShopping/OnlineShopping";
-import OfflineShopping from "../../pages/OfflineShopping/OfflineShopping";
 
 function MainRouter() {
   return (
