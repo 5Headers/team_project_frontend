@@ -17,7 +17,6 @@ function Profile() {
   const token = localStorage.getItem("accessToken");
   const navigate = useNavigate();
 
-  // --- 사용자 정보 및 북마크 조회 ---
   useEffect(() => {
     const fetchBookmarks = async () => {
       try {
@@ -35,7 +34,6 @@ function Profile() {
             ? resBookmark.data.data
             : [];
 
-          // 각 estimateId 상세 데이터 가져오기
           const fullDataPromises = bookmarksArray.map(async (b) => {
             if (!b.estimateId) return null;
             try {
@@ -70,7 +68,6 @@ function Profile() {
 
   if (!user) return <p>Loading...</p>;
 
-  // --- 이미지 변경 ---
   const handleUpload = (e) => {
     const file = e.target.files[0];
     if (file) setProfileImage(URL.createObjectURL(file));
@@ -85,14 +82,11 @@ function Profile() {
     alert("프로필 이미지가 변경되었습니다.");
   };
 
-  // --- 페이지 변경 ---
   const handlePageChange = (page) => setCurrentPage(page);
 
-  // --- 상세 페이지 이동 ---
   const handleShowParts = (estimateId) =>
     navigate(`/auth/estimate/${estimateId}`);
 
-  // --- 북마크 삭제 + Home 동기화 ---
   const handleDeleteBookmark = async (bookmarkId, estimateId) => {
     const confirmDelete = window.confirm("정말 삭제하시겠습니까?");
     if (!confirmDelete) return;
@@ -110,7 +104,6 @@ function Profile() {
         prev.filter((est) => est.bookmarkId !== bookmarkId)
       );
 
-      // 페이지 재조정
       const remaining = bookmarkedEstimates.length - 1;
       const newTotalPages = Math.ceil(remaining / amountPerPage);
       if (currentPage >= newTotalPages && currentPage > 0) {
@@ -118,7 +111,6 @@ function Profile() {
       }
       setTotalPages(newTotalPages);
 
-      // Home 화면 하트 회색 표시용 removedBookmarks 동기화
       const removedBookmarks = JSON.parse(localStorage.getItem("removedBookmarks") || "[]");
       localStorage.setItem("removedBookmarks", JSON.stringify([...removedBookmarks, estimateId]));
     } catch (err) {
@@ -151,7 +143,6 @@ function Profile() {
           </div>
         </div>
 
-        {/* 북마크된 견적 리스트 */}
         <div css={s.estimateContainer}>
           <h2 css={s.estimateTitle}>찜한 견적</h2>
           <div css={[s.estimateBox, s.estimateBoxScrollbar]}>
@@ -170,38 +161,38 @@ function Profile() {
                   >
                     <span css={s.itemNumber}>{itemNumber}.</span>
                     <div css={s.itemDetails}>
-                      <button
-                        css={s.offlineBtn}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate("/maps");
-                        }}
-                      >
-                        오프라인
-                      </button>
                       <div css={s.leftSide}>
                         <span>목적: {est.purpose || "정보 없음"}</span>
                         <span>
                           예산: {est.budget ? `${est.budget}원` : "정보 없음"}
                         </span>
                       </div>
-                      <span css={s.createdAt}>{est.createdAt}</span>
-                    </div>
 
-                    <FaHeart
-                      css={s.heartIconBottom}
-                      color="red"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteBookmark(est.bookmarkId, est.estimateId);
-                      }}
-                    />
+                      <div css={s.rightSide}>
+                        <span css={s.createdAt}>{est.createdAt}</span>
+                        <button
+                          css={s.offlineBtn}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate("/maps");
+                          }}
+                        >
+                          오프라인
+                        </button>
+                        <FaHeart
+                          color="red"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteBookmark(est.bookmarkId, est.estimateId);
+                          }}
+                        />
+                      </div>
+                    </div>
                   </div>
                 );
               })}
           </div>
 
-          {/* 페이지네이션 */}
           <div css={s.pagenateContainer}>
             <a
               href="#"
