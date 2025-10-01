@@ -169,7 +169,6 @@ function Profile() {
                       </div>
 
                       <div css={s.rightSide}>
-                        <span css={s.createdAt}>{est.createdAt}</span>
                         <button
                           css={s.offlineBtn}
                           onClick={(e) => {
@@ -179,6 +178,7 @@ function Profile() {
                         >
                           오프라인
                         </button>
+                        <span css={s.createdAt}>{est.createdAt}</span>
                         <FaHeart
                           color="red"
                           onClick={(e) => {
