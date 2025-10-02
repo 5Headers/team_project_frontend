@@ -20,7 +20,10 @@ function OAuth2Signup() {
   // URL 쿼리에서 이메일 값 가져오기 (디코딩 포함)
   useEffect(() => {
     const emailParam = searchParam.get("email");
-    if (emailParam) setEmail(decodeURIComponent(emailParam));
+    console.log("🔍 쿼리 emailParam:", emailParam);
+    if (emailParam && emailParam !== "null") {
+      setEmail(decodeURIComponent(emailParam));
+    }
   }, [searchParam]);
 
   // 비밀번호 유효성 체크
@@ -43,10 +46,15 @@ function OAuth2Signup() {
       name.trim().length === 0 ||
       username.trim().length === 0 ||
       password.trim().length === 0 ||
-      confirmPassword.trim().length === 0 ||
-      email.trim().length === 0
+      confirmPassword.trim().length === 0
     ) {
       alert("모든 항목을 입력해 주세요.");
+      return;
+    }
+
+    // 이메일 존재 여부 확인
+    if (!email) {
+      alert("이메일 정보가 확인되지 않았습니다.");
       return;
     }
 
@@ -70,25 +78,20 @@ function OAuth2Signup() {
       return;
     }
 
-    // 요청 payload 확인 로그
-    console.log({
+    // payload 구성
+    const payload = {
       name,
       username,
       password,
       email,
       provider,
       providerUserId,
-    });
+    };
+
+    console.log("📤 회원가입 payload:", payload);
 
     // OAuth2 회원가입 요청
-    oauth2SignupRequest({
-      name,
-      username,
-      password,
-      email,
-      provider,
-      providerUserId,
-    })
+    oauth2SignupRequest(payload)
       .then((response) => {
         if (response.data.status === "success") {
           alert(response.data.message);
@@ -98,7 +101,7 @@ function OAuth2Signup() {
         }
       })
       .catch((error) => {
-        console.error(error);
+        console.error("회원가입 오류:", error);
         alert("문제가 발생했습니다. 다시 시도해주세요.");
       });
   };

@@ -22,7 +22,6 @@ export default function OnlineShopping() {
   // ===== 부품 아이콘 =====
   const getIcon = (category) => {
     const cat = category?.toLowerCase() || "";
-
     if (cat.includes("cpu") || cat.includes("프로세서")) return <FiCpu />;
     if (cat.includes("메인보드")) return <BsFillMotherboardFill />;
     if (cat.includes("ram") || cat.includes("메모리") || cat.includes("램"))
@@ -49,8 +48,33 @@ export default function OnlineShopping() {
       return <FaKeyboard />;
     if (cat.includes("마우스") || cat.includes("mouse")) return <FaMouse />;
     if (cat.includes("운영체제")) return <AiFillWindows />;
+    return <FiClipboard />;
+  };
 
-    return <FiClipboard />; // 기본 아이콘
+  // ===== 마크다운 링크 추출 및 안전 링크 처리 =====
+  const parseLink = (rawLink, name) => {
+    if (!rawLink) {
+      // 링크 없으면 네이버 검색
+      return {
+        text: "네이버 링크",
+        url: `https://search.shopping.naver.com/search/all?query=${encodeURIComponent(
+          name
+        )}`,
+      };
+    }
+
+    const clean = rawLink.replace(/\\/g, "").trim();
+    const mdMatch = clean.match(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/);
+
+    if (mdMatch) {
+      return { text: mdMatch[1], url: mdMatch[2] };
+    }
+
+    // 일반 URL도 https 보장
+    return {
+      text: "링크",
+      url: clean.startsWith("http") ? clean : "https://" + clean,
+    };
   };
 
   // ===== 스크롤 시 나타나기 =====
@@ -63,12 +87,12 @@ export default function OnlineShopping() {
         const el = container.children[idx];
         if (!el) return false;
         const rect = el.getBoundingClientRect();
-        return rect.top < window.innerHeight - 50; // 화면 안으로 들어오면 true
+        return rect.top < window.innerHeight - 50;
       });
       setVisibleItems(newVisible);
     };
 
-    handleScroll(); // 초기 체크
+    handleScroll();
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [parts]);
@@ -79,40 +103,39 @@ export default function OnlineShopping() {
 
       {parts.length > 0 ? (
         <div css={s.scrollWrapper} ref={containerRef}>
-          {parts.map((p, idx) => (
-            <div
-              key={idx}
-              css={[
-                s.onlineItem,
-                visibleItems[idx] ? s.onlineItemVisible : null,
-              ]}
-            >
-              <div css={s.partInfo}>
-                <span css={s.partIcon}>{getIcon(p.category)}</span>
-                <span css={s.partName}>{`-${p.category}: ${p.name}`}</span>
-                {p.price && (
-                  <span css={s.partPrice}>
-                    {" "}
-                    - {Number(p.price).toLocaleString()}원
-                  </span>
-                )}
-              </div>
-              {p.link && (
+          {parts.map((p, idx) => {
+            const { text: linkText, url: linkUrl } = parseLink(p.link, p.name);
+
+            return (
+              <div
+                key={idx}
+                css={[
+                  s.onlineItem,
+                  visibleItems[idx] ? s.onlineItemVisible : null,
+                ]}
+              >
+                <div css={s.partInfo}>
+                  <span css={s.partIcon}>{getIcon(p.category)}</span>
+                  <span css={s.partName}>{`-${p.category}: ${p.name}`}</span>
+                  {p.price && (
+                    <span css={s.partPrice}>
+                      {" "}
+                      - {Number(p.price).toLocaleString()}원
+                    </span>
+                  )}
+                </div>
                 <a
                   css={s.partLink}
-                  href={
-                    p.link.startsWith("http") ? p.link : "https://" + p.link
-                  }
+                  href={linkUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  구매 링크
+                  {linkText}
                 </a>
-              )}
-            </div>
-          ))}
+              </div>
+            );
+          })}
 
-          {/* 총합 표시 */}
           <div css={s.totalPrice}>
             총 가격:{" "}
             {Number(

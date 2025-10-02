@@ -1,66 +1,70 @@
 import { instance } from "../utils/instance";
+import profileImageDefault from "../../assets/기본프로필.png"; // ✅ 기본 프로필 이미지 경로
 
-// 현재 로그인한 사용자의 정보를 요청하는 함수
+// 현재 로그인한 사용자의 정보 요청
 export const getPrincipalRequest = async () => {
-  // 요청을 보낼 때마다 실행되는 인터셉터 설정
-  instance.interceptors.request.use((config) => {
-    // localStorage에 저장된 accessToken을 가져옴
-    const accessToken = localStorage.getItem("accessToken");
-
-    // accessToken이 존재하면 요청 헤더에 Authorization 추가
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
-    return config; // 수정된 config 반환
-  });
-
   try {
-    // "/auth/principal" 엔드포인트로 GET 요청 → 로그인 사용자 정보 가져옴
     const response = await instance.get("/auth/principal");
-    return response; // 성공 시 응답 반환
+    return response;
   } catch (error) {
-    // 실패 시 error.response 반환 (백엔드에서 준 에러 응답)
     return error.response;
   }
 };
 
-// 회원가입 요청 함수 & 회원가입 시 아이디 중복확인
+// 회원가입 요청
 export const signupRequest = async (data) => {
   try {
-    // "/auth/signup" 엔드포인트로 POST 요청 (data: 회원가입 정보)
-    const response = await instance.post("/auth/signup", data);
-    return response;
+    return await instance.post("/auth/signup", data);
   } catch (error) {
     return error.response;
   }
 };
 
-// 로그인 요청 함수
+// 로그인 요청 (✅ 수정됨)
 export const signinRequest = async (data) => {
   try {
-    // "/auth/signin" 엔드포인트로 POST 요청 (data: 로그인 정보)
     const response = await instance.post("/auth/signin", data);
+
+    if (response.data?.status === "success") {
+      const token = response.data?.data?.token;
+      const user = response.data?.data?.user; // 서버에서 내려주는 유저 정보
+
+      // ✅ 토큰 저장
+      if (token) {
+        localStorage.setItem("accessToken", token);
+      }
+
+      // ✅ 프로필 이미지 저장
+      if (user?.profileImg) {
+        localStorage.setItem("userProfile", user.profileImg);
+      } else {
+        localStorage.setItem("userProfile", profileImageDefault);
+      }
+
+      // ✅ 이벤트 발행 → Header/Profile 즉시 반영
+      window.dispatchEvent(new Event("login"));
+      window.dispatchEvent(new Event("profileUpdate"));
+    }
+
     return response;
   } catch (error) {
     return error.response;
   }
 };
 
-// OAuth2 소셜 회원가입 요청
+// OAuth2 회원가입
 export const oauth2SignupRequest = async (data) => {
   try {
-    const response = await instance.post("/oauth2/signup", data);
-    return response;
+    return await instance.post("/oauth2/signup", data);
   } catch (error) {
     return error.response;
   }
 };
 
-// OAuth2 계정 연동(merge) 요청
+// OAuth2 계정 연동
 export const oauth2MergeRequest = async (data) => {
   try {
-    const response = await instance.post("/oauth2/merge", data);
-    return response;
+    return await instance.post("/oauth2/merge", data);
   } catch (error) {
     return error.response;
   }
@@ -69,10 +73,7 @@ export const oauth2MergeRequest = async (data) => {
 // 아이디 중복 확인
 export const checkUsernameRequest = async (username) => {
   try {
-    const response = await instance.get(
-      `/auth/check-username?username=${username}`
-    );
-    return response;
+    return await instance.get(`/auth/check-username?username=${username}`);
   } catch (error) {
     return error.response;
   }
@@ -81,23 +82,16 @@ export const checkUsernameRequest = async (username) => {
 // 이메일 중복 확인
 export const checkEmailRequest = async (email) => {
   try {
-    const response = await instance.get(`/auth/check-email?email=${email}`);
-    return response;
+    return await instance.get(`/auth/check-email?email=${email}`);
   } catch (error) {
     return error.response;
   }
 };
 
-//회원 탈퇴 요청
+// 회원 탈퇴
 export const withdrawUserRequest = async () => {
   try {
-    const accessToken = localStorage.getItem("accessToken");
-    const response = await instance.delete("/auth/withdraw", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    return response;
+    return await instance.delete("/auth/withdraw");
   } catch (error) {
     return error.response;
   }

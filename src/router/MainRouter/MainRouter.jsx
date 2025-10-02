@@ -11,6 +11,7 @@ import OfflineShopping from "../../pages/OfflineShopping/OfflineShopping";
 
 function MainRouter() {
   return (
+    
     <Routes>
       <Route
         path="*"
@@ -62,6 +63,8 @@ function MainRouter() {
           </Layout>
         }
       />
+
+      
 
       <Route
         path="/onlineshopping"
