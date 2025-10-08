@@ -30,8 +30,8 @@ export const profileImgBox = css`
   align-items: center;
 
   & > div {
-    width: 150px;
-    height: 150px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     border: 1px solid #dbdbdb;
     overflow: hidden;

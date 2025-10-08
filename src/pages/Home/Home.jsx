@@ -274,9 +274,34 @@ export default function Home() {
   };
 
   const handlePurchaseMethod = (method) => {
-    const parts = recommendedParts;
+    const partsWithLinks = recommendedParts.map((p) => {
+      // 1. 마크다운 링크 추출
+      let link = p.link || "";
+      let text = "링크";
+      if (link) {
+        const mdMatch = link.match(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/);
+        if (mdMatch) {
+          text = mdMatch[1];
+          link = mdMatch[2];
+        }
+      }
+
+      // 2. 안전한 링크 처리
+      if (link && !link.startsWith("http")) link = "https://" + link;
+      if (!link)
+        link = `https://search.shopping.naver.com/search/all?query=${encodeURIComponent(
+          p.name
+        )}`;
+
+      return {
+        ...p,
+        link,
+        linkText: text,
+      };
+    });
+
     navigate(method === "online" ? "/onlineshopping" : "/maps", {
-      state: { parts },
+      state: { parts: partsWithLinks },
     });
   };
 

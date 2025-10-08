@@ -32,7 +32,6 @@ function Setting() {
   return (
     <div css={s.container}>
       <div css={s.inner}>
-       
         <div css={s.main}>
           {/* 메뉴 */}
           <div css={s.menu}>
@@ -42,12 +41,12 @@ function Setting() {
             >
               비밀번호 변경
             </button>
-            <button
+            {/* <button
               className={activeTab === "ChangeProfileImage" ? "active" : ""}
               onClick={() => setActiveTab("ChangeProfileImage")}
             >
               프로필 이미지 변경
-            </button>
+            </button> */}
             <button
               className={activeTab === "DeleteAccount" ? "active" : ""}
               onClick={() => setActiveTab("DeleteAccount")}
