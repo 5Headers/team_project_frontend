@@ -19,7 +19,9 @@ export const logo = css`
   color: white;
   font-size: 4vh;
   margin: 0 0 20px 0;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6), 0 0 6px white, 0 0 12px #1f5fbf;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6),
+    0 0 6px white,
+    0 0 12px #1f5fbf;
   font-weight: 400;
 `;
 
@@ -66,89 +68,17 @@ export const userMessage = css`
   white-space: pre-wrap;
 `;
 
-const slideUp = keyframes`
-  0% { opacity: 0; transform: translateY(10px); }
-  100% { opacity: 1; transform: translateY(0); }
-`;
-
-// ===== GPT 메시지 박스 전체 =====
 export const gptMessage = css`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background: linear-gradient(135deg, #2b3a4d, #1f2b38);
-  color: #fff;
-  padding: 18px;
+  background-color: #2b3a4d;
+  color: white;
+  padding: 12px 16px;
   border-radius: 16px;
-  margin: 8px 0;
+  margin: 6px 0;
   max-width: 85%;
   align-self: flex-start;
   word-break: break-word;
   box-sizing: border-box;
   white-space: pre-wrap;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
-  border: 1px solid #3a8de6ff;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  animation: ${slideUp} 0.3s ease-out;
-
-  /* 카드 내부 정렬 */
-  .parts-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-`;
-
-// ===== 개별 부품 카드 =====
-export const partCard = css`
-  display: flex;
-  flex-direction: column;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1px solid #3a8de6ff;
-  background: linear-gradient(135deg, #1f2b38, #2b3a4d);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  gap: 6px;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
-  }
-
-  .part-name {
-    font-weight: 700;
-    font-size: 1rem;
-    color: #ffd166;
-    text-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
-  }
-
-  .part-price {
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: #06d6a0;
-  }
-
-  a {
-    font-size: 0.9rem;
-    color: #4fc3f7;
-    text-decoration: underline;
-    &:hover {
-      color: #82ccf7;
-    }
-  }
-`;
-
-
-// ===== 총 가격 강조 =====
-export const totalPrice = css`
-  margin-top: 12px;
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: #1e9ae2ff;
-  text-align: right;
-  padding-right: 6px;
 `;
 
 /* 클릭 가능한 하트 아이콘 (하단) */
@@ -161,7 +91,6 @@ export const heartIconBottom = css`
   transition: color 0.2s ease;
   pointer-events: auto; /* 클릭 가능 */
 `;
-
 
 export const modalBackdrop = css`
   position: fixed;
@@ -405,7 +334,8 @@ export const purposeOptionsMenu = css`
     &:hover {
       background-color: #121920ff;
       color: #b0e0ff;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6), 0 0 6px #3a8de6,
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6),
+        0 0 6px #3a8de6,
         0 0 12px #1f5fbf;
     }
   }
@@ -490,80 +420,5 @@ export const dontShowWrapper = css`
     font-size: 14px;
     color: white;
     user-select: none;
-  }
-`;
-
-// 버튼 그룹 (GPT 메시지 아래)
-export const buttonGroup = css`
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-`;
-
-// 버튼 공통 스타일
-export const chatButton = css`
-  padding: 6px 14px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-  background-color: #3a8de6ff;
-  color: white;
-  transition: background 0.2s ease;
-
-  &:hover {
-    background-color: #5c9eff;
-  }
-`;
-
-// 온라인 / 오프라인 선택 버튼
-export const methodButton = css`
-  padding: 6px 14px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-  background-color: #2b3a4d;
-  color: white;
-  transition: background 0.2s ease;
-
-  &:hover {
-    background-color: #3a4f6d;
-  }
-`;
-
-export const gptButtonGroup = css`
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-`;
-
-export const gptChatButton = css`
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-  background-color: #3a8de6ff;
-  color: white;
-  transition: background 0.2s ease;
-
-  &:hover {
-    background-color: #5c9eff;
-  }
-`;
-
-export const gptMethodButton = css`
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-  background-color: #3a8de6ff;
-  color: white;
-  transition: background 0.2s ease;
-
-  &:hover {
-    background-color: #5c9eff;
   }
 `;

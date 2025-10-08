@@ -87,18 +87,3 @@ export const checkEmailRequest = async (email) => {
     return error.response;
   }
 };
-
-//회원 탈퇴 요청
-export const withdrawUserRequest = async () => {
-  try {
-    const accessToken = localStorage.getItem("accessToken");
-    const response = await instance.delete("/auth/withdraw", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    return response;
-  } catch (error) {
-    return error.response;
-  }
-};

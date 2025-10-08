@@ -1,111 +1,84 @@
 /** @jsxImportSource @emotion/react */
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import * as s from "./styles";
 import { FaHeart } from "react-icons/fa";
 import { IoSearchCircleSharp } from "react-icons/io5";
-import * as s from "./styles";
 
 export default function Home() {
-  const navigate = useNavigate();
-  const token = localStorage.getItem("accessToken");
-  const chatBoxRef = useRef(null);
-
-  const createMessage = ({
-    sender,
-    text,
-    nextStep = null,
-    estimateId = null,
-    liked = false,
-  }) => ({
-    id: Date.now() + Math.random(),
-    sender,
-    text,
-    nextStep,
-    estimateId,
-    liked,
-  });
-
-  // ====== 상태 초기화 (로컬스토리지 우선) ======
-  const [messages, setMessages] = useState(() => {
-    const saved = localStorage.getItem("gptMessages");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return [];
-      }
-    }
-    return [];
-  });
-  const [recommendedParts, setRecommendedParts] = useState(() => {
-    const saved = localStorage.getItem("recommendedParts");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [showLogo, setShowLogo] = useState(true);
+  const [inputMoved, setInputMoved] = useState(false);
+  const [messages, setMessages] = useState([]);
   const [purpose, setPurpose] = useState("");
   const [customPurpose, setCustomPurpose] = useState("");
   const [isCustom, setIsCustom] = useState(false);
   const [budget, setBudget] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+
+  const chatBoxRef = useRef(null);
+  const [liked, setLiked] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [title, setTitle] = useState("제목 없음");
+  const [hearts, setHearts] = useState([]);
+  const heartIdRef = useRef(0);
+  const [titleError, setTitleError] = useState(false);
+
+  const token = localStorage.getItem("accessToken");
+
+  // === 독자적인 예산 동의 모달 상태 ===
   const [showBudgetConsent, setShowBudgetConsent] = useState(false);
   const [pendingBudget, setPendingBudget] = useState(0);
   const [pendingPurpose, setPendingPurpose] = useState("");
-  const [flyingHearts, setFlyingHearts] = useState([]);
-  const [hasThanked, setHasThanked] = useState(false);
 
-  // ====== 채팅 초기화 (화면만 초기화, 로컬스토리지 유지) ======
-  const resetChat = () => {
-    setMessages([]);
-    setRecommendedParts([]);
-    setPurpose("");
-    setCustomPurpose("");
-    setBudget("");
-    setIsCustom(false);
-    setPendingBudget(0);
-    setPendingPurpose("");
-    setHasThanked(false);
-    setShowBudgetConsent(false);
-    // localStorage는 지우지 않음 → 새로고침/뒤로가기 후 유지
+  const fetchGPT = async (purposeMessage, budgetValue) => {
+    try {
+      const response = await fetch("http://localhost:8080/chat/estimate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          purpose: purposeMessage,
+          cost: budgetValue,
+          instruction:
+            "추천 부품과 가격을 JSON 배열로 반환하세요. 예: { parts: [{name:'CPU', price:250000}, ...] }",
+        }),
+      });
+      if (!response.ok) throw new Error("서버 오류: " + response.status);
+      const data = await response.json();
+      return data.data || "응답이 없습니다.";
+    } catch (error) {
+      console.error(error);
+      return "서버 오류가 발생했습니다.";
+    }
   };
 
-  // ====== 새로운 견적 클릭 이벤트 수신 ======
-  useEffect(() => {
-    const handleNewChat = () => {
-      resetChat(); // Home 화면 상태 초기화
-    };
+  const handleSaveToDB = async (gptText) => {
+    try {
+      const rawBudget = Number(budget.replace(/,/g, "")) || 0;
+      const budgetInWon = rawBudget * 10000;
 
-    window.addEventListener("newChat", handleNewChat);
-
-    return () => {
-      window.removeEventListener("newChat", handleNewChat);
-    };
-  }, []);
-
-  // ====== 로컬 저장 ======
-  useEffect(() => {
-    localStorage.setItem("gptMessages", JSON.stringify(messages));
-  }, [messages]);
-
-  useEffect(() => {
-    localStorage.setItem("recommendedParts", JSON.stringify(recommendedParts));
-  }, [recommendedParts]);
-
-  // ====== Profile 삭제 북마크 동기화 ======
-  useEffect(() => {
-    const removed = JSON.parse(
-      localStorage.getItem("removedBookmarks") || "[]"
-    );
-    if (removed.length > 0) {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.estimateId && removed.includes(m.estimateId)
-            ? { ...m, liked: false }
-            : m
-        )
-      );
+      const resp = await fetch("http://localhost:8080/estimate/save-gpt", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          gptResponse: gptText,
+          title,
+          purpose: isCustom ? customPurpose : purpose,
+          budget: budgetInWon,
+          budgetUnit: "원",
+        }),
+      });
+      const data = await resp.json();
+      console.log("DB 저장 결과:", data);
+    } catch (err) {
+      console.error("DB 저장 실패", err);
     }
-  }, []);
+  };
 
-  // ====== 스크롤 ======
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTo({
@@ -115,110 +88,91 @@ export default function Home() {
     }
   }, [messages, isTyping]);
 
-  // ====== GPT 요청 ======
-  const fetchGPT = async (purposeValue, budgetValue) => {
-    try {
-      const response = await fetch("http://localhost:8080/estimate/gpt", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          purpose: purposeValue,
-          cost: budgetValue,
-          title: "제목 없음",
-        }),
-      });
-      if (!response.ok) throw new Error("서버 오류");
-      const result = await response.json();
-      return {
-        text: result.data?.data || "견적 결과를 불러오지 못했습니다.",
-        estimateId: result.data?.estimateId || null,
-        parts: result.data?.parts || [],
-      };
-    } catch (err) {
-      console.error(err);
-      return { text: "서버 오류가 발생했습니다." };
-    }
-  };
-
-  // ====== 메시지 전송 (새 GPT 질문 시 채팅 화면만 초기화) ======
   const sendMessage = async () => {
     const finalPurpose = isCustom ? customPurpose : purpose;
     if (!finalPurpose.trim()) return;
 
-    resetChat(); // 화면 초기화만
-
-    setHasThanked(false);
     const rawBudget = Number(budget.replace(/,/g, "")) || 0;
 
-    // 사용자 메시지 추가
-    setMessages([
-      createMessage({
-        sender: "user",
-        text: `목적: ${finalPurpose}, 예산: ${
-          budget ? `${budget}만원` : "미입력"
-        }`,
-      }),
-    ]);
+    const userMessage = {
+      sender: "user",
+      text: `목적: ${finalPurpose}, 예산: ${
+        budget ? `${budget}만원` : "미입력"
+      }`,
+    };
 
+    setMessages((prev) => [...prev, userMessage]);
     setPurpose("");
     setCustomPurpose("");
     setIsCustom(false);
+    setShowLogo(false);
+    setInputMoved(true);
 
-    // 예산 유효성 체크
-    if (rawBudget < 1 || rawBudget > 9999) {
+    // === 기존 터무니없는 예산 처리 코드 유지 ===
+    if (rawBudget < 1) {
       setMessages((prev) => [
         ...prev,
-        createMessage({ sender: "gpt", text: "😅 예산 단위를 확인해주세요!" }),
+        {
+          sender: "gpt",
+          text: "😅 예산의 단위가 이상해요! 1원 이상 입력해주세요!",
+        },
+      ]);
+      return;
+    } else if (rawBudget > 9999) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "gpt",
+          text: "😅 예산의 단위가 이상해요! 단위를 확인하고 다시 입력해주세요!.",
+        },
       ]);
       return;
     }
 
+    // === 추가: 독립적 예산 범위 확인 ===
     if (rawBudget < 40 || rawBudget > 300) {
+      // 40 ~ 300만원 밖이면 동의 모달 띄움
       setPendingBudget(rawBudget);
       setPendingPurpose(finalPurpose);
       setShowBudgetConsent(true);
       return;
     }
 
+    // === 정상 범위 ===
     setIsTyping(true);
-    const gptRes = await fetchGPT(finalPurpose, rawBudget * 10000);
+    const budgetInWon = rawBudget * 10000;
+    const gptResponse = await fetchGPT(userMessage.text, budgetInWon);
     setIsTyping(false);
 
-    setRecommendedParts(gptRes.parts);
-    setMessages((prev) => [
-      ...prev,
-      createMessage({
-        sender: "gpt",
-        text: `${gptRes.text}\n구매를 추천할 수 있습니다. 구매하시겠습니까?`,
-        nextStep: "askPurchase",
-        estimateId: gptRes.estimateId,
-        liked: false,
-      }),
-    ]);
+    setMessages((prev) => [...prev, { sender: "gpt", text: gptResponse }]);
+    await handleSaveToDB(gptResponse);
   };
 
-  const handleEnter = (e) => e.key === "Enter" && sendMessage();
+  const handleEnter = (e) => {
+    if (e.key === "Enter") sendMessage();
+  };
 
-  // ====== 이하 예산 동의, 구매, 하트 기능은 기존과 동일 ======
+  // === 예산 동의 모달 확인 / 취소 ===
   const handleBudgetConsentConfirm = async () => {
     setShowBudgetConsent(false);
     if (!pendingPurpose) return;
+
+    const userMessage = {
+      sender: "user",
+      text: `목적: ${pendingPurpose}, 예산: ${pendingBudget}만원`,
+    };
+    setMessages((prev) => [...prev, userMessage]);
+
     setIsTyping(true);
-    const gptRes = await fetchGPT(pendingPurpose, pendingBudget * 10000);
+    const gptResponse = await fetchGPT(
+      userMessage.text,
+      pendingBudget * 10000
+    );
     setIsTyping(false);
-    setRecommendedParts(gptRes.parts);
-    setMessages([
-      createMessage({
-        sender: "gpt",
-        text: `${gptRes.text}\n구매를 추천할 수 있습니다. 구매하시겠습니까?`,
-        nextStep: "askPurchase",
-        estimateId: gptRes.estimateId,
-        liked: false,
-      }),
-    ]);
+
+    setMessages((prev) => [...prev, { sender: "gpt", text: gptResponse }]);
+    await handleSaveToDB(gptResponse);
+
     setPendingBudget(0);
     setPendingPurpose("");
   };
@@ -227,113 +181,69 @@ export default function Home() {
     setShowBudgetConsent(false);
     setPendingBudget(0);
     setPendingPurpose("");
-    setMessages([
-      createMessage({ sender: "gpt", text: "❌ 추천이 취소되었습니다." }),
+    setMessages((prev) => [
+      ...prev,
+      { sender: "gpt", text: "❌ 추천이 취소되었습니다." },
     ]);
   };
 
-  const handlePurchaseYes = (messageId) => {
-    setMessages((prev) => {
-      const newMessages = prev.map((m) =>
-        m.id === messageId ? { ...m, nextStep: null } : m
-      );
-      newMessages.push(
-        createMessage({
-          sender: "gpt",
-          text: "온라인으로 구매하시겠습니까? 오프라인으로 구매하시겠습니까?",
-          nextStep: "askMethod",
-        })
-      );
-      if (!hasThanked)
-        newMessages.push(
-          createMessage({
-            sender: "gpt",
-            text: "NuroPC를 이용해주셔서 감사합니다.",
-          })
-        );
-      return newMessages;
-    });
-    setHasThanked(true);
-  };
+  // === 이하 기존 하트 / 저장 모달 유지 ===
+  const handleHeartClick = (e) => {
+    setLiked(true);
+    setShowModal(true);
 
-  const handlePurchaseNo = (messageId) => {
-    setMessages((prev) => {
-      const newMessages = prev.map((m) =>
-        m.id === messageId ? { ...m, nextStep: null } : m
-      );
-      if (!hasThanked)
-        newMessages.push(
-          createMessage({
-            sender: "gpt",
-            text: "NuroPC를 이용해주셔서 감사합니다.",
-          })
-        );
-      return newMessages;
-    });
-    setHasThanked(true);
-  };
+    const rect = e.currentTarget.getBoundingClientRect();
+    const startX = rect.left + rect.width / 2;
+    const startY = rect.top;
 
-  const handlePurchaseMethod = (method) => {
-    const parts = recommendedParts;
-    navigate(method === "online" ? "/onlineshopping" : "/maps", {
-      state: { parts },
-    });
-  };
+    for (let i = 0; i < 3; i++) {
+      const id = heartIdRef.current++;
+      const size = 14 + Math.round(Math.random() * 6);
+      const dx = Math.round(Math.random() * 40 - 20);
 
-  const handleHeartClick = async (messageId, e) => {
-    e.stopPropagation();
-    const clicked = messages.find((m) => m.id === messageId);
-    if (!clicked?.estimateId) return;
-    const willLike = !clicked.liked;
-    setMessages((prev) =>
-      prev.map((m) => (m.id === messageId ? { ...m, liked: willLike } : m))
-    );
-    try {
-      await fetch(
-        `http://localhost:8080/bookmark/toggle/${clicked.estimateId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-    } catch (err) {
-      console.error("북마크 오류:", err);
-    }
+      setHearts((prev) => [
+        ...prev,
+        { id, x: startX, y: startY, delay: i * 200, size, dx },
+      ]);
 
-    if (willLike) {
-      const removed = JSON.parse(
-        localStorage.getItem("removedBookmarks") || "[]"
-      );
-      localStorage.setItem(
-        "removedBookmarks",
-        JSON.stringify(removed.filter((id) => id !== clicked.estimateId))
-      );
-      const newHeart = {
-        id: Date.now() + Math.random(),
-        x: e.clientX,
-        y: e.clientY,
-        size: 24 + Math.random() * 12,
-        dx: (Math.random() - 0.5) * 50,
-      };
-      setFlyingHearts((prev) => [...prev, newHeart]);
-      setTimeout(
-        () =>
-          setFlyingHearts((prev) => prev.filter((h) => h.id !== newHeart.id)),
-        1600
-      );
+      setTimeout(() => {
+        setHearts((prev) => prev.filter((h) => h.id !== id));
+      }, 1600 + i * 200);
     }
   };
 
-  // ====== 렌더 ======
+  const handleIconClick = sendMessage;
+
+  const handleModalConfirm = async () => {
+    if (title.trim() === "") {
+      setTitleError(true);
+      return;
+    }
+    const lastGPTMessage = messages
+      .slice()
+      .reverse()
+      .find((msg) => msg.sender === "gpt");
+    if (lastGPTMessage) await handleSaveToDB(lastGPTMessage.text);
+    setShowModal(false);
+    setLiked(false);
+    setTitle("제목 없음");
+    setTitleError(false);
+  };
+
+  const handleModalCancel = () => {
+    setShowModal(false);
+    setLiked(false);
+    setTitle("제목 없음");
+    setTitleError(false);
+  };
+
   return (
     <div css={s.container}>
-      <h2 css={s.logo}>NuroPC</h2>
-      {/* 입력 영역 */}
+      {showLogo && <h2 css={s.logo}>NuroPC</h2>}
+
       <div css={s.splitInputWrapper}>
-        <IoSearchCircleSharp onClick={sendMessage} />
+        <IoSearchCircleSharp onClick={handleIconClick} />
+
         {!isCustom ? (
           <select
             css={s.splitInput}
@@ -374,14 +284,15 @@ export default function Home() {
             </span>
           </div>
         )}
+
         <div css={s.budgetWrapper}>
           <input
             type="text"
             placeholder="예산 입력 (단위: 만원)"
             value={budget.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
             onChange={(e) => {
-              const raw = e.target.value.replace(/,/g, "");
-              if (/^\d*$/.test(raw)) setBudget(raw);
+              const rawValue = e.target.value.replace(/,/g, "");
+              if (/^\d*$/.test(rawValue)) setBudget(rawValue);
             }}
             onKeyDown={handleEnter}
             css={s.budgetInput}
@@ -389,64 +300,21 @@ export default function Home() {
           <span style={{ marginLeft: "8px", color: "#aaa" }}>만원</span>
         </div>
       </div>
-      {/* 채팅 영역 */}
+
       <div css={s.chatBoxWrapper}>
         <div css={s.chatBox} ref={chatBoxRef}>
-          {messages.map((msg) => (
-            <div key={msg.id}>
-              {msg.sender === "user" ? (
-                <div css={s.userMessage}>{msg.text}</div>
-              ) : (
-                <div css={s.gptMessage}>
-                  {msg.text.split("\n").map((line, i) => (
-                    <div key={i}>{line}</div>
-                  ))}
-                  {msg.estimateId && (
-                    <FaHeart
-                      css={s.heartIconBottom}
-                      color={msg.liked ? "red" : "lightgray"}
-                      onClick={(e) => handleHeartClick(msg.id, e)}
-                    />
-                  )}
-                </div>
-              )}
-              {msg.nextStep === "askPurchase" && (
-                <div css={s.gptButtonGroup}>
-                  <button
-                    css={s.gptChatButton}
-                    onClick={() => handlePurchaseYes(msg.id)}
-                  >
-                    예
-                  </button>
-                  <button
-                    css={s.gptChatButton}
-                    onClick={() => handlePurchaseNo(msg.id)}
-                  >
-                    아니요
-                  </button>
-                </div>
-              )}
-              {msg.nextStep === "askMethod" && (
-                <div css={s.gptButtonGroup}>
-                  <button
-                    css={s.gptMethodButton}
-                    onClick={() => handlePurchaseMethod("online")}
-                  >
-                    온라인
-                  </button>
-                  <button
-                    css={s.gptMethodButton}
-                    onClick={() => handlePurchaseMethod("offline")}
-                  >
-                    오프라인
-                  </button>
-                </div>
-              )}
+          {messages.map((msg, idx) => (
+            <div
+              key={idx}
+              css={msg.sender === "user" ? s.userMessage : s.gptMessage}
+            >
+              {msg.text}
             </div>
           ))}
+
           {isTyping && (
             <div css={s.gptMessage}>
-              NuroPc가 알아보는 중
+              GPT가 입력 중
               <span css={s.jumpingDots}>
                 <span>.</span>
                 <span>.</span>
@@ -455,27 +323,76 @@ export default function Home() {
             </div>
           )}
         </div>
+
+        {inputMoved && (
+          <div css={s.heartWrapper}>
+            <FaHeart
+              css={s.heartIconBottom}
+              onClick={handleHeartClick}
+              color={liked ? "red" : "lightgray"}
+            />
+            {hearts.map((h) => (
+              <FaHeart
+                key={h.id}
+                css={s.flyingHeart}
+                style={{
+                  "--size": `${h.size}px`,
+                  "--dx": `${h.dx}px`,
+                  "--x": `${h.x}px`,
+                  "--y": `${h.y}px`,
+                  animationDelay: `${h.delay}ms`,
+                }}
+              />
+            ))}
+          </div>
+        )}
       </div>
-      {/* 하트 애니메이션 */}
-      {flyingHearts.map((h) => (
-        <div
-          key={h.id}
-          css={s.flyingHeart}
-          style={{
-            "--x": `${h.x}px`,
-            "--y": `${h.y}px`,
-            "--size": `${h.size}px`,
-            "--dx": `${h.dx}px`,
-          }}
-        >
-          ❤️
+
+      {/* 일반 찜 모달 */}
+      {showModal && (
+        <div css={s.modalBackdrop}>
+          <div css={s.modalContent}>
+            <h3>추천을 찜 목록에 저장</h3>
+            <input
+              placeholder="제목 없음"
+              type="text"
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                if (titleError && e.target.value.trim() !== "")
+                  setTitleError(false);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleModalConfirm();
+              }}
+            />
+            {titleError && (
+              <p
+                style={{
+                  color: "red",
+                  fontSize: "0.9rem",
+                  marginTop: "4px",
+                  fontWeight: "bold",
+                  textShadow: "1px 1px 2px rgba(0,0,0,0.3)",
+                  animation: "shake 0.3s ease-in-out",
+                }}
+              >
+                ⚠️ 제목을 입력해주세요
+              </p>
+            )}
+            <div css={s.modalButtons}>
+              <button onClick={handleModalConfirm}>확인</button>
+              <button onClick={handleModalCancel}>취소</button>
+            </div>
+          </div>
         </div>
-      ))}
-      {/* 예산 모달 */}
+      )}
+
+      {/* 독자적 예산 범위 동의 모달 */}
       {showBudgetConsent && (
         <div css={s.modalBackdrop}>
           <div css={s.modalContent}>
-            <h3>⚠️ 추천 범위를 벗어난 금액입니다.</h3>
+            <h3>⚠️ 이 값은 추천 범위를 벗어났습니다.</h3>
             <p>그래도 진행하시겠습니까?</p>
             <div css={s.modalButtons}>
               <button onClick={handleBudgetConsentConfirm}>동의</button>

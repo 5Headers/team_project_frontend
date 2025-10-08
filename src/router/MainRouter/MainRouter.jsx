@@ -1,4 +1,3 @@
-import Layout from "../../components/layout/layout";
 import Home from "../../pages/Home/Home";
 import PickList from "../../pages/PickList/PickList";
 import Setting from "../../pages/Setting/Setting";
@@ -6,8 +5,7 @@ import { Route, Routes } from "react-router-dom";
 import AuthRouter from "../AuthRouter/AuthRouter";
 import Maps from "../../pages/googlemap/Maps";
 import Main from "../../pages/Main/Main";
-import OnlineShopping from "../../pages/OnlineShopping/OnlineShopping";
-import OfflineShopping from "../../pages/OfflineShopping/OfflineShopping";
+import Layout from "../../components/layout/Layout";
 
 function MainRouter() {
   return (
@@ -44,9 +42,7 @@ function MainRouter() {
         path="/picklist"
         element={
           <Layout>
-            <div style={{ minHeight: "100vh", backgroundColor: "white" }}>
-              <PickList />
-            </div>
+            <PickList />
           </Layout>
         }
       />
@@ -62,23 +58,14 @@ function MainRouter() {
           </Layout>
         }
       />
-
       <Route
-        path="/onlineshopping"
+        path="/setting"
         element={
           <Layout>
-            <OnlineShopping />
+            <Setting />
           </Layout>
         }
-      />
-      <Route
-        path="/maps"
-        element={
-          <Layout>
-            <Maps />
-          </Layout>
-        }
-      />
+      ></Route>
     </Routes>
   );
 }

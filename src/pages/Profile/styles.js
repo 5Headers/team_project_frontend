@@ -42,8 +42,7 @@ export const profileImgBox = css`
     & > img {
       width: 100%;
       height: 100%;
-      border-radius: 50%;
-      object-fit: cover;
+      object-fit: cover; /* 이미지 비율 유지하며 꽉 채우기 */
     }
   }
 `;
@@ -57,173 +56,74 @@ export const profileInfoBox = css`
 
   & > h3 {
     font-size: 24px;
-    margin-bottom: 5px;
   }
 
-  & > p {
-    margin-bottom: 10px;
-  }
+  & > div {
+    display: flex;
+    align-items: center;
+    gap: 15px;
 
-  & > button {
-    border: none;
-    padding: 6px 12px;
-    font-size: 14px;
-    font-weight: 600;
-    border-radius: 4px;
-    background-color: #333;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    margin-right: 10px;
+    & > p {
+      margin: 0;
+    }
 
-    &:hover {
-      background-color: black;
+    & > button {
+      border: none;
+      padding: 3px 5px;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 4px;
+      background-color: #0d6efd;
+      color: white;
+      cursor: pointer;
     }
   }
 `;
 
-/* ===== 견적 리스트 ===== */
-export const estimateContainer = css`
-  margin-top: 15px;
-`;
-
-export const estimateTitle = css`
-  text-align: center;
-  margin-bottom: 10px;
-`;
-
-export const estimateBox = css`
-  display: flex;
-  flex-direction: column;
+export const profileBox = css`
   width: 100%;
-  height: 350px;
-  gap: 12px; /* 카드 사이 간격 */
-  border: 1px solid #333; /* 테두리 */
-  border-radius: 5px; /* 모서리 둥글게 */
-  padding: 12px; /* 내부 여백 */
+  height: 500px;
+  border: 1px solid #dbdbdb;
   box-sizing: border-box;
-  background-color: #fff; /* 배경색 */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* 살짝 그림자 */
-
-  overflow-y: auto; /* 세로 스크롤 */
-  scrollbar-width: thin; /* 파이어폭스 스크롤 얇게 */
-  scrollbar-color: rgba(0, 0, 0, 0.3) rgba(255, 255, 255, 0.8); /* 스크롤 색 */
 `;
 
-/* 크롬/사파리/엣지 커스텀 스크롤 */
-export const estimateBoxScrollbar = css`
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
+export const profileTab = (tabChild) => css`
+  width: 100%;
+  height: 40px;
+  border-bottom: 1px solid #dbdbdb;
+  box-sizing: border-box;
 
-  &::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 6px;
-  }
+  & > ul {
+    display: flex;
 
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 6px;
-  }
-`;
+    & > li {
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 14px;
+      padding: 0 14px;
+      border-right: 1px solid #dbdbdb;
+      box-sizing: border-box;
+      color: #333;
+      cursor: pointer;
 
-/* 각 견적 카드 스타일 */
-export const estimateList = css`
-  border: 1px solid #333;
-  border-radius: 6px;
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: background-color 0.3s, box-shadow 0.3s;
+      &:nth-of-type(${tabChild}) {
+        border-bottom: 1px solid white;
+      }
 
-  &:hover {
-    background-color: #f2f2f2;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    cursor: pointer;
+      &:hover {
+        background-color: #f2f2f2;
+        font-weight: 600;
+      }
+    }
   }
 `;
 
-export const itemNumber = css`
-  width: 30px;
-  flex-shrink: 0;
-`;
-
-export const itemDetails = css`
-  display: flex;
-  justify-content: space-between; /* 좌측: 목적+가격, 우측: 생성날짜 */
-  align-items: center;
-  flex: 1;
-  padding: 0 10px; /* 내부 좌우 여백 */
-`;
-
-export const leftSide = css`
-  display: flex;
-  gap: 50px; /* 목적과 가격 간격 */
-  font-weight: bold;
-`;
-
-export const createdAt = css`
-  color: #666;
-  font-weight: bold;
-  margin-left: 20px;
-`;
-
-export const deleteBtn = css`
-  background-color: transparent;
-  color: #333;
-  border: none;
-  padding: 5px;
-  cursor: pointer;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-export const pagenateContainer = css`
-  margin-top: 30px;
+export const profileMain = css`
+  width: 100%;
+  height: 460px;
   display: flex;
   justify-content: center;
-  gap: 40px;
-
-  a,
-  button {
-    text-decoration: none;
-    font-size: 14px;
-    color: #333;
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 4px 8px;
-  }
-`;
-
-export const activePage = css`
-  color: #0d6efd;
-  font-weight: 600;
-`;
-export const offlineBtn = css`
-  padding: 6px 12px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-  background-color: #f5f5f5;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-
-  &:hover {
-    background-color: #e0e0e0;
-    border-color: #bbb;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-  }
-
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  }
+  align-items: center;
 `;

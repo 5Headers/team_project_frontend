@@ -1,11 +1,10 @@
 /** @jsxImportSource @emotion/react */
 import { useState, useEffect } from "react";
-import defaultProfile from "../../assets/기본프로필.png";
 import { useNavigate } from "react-router-dom";
 import { FiMenu } from "react-icons/fi";
 import { GoTriangleLeft } from "react-icons/go";
 import { DiAptana } from "react-icons/di";
-import { IoHome } from "react-icons/io5";
+import profileImage from "../../assets/기본프로필.png";
 import * as s from "./styles";
 
 function Header() {
@@ -16,28 +15,26 @@ function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!localStorage.getItem("accessToken")
   );
-  const [profileImage, setProfileImage] = useState(
-    localStorage.getItem("userProfile") || defaultProfile
-  );
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleAuthChange = () => {
+    const handleLogin = () => setIsLoggedIn(true);
+    const handleStorage = () =>
       setIsLoggedIn(!!localStorage.getItem("accessToken"));
-      setProfileImage(localStorage.getItem("userProfile") || defaultProfile);
-    };
 
-    window.addEventListener("login", handleAuthChange);
-    window.addEventListener("logout", handleAuthChange);
+    window.addEventListener("login", handleLogin);
+    window.addEventListener("storage", handleStorage);
 
     return () => {
-      window.removeEventListener("login", handleAuthChange);
-      window.removeEventListener("logout", handleAuthChange);
+      window.removeEventListener("login", handleLogin);
+      window.removeEventListener("storage", handleStorage);
     };
   }, []);
 
-  const handleGoSetting = () => navigate("/setting");
+  const handleGoSetting = () => {
+    navigate("/setting");
+  };
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -62,6 +59,7 @@ function Header() {
 
   const handleSidebarItemClick = (index) => {
     setIsSidebarOpen(false);
+
     if (index === 0) {
       setActiveSidebarItem(0);
       navigate("/search");
@@ -69,26 +67,29 @@ function Header() {
       setActiveSidebarItem(2);
       navigate("/picklist");
     } else if (index === 3) {
-      localStorage.removeItem("chatMessages");
-      window.dispatchEvent(new Event("newChat"));
-      setActiveSidebarItem(0);
+      // 새로운 대화 클릭
+      setActiveSidebarItem(0); // 장비 추천 hover 고정
       navigate("/search");
+      setTimeout(() => window.location.reload(), 100);
     }
   };
 
   const SigninClick = () => navigate("/auth/signin");
-  const SignupClick = () => navigate("/auth/signup");
-  const ProfileClick = () => navigate("/auth/profile");
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("userProfile");
     setIsLoggedIn(false);
-    setProfileImage(defaultProfile);
     setIsMenuOpen(false);
     setIsRotated(false);
-    window.dispatchEvent(new Event("logout"));
     navigate("/");
+  };
+
+  const SignupClick = () => {
+    navigate("/auth/signup");
+  };
+
+  const ProfileClick = () => {
+    navigate("/auth/profile");
   };
 
   return (
@@ -122,24 +123,20 @@ function Header() {
                 <img src={profileImage} alt="프로필" />
               </li>
             )}
-            {isLoggedIn && (
-              <li>
-                <DiAptana css={s.headerIcon(isRotated)} onClick={toggleMenu} />
-              </li>
-            )}
+            <li>
+              <DiAptana css={s.headerIcon(isRotated)} onClick={toggleMenu} />
+            </li>
           </ul>
         </div>
       </div>
 
-      {isLoggedIn && (
-        <div css={s.headerSlidingMenu(isMenuOpen)}>
-          <ul>
-            <li onClick={ProfileClick}>프로필</li>
-            <li onClick={handleGoSetting}>설정</li>
-            <li onClick={handleLogout}>로그아웃</li>
-          </ul>
-        </div>
-      )}
+      <div css={s.headerSlidingMenu(isMenuOpen)}>
+        <ul>
+          {isLoggedIn && <li onClick={ProfileClick}>프로필</li>}
+          <li onClick={handleGoSetting}>설정</li>
+          {isLoggedIn && <li onClick={handleLogout}>로그아웃</li>}
+        </ul>
+      </div>
 
       {isSidebarOpen && (
         <div css={s.overlay(isSidebarOpen)} onClick={toggleSidebar} />
@@ -149,7 +146,6 @@ function Header() {
         <div css={s.sidebarToggle(isSidebarOpen)} onClick={toggleSidebar}>
           <GoTriangleLeft />
         </div>
-
         <ul css={s.Menusidebar}>
           <li
             onClick={() => handleSidebarItemClick(0)}
@@ -161,22 +157,16 @@ function Header() {
             onClick={() => handleSidebarItemClick(2)}
             css={s.sidebarItem(2 === activeSidebarItem)}
           >
-            견적 기록
+            찜 목록
           </li>
           <li
             onClick={() => handleSidebarItemClick(3)}
-            css={s.sidebarItem(false)}
+            css={s.sidebarItem(false)} // ✅ hover/active 고정 X
           >
-            새로운 견적
+            새로운 대화
           </li>
         </ul>
       </div>
-
-      {isLoggedIn && !isSidebarOpen && (
-        <div css={s.homeIconNextToSidebar} onClick={() => navigate("/")}>
-          <IoHome />
-        </div>
-      )}
     </div>
   );
 }
