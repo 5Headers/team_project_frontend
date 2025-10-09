@@ -41,3 +41,66 @@ Runs ESLint to detect and fix code style or quality issues.
 ---
 
 ## 🧱 Folder Structure
+
+team_project_frontend/
+├── public/ # Static assets
+├── src/
+│ ├── components/ # Reusable UI components
+│ ├── pages/ # Page-level React components (Home, Profile, etc.)
+│ ├── styles/ # Emotion / Styled-components CSS
+│ ├── api/ # Axios API calls and GPT request logic
+│ ├── hooks/ # Custom React hooks
+│ ├── assets/ # Images, icons
+│ └── main.jsx # Entry point
+└── package.json
+
+
+
+## 🧩 Main Libraries
+
+- **React 18** — UI Framework  
+- **Vite** — Lightning-fast bundler & dev server  
+- **@emotion/react** / **styled-components** — Component-level styling  
+- **react-router-dom** — Routing  
+- **react-icons** — Icons  
+- **Axios** — API communication with backend (Spring Boot + GPT Server)
+
+---
+
+## 🧠 Key Features
+
+- 🔍 **GPT 기반 견적 생성** — 사용자의 요구사항을 분석해 맞춤형 컴퓨터 견적을 자동 생성  
+- ❤️ **즐겨찾기(북마크)** — 선호 견적을 저장 및 관리  
+- 💬 **대화형 인터페이스** — GPT와의 대화로 컴퓨터 부품 추천 및 수정 가능  
+- 👤 **회원별 프로필 페이지** — 로그인 후 나만의 견적 관리  
+- 🔄 **온/오프라인 구매 페이지** — API 응답을 통한 온/오프라인 구매 페이지 이동
+
+---
+
+## 🧑‍💻 Development Environment
+
+| Tool | Version |
+|------|----------|
+| Node.js | 18+ |
+| npm | 9+ |
+| React | 18+ |
+| Vite | 5+ |
+| ESLint | Configured with React plugin |
+
+---
+
+## 🧭 Run Instructions (Step-by-Step)
+
+```bash
+# 1. Clone repository
+git clone https://github.com/5Headers/team_project_frontend.git
+cd team_project_frontend
+
+# 2. Install dependencies
+npm install
+
+# 3. Start local development server
+npm run dev
+
+# 4. (Optional) Build for production
+npm run build
