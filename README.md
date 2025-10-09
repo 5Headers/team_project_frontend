@@ -1,12 +1,43 @@
-# React + Vite
+# 💻 5Headers Frontend — GPT 기반 맞춤형 컴퓨터 견적 서비스
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project was built with [Vite + React](https://vitejs.dev/).  
+It serves as the **frontend** of the “GPT 기반 맞춤형 컴퓨터 견적 웹서비스” by Team **5Headers**.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Getting Started
 
-## Expanding the ESLint configuration
+In the project directory, you can run:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### `npm run dev`
+
+Runs the app in development mode with **Vite’s Hot Module Replacement (HMR)**.  
+Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
+
+The page will reload automatically when you make changes,  
+and lint errors will be shown in the terminal or console.
+
+---
+
+### `npm run build`
+
+Builds the app for production into the `dist` folder.  
+It optimizes React for the best performance and minifies files for faster load times.  
+Your app is ready to be deployed!
+
+---
+
+### `npm run preview`
+
+Previews the production build locally.  
+Useful for verifying deployment before pushing to a live environment.
+
+---
+
+### `npm run lint`
+
+Runs ESLint to detect and fix code style or quality issues.
+
+---
+
+## 🧱 Folder Structure
