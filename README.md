@@ -155,12 +155,15 @@ https://github.com/user-attachments/assets/926573ea-0998-46cb-9382-8e89e0389f6a
 https://github.com/user-attachments/assets/b1765046-840f-4223-b2d9-452d1eb3139c
 
 
+
 ### 견적 기록보기
 마이페이지 요청 시 서버는 사용자 ID 기준으로 저장된 견적 내역을 조회합니다.
 각 기록은 날짜, 요약 정보, 세부 부품 및 가격 데이터를 포함하여 JSON 형태로 반환됩니다.
 프론트엔드에서 이 데이터를 활용해 견적 기록을 정렬, 비교, 확인할 수 있습니다.
 
-https://github.com/user-attachments/assets/a76debbb-0637-4d65-8a99-59eb19b7363e
+https://github.com/user-attachments/assets/70ea6c90-e43f-4c69-8588-54d1bbd02f96
+
+
 
 
 ### 프로필 사진 변경하기
