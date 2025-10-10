@@ -112,7 +112,7 @@ npm run build
 ## 기능 세부 설명 (동영상 첨부)
 
 ### 사용자 인증 화면에서 회원가입하여 계정을 연동하기
-Spring Security와 JWT를 활용해 회원가입 및 로그인 기능을 구현했습니다.
+Spring Security를 기반으로 한 회원가입 및 로그인 기능을 구현했습니다.
 사용자의 계정 정보는 MySQL DB에 안전하게 저장되며, 비밀번호는 BCrypt로 암호화됩니다.
 로그인 상태를 기반으로 개인화된 기능 접근을 제어합니다.
 
@@ -185,14 +185,12 @@ https://github.com/user-attachments/assets/c0869e9f-f5e6-4789-8601-42b229bbcb1a
 ### 비밀번호 변경하기
 사용자는 기존 비밀번호 검증 후 새로운 비밀번호로 갱신할 수 있습니다.
 비밀번호는 BCrypt로 암호화되어 DB에 저장되며, 변경 시 유효성 검증 로직이 적용됩니다.
-변경 완료 후 기존 JWT 토큰은 무효화되어 보안이 유지됩니다.
 
 https://github.com/user-attachments/assets/c2608b90-5da5-42d1-8ecf-a14f792a8fb5
 
 
 ### 회원탈퇴
 사용자가 회원탈퇴를 요청하면 계정과 관련 데이터가 DB에서 즉시 삭제됩니다.
-JWT 인증 토큰이 함께 무효화되어 재로그인이 불가능합니다.
 별도의 보류 기간 없이 실시간으로 데이터가 제거되도록 처리되었습니다.
 
 https://github.com/user-attachments/assets/bcebc8d4-81ef-4ea6-89fe-47cc012c4171
