@@ -132,7 +132,9 @@ https://github.com/user-attachments/assets/b453f5ad-62c0-428a-aef8-89866feac506
 API 호출 결과는 서버에서 가공 후 프론트엔드에 전달되어 사용자에게 표시됩니다.
 사용자는 바로 온라인 구매 가능한 부품과 가격 정보를 확인할 수 있습니다.
 
-https://github.com/user-attachments/assets/5a560f58-088f-48f8-be47-bde2b5a3d68c
+https://github.com/user-attachments/assets/1c2ad3ea-c04c-4b7d-a9c3-633e3331970f
+
+
 
 
 ### 오프라인 구매를 하는 경우
@@ -140,7 +142,9 @@ GPS와 지도 API를 활용하여 주변 오프라인 매장 정보를 조회합
 매장별 가격, 재고 상태, 위치 데이터를 서버에서 가공 후 프론트엔드에 전달합니다.
 사용자는 근처 매장 기준으로 최적의 구매 경로와 가격을 확인할 수 있습니다.
 
-https://github.com/user-attachments/assets/59517769-cbca-4fe8-937b-3a70236af36d
+https://github.com/user-attachments/assets/926573ea-0998-46cb-9382-8e89e0389f6a
+
+
 
 
 ### 견적을 북마크하여 마이페이지에 저장하기
